@@ -1,5 +1,7 @@
+# Production requirements
 Django>=4.2
 python-dotenv
 psycopg2-binary
 django-cors-headers
+gunicorn
 whitenoise
