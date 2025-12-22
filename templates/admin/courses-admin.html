@@ -1,0 +1,964 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Courses (Admin) | OncoOne Aesthetic School</title>
+
+  <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+
+  <!-- Bootstrap CSS (for modal & grid) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="{% static 'assets/css/lineicons.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/tiny-slider.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/glightbox.min.css' %}" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    /* Keep your original theme mostly unchanged */
+    :root { --primary: #1a4272; }
+    body { background-color: #ffffff; color: var(--primary); font-family: 'Poppins', sans-serif; overflow-x: hidden !important; padding-bottom:60px; }
+    .section-title { margin-top: 50px; margin-bottom: 25px; font-weight: 700; font-size: 2.1rem; color: var(--primary); letter-spacing: -0.5px; }
+    .card { border: none; border-radius: 16px; padding: 20px; background: #ffffff; box-shadow: 0 10px 25px rgba(26,66,114,0.10); transition: all 0.25s ease; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(26,66,114,0.14); }
+    .btn-primary { background-color: var(--primary) !important; border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; transition: 0.25s ease; }
+    .btn-outline-primary { border-color: var(--primary); color: var(--primary); padding: 10px 24px; border-radius: 10px; font-weight: 600; transition: 0.25s ease; }
+    .muted { color: #5a6b84; line-height: 1.65; }
+    footer { background-color: var(--primary); color: white; padding: 45px 0; font-size: 16px; }
+    footer p { color: #e8eef8; margin-bottom: 0; }
+    .admin-toolbar { position: fixed; right: 18px; top: 80px; z-index: 2000; }
+    .admin-badge { display:inline-flex; gap:8px; align-items:center; background:#fff; padding:8px 12px; border-radius:12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    .section-admin-controls { margin-top:10px; display:flex; gap:8px; justify-content:flex-end; }
+    .editable-highlight { outline: 2px dashed rgba(26,66,114,0.08); padding:6px; border-radius:10px; }
+    .small-note { color:#6c7a8a; }
+    .img-preview { max-width:100%; height:auto; border-radius:8px; object-fit:cover; }
+    .admin-hidden { display:none !important; }
+    /* keep responsive image height similar to original */
+    .hero-img { width:100%; height:280px; object-fit:cover; border-radius:12px 12px 0 0; }
+    @media (max-width:768px){ .section-title{font-size:1.6rem} .hero-img{height:220px} }
+
+    /* Navbar */
+    .navbar {
+      background-color: #1a4272;
+      transition: all 0.3s ease;
+    }
+    .navbar a.nav-link {
+      color: white;
+      font-weight: 500;
+    }
+    .navbar a.nav-link:hover {
+      color: #00A86B;
+    }
+    .navbar.shrink {
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem;
+    }
+
+  
+
+  </style>
+</head>
+<body>
+
+  <!-- Admin floating toolbar -->
+  <div class="admin-toolbar">
+    <div class="admin-badge">
+      <strong>ADMIN</strong>
+      <button id="clearAllBtn" class="btn btn-sm btn-outline-primary">Reset Data</button>
+    </div>
+  </div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand" href="#"><img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="height:40px;"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin-students-page' %}">Students Details</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin-courses-page' %}">Edit Courses</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'staff-logout' %}" onclick="showLogoutModal()">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirm Logout</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to logout?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="container my-4" id="adminPage">
+
+    <!-- COURSE HERO (this and other sections are "editable" by data-key) -->
+    <section class="course-section editable-highlight mb-4" data-key="hero">
+      <div class="d-flex justify-content-between align-items-start">
+        <h1 class="section-title">Oncology Esthetics Certification</h1>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="hero">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="hero">Delete</button>
+        </div>
+      </div>
+
+      <p class="text-center muted mb-4 hero-subtitle" id="hero_subtitle" style="max-width:880px; margin:0 auto;">
+        A 40-hour professional certification designed to train estheticians and allied professionals in safe, trauma-informed, oncology-focused skincare and client care.
+      </p>
+
+      <div class="row justify-content-center g-4 mt-4" id="courseSectionsContainer">
+        <!-- Course cards are rendered here by JS. The initial example card will be seeded -->
+      </div>
+
+      <div class="mt-4 text-center">
+        <button id="addCourseBtn" class="btn btn-outline-primary">+ Add New Course Section</button>
+      </div>
+    </section>
+
+    <!-- OVERVIEW -->
+    <section id="overview" class="editable-highlight mb-4 p-3" data-key="overview">
+      <div class="d-flex justify-content-between">
+        <h2 class="section-title">Overview</h2>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="overview">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="overview">Delete</button>
+        </div>
+      </div>
+
+      <div class="row g-4" id="overviewCards">
+        <!-- three cards will be rendered -->
+      </div>
+    </section>
+
+    <!-- ELIGIBILITY -->
+    <section id="eligibility" class="editable-highlight mb-4 p-3" data-key="eligibility">
+      <div class="d-flex justify-content-between align-items-start">
+        <h2 class="section-title">Prerequisite Requirement</h2>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="eligibility">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="eligibility">Delete</button>
+        </div>
+      </div>
+      <div class="card p-4">
+        <h5 style="color:var(--primary);" id="eligibility_heading">Before you enroll</h5>
+        <p class="muted" id="eligibility_text">
+          To ensure safe, ethical, and trauma-informed care, all students must meet <strong>one</strong> of the following before enrolling in the Oncology Esthetics Certification:
+        </p>
+        <ul id="eligibility_list" style="color:#33495f; line-height:1.8;">
+          <li>A certificate or diploma in esthetics or a related field.</li>
+          <li>A letter from an employer verifying hands-on esthetics experience.</li>
+          <li>Completion of our <strong>Pre-Certificate Bridge Course</strong> for those without formal training.</li>
+        </ul>
+        <div class="mt-3">
+          <a href="#register" class="btn btn-primary">Proceed to Registration</a>
+          <a href="#bridge-course" class="btn btn-outline-primary ms-2">View Bridge Course</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- BRIDGE COURSE -->
+    <section id="bridge-course" class="editable-highlight mb-4 p-3" data-key="bridge">
+      <div class="d-flex justify-content-between align-items-start">
+        <h2 class="section-title">Pre-Certificate Bridge Course</h2>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="bridge">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="bridge">Delete</button>
+        </div>
+      </div>
+
+      <div class="card p-4" id="bridgeCardContent">
+        <h3 class="mb-3" id="bridge_title">Bridge Course Overview</h3>
+        <p class="muted" id="bridge_text">
+          Don’t have a certificate or formal esthetics training? No problem. Our <strong>Pre-Certificate Bridge Course</strong> is designed to prepare you with the foundational knowledge needed to enter the Oncology Esthetics Certification.
+        </p>
+        <ul id="bridge_list" class="muted" style="line-height:1.8;">
+          <li><strong>Duration:</strong> 20 hours</li>
+          <li><strong>Format:</strong> In-person training</li>
+          <li><strong>Scheduling Options:</strong> 3 Saturdays or 5 evenings (final schedule based on availability)</li>
+          <li><strong>Price:</strong> $745.00 + Roots & Release Kit</li>
+          <li><strong>Certification:</strong> Certificate of Completion included</li>
+        </ul>
+
+        <div class="mt-3 text-end">
+          <a href="#register" class="btn btn-outline-primary px-4 py-2">Register for Bridge Course</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGISTRATION (make basic details editable) -->
+    <section id="register" class="editable-highlight mb-4 p-3" data-key="register">
+      <div class="d-flex justify-content-between align-items-start">
+        <h2 class="section-title">Register for the Course</h2>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="register">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="register">Delete</button>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <h4 class="mb-3" style="color:var(--primary);" id="register_title">Registration</h4>
+        <p class="muted" id="register_text">Please tell us whether you meet the prerequisite qualification below.</p>
+
+        <!-- For simplicity, the form is non-functional in admin view but content is editable -->
+        <div class="mb-3">
+          <label class="form-label">Do you have the above-mentioned qualifications?</label>
+        </div>
+
+        <div class="d-grid gap-2">
+          <a class="btn btn-primary" href="#registerForm">Open Registration Form (Preview)</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOK SECTION -->
+    <section class="book-section editable-highlight mb-4 p-3" data-key="book">
+      <div class="d-flex justify-content-between align-items-start">
+        <h2 class="section-title">Nonna Ma's Cancer Survivor Cookbook</h2>
+        <div class="section-admin-controls">
+          <button class="btn btn-sm btn-outline-primary btn-edit-section" data-target="book">Edit</button>
+          <button class="btn btn-sm btn-danger btn-delete-section" data-target="book">Delete</button>
+        </div>
+      </div>
+
+      <div class="row align-items-center" id="bookRow">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <div style="width:100%; height:320px; overflow:hidden; border-radius:12px;">
+            <img id="book_image" src="{% static 'assets/images/book1.PNG' %}" alt="Aesthetic Book" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h3 class="mb-3" id="book_title">“The Art of Modern Aesthetics”</h3>
+          <p id="book_text" style="font-size:16px; line-height:1.6;">
+            Dive into the science and artistry of oncology-focused esthetics with this practical cookbook and guide. Complimentary for all students who register for any full or bridge course.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer-area editable-highlight mt-4 p-3" data-key="footer">
+      <div class="container">
+        <div class="row text-center text-lg-start align-items-center">
+          <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+            <p style="margin: 0; font-size: 16px;" id="footer_left">© 2025 <b>OncoOne</b>. All rights reserved.</p>
+          </div>
+          <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+            <div class="social-links d-flex justify-content-center gap-3">
+              <a href="https://instagram.com" target="_blank" class="social-icon"><i class="lni lni-instagram-original"></i></a>
+              <a href="https://facebook.com" target="_blank" class="social-icon"><i class="lni lni-facebook-filled"></i></a>
+              <a href="https://twitter.com" target="_blank" class="social-icon"><i class="lni lni-twitter-original"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-12">
+            <p style="margin: 0; font-size: 14px;" id="footer_right">Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span></p>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12 text-center">
+            <p style="margin: 0; font-size: 15px; color: #dfe4eb;" id="footer_tag">Empowering Post-Cancer Thriving</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ========== EDIT MODAL (used to edit any "section") ========== -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form id="editForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Section</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit_key" />
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input id="edit_title" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Subtitle / Short Text</label>
+              <input id="edit_subtitle" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Main content (HTML allowed)</label>
+              <textarea id="edit_content" rows="6" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Image (optional)</label>
+              <input id="edit_image_input" type="file" accept="image/*" class="form-control" />
+              <div class="mt-2">
+                <img id="edit_image_preview" src="" alt="" class="img-preview admin-hidden" style="max-height:200px;">
+              </div>
+            </div>
+
+            <!-- For course-specific extra fields (duration/price/list) we'll include optional inputs -->
+            <div id="edit_extra_fields" class="mt-3"></div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Bootstrap JS + dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 600, once: true, offset: 80 });
+
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    function showLogoutModal(event) {
+      if (event) { event.preventDefault(); }
+      logoutModal.show();
+    }
+    function confirmLogout() {
+      window.location.href = "{% url 'staff-logout' %}";
+    }
+
+    /******************************************************************
+     * Simple frontend admin editor
+     * - All editable content stored in localStorage key 'onco_admin_data'
+     * - Sections available: hero (contains list of course cards), overview (3 cards),
+     *   eligibility, bridge, register, book, footer
+     * - Images saved as data URLs
+     ******************************************************************/
+
+    const STORAGE_KEY = 'onco_admin_data_v1';
+
+    // Default seed data (structure mirrors your original page)
+    const defaultData = {
+      hero: {
+        title: 'Oncology Esthetics Certification',
+        subtitle: 'A 40-hour professional certification designed to train estheticians and allied professionals in safe, trauma-informed, oncology-focused skincare and client care.',
+        courses: [
+          {
+            id: generateId(),
+            title: 'Full Oncology Esthetics Certificate',
+            image: '{% static "assets/images/pexels-ivan-s-6436283.jpg" %}',
+            duration: '40 hours',
+            price: '$1,999.00',
+            bullets: [
+              'Understanding cancer and treatment impacts across the body',
+              'Post-surgical skin and emotional recovery',
+              'Adapting esthetic protocols for oncology-safe practice',
+              'Lymphedema awareness & gentle lymphatic techniques',
+              'Ingredient safety, fragile skin protocols, oncology nail care',
+              'Emotional literacy & mental wellness in esthetic care'
+            ],
+            featured: 'Featuring guest speakers including oncology nurses, oncologists, and survivor advocates.'
+          }
+        ]
+      },
+      overview: {
+        cards: [
+          {
+            id: generateId(),
+            title: 'About the Instructor',
+            text: 'Marilyn — certified medical esthetics instructor, cancer survivor & advocate with 20+ years experience.',
+            list: ['Certified Nutritionist & Medical Esthetics Expert', '20+ years in skincare & oncology esthetics', 'Author of Nonna Ma’s Cancer Survivor Cookbook'],
+            icon: '👩‍⚕️'
+          },
+          {
+            id: generateId(),
+            title: 'Who Should Join?',
+            text: 'Designed for professionals passionate about compassionate oncology esthetic care.',
+            list: ['Medical estheticians & spa professionals', 'Nurses & skincare therapists', 'Students & transitioning professionals', 'Anyone passionate about holistic wellness'],
+            icon: '🎓'
+          },
+          {
+            id: generateId(),
+            title: 'Format & Delivery',
+            text: 'Hands-on, in-person training plus expert talks.',
+            list: ['Duration: 40 hours (certification)', 'Hands-on, in-person practice', 'Guest speakers & real-world case studies', 'Certificate awarded upon successful completion'],
+            icon: '📍'
+          }
+        ]
+      },
+      eligibility: {
+        heading: 'Before you enroll',
+        text: 'To ensure safe, ethical, and trauma-informed care, all students must meet <strong>one</strong> of the following before enrolling in the Oncology Esthetics Certification:',
+        list: [
+          'A certificate or diploma in esthetics or a related field.',
+          'A letter from an employer verifying hands-on esthetics experience.',
+          'Completion of our <strong>Pre-Certificate Bridge Course</strong> for those without formal training.'
+        ]
+      },
+      bridge: {
+        title: 'Bridge Course Overview',
+        text: 'Don’t have a certificate or formal esthetics training? No problem. Our <strong>Pre-Certificate Bridge Course</strong> is designed to prepare you with the foundational knowledge needed to enter the Oncology Esthetics Certification.',
+        list: [
+          '<strong>Duration:</strong> 20 hours',
+          '<strong>Format:</strong> In-person training',
+          '<strong>Scheduling Options:</strong> 3 Saturdays or 5 evenings (final schedule based on availability)',
+          '<strong>Price:</strong> $745.00 + Roots & Release Kit',
+          '<strong>Certification:</strong> Certificate of Completion included'
+        ]
+      },
+      register: {
+        title: 'Registration',
+        text: 'Please tell us whether you meet the prerequisite qualification below.'
+      },
+      book: {
+        image: '{% static "assets/images/book1.PNG" %}',
+        title: '“The Art of Modern Aesthetics”',
+        text: 'Dive into the science and artistry of oncology-focused esthetics with this practical cookbook and guide. Complimentary for all students who register for any full or bridge course.'
+      },
+      footer: {
+        left: '© 2025 OncoOne. All rights reserved.',
+        right: 'Powered by Matrix Labs',
+        tag: 'Empowering Post-Cancer Thriving'
+      }
+    };
+
+    // Utility helpers
+    function generateId() {
+      return 'id_' + Math.random().toString(36).slice(2,9);
+    }
+
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+        return JSON.parse(JSON.stringify(defaultData));
+      }
+      try {
+        return JSON.parse(raw);
+      } catch(e) {
+        console.error('Failed to parse storage, resetting.', e);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+        return JSON.parse(JSON.stringify(defaultData));
+      }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // Render functions for each section
+    function renderAll() {
+      const data = loadData();
+      renderHero(data.hero);
+      renderOverview(data.overview);
+      renderEligibility(data.eligibility);
+      renderBridge(data.bridge);
+      renderRegister(data.register);
+      renderBook(data.book);
+      renderFooter(data.footer);
+    }
+
+    function renderHero(hero) {
+      document.querySelector('.section-title').textContent = hero.title || 'Oncology Esthetics Certification';
+      document.getElementById('hero_subtitle').textContent = hero.subtitle || '';
+
+      const container = document.getElementById('courseSectionsContainer');
+      container.innerHTML = '';
+
+      hero.courses.forEach(course => {
+        const col = document.createElement('div');
+        col.className = 'col-lg-8';
+        col.innerHTML = `
+          <div class="card p-0 overflow-hidden" id="course_${course.id}" style="border-radius:16px;">
+            <img src="${escapeAttr(course.image)}" alt="${escapeAttr(course.title)}" class="img-fluid w-100 hero-img">
+            <div class="p-4">
+              <div class="row g-3 align-items-center">
+                <div class="col-md-8">
+                  <h3 class="mb-2" style="color:var(--primary); font-weight:700;">${course.title}</h3>
+                  <p class="small-note mb-0">Duration: <strong>${escapeHtml(course.duration)}</strong> &nbsp;|&nbsp; Price: <strong>${escapeHtml(course.price)}</strong></p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                  <div class="d-inline-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary btn-edit-course" data-id="${course.id}">Edit</button>
+                    <button class="btn btn-sm btn-danger btn-delete-course" data-id="${course.id}">Delete</button>
+                  </div>
+                </div>
+              </div>
+              <hr class="my-4">
+              <h5 style="color:var(--primary);">What You Will Learn</h5>
+              <ul class="muted" style="line-height:1.8; list-style-type: disc; padding-left: 20px;">
+                ${course.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}
+              </ul>
+              <p class="mt-3 muted"><strong>Featuring guest speakers</strong> ${escapeHtml(course.featured || '')}</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+
+      // If no courses, show placeholder and "Add" button is still visible
+      if (hero.courses.length === 0) {
+        container.innerHTML = `<div class="col-12"><div class="card p-4 text-center">No courses yet. Click "Add New Course Section" to create one.</div></div>`;
+      }
+
+      // wire up course-specific buttons
+      document.querySelectorAll('.btn-edit-course').forEach(btn => {
+        btn.addEventListener('click', e => openCourseEditModal(e.target.dataset.id));
+      });
+      document.querySelectorAll('.btn-delete-course').forEach(btn => {
+        btn.addEventListener('click', e => {
+          if (!confirm('Delete this course?')) return;
+          deleteCourse(e.target.dataset.id);
+        });
+      });
+    }
+
+    function renderOverview(overview) {
+      const container = document.getElementById('overviewCards');
+      container.innerHTML = '';
+      overview.cards.forEach(c => {
+        const col = document.createElement('div');
+        col.className = 'col-md-4';
+        col.innerHTML = `
+          <div class="card p-4 h-100" id="overview_${c.id}">
+            <div class="d-flex justify-content-between">
+              <h4>${escapeHtml(c.icon || '')} ${escapeHtml(c.title)}</h4>
+              <div class="d-inline-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary btn-edit-overview" data-id="${c.id}">Edit</button>
+                <button class="btn btn-sm btn-danger btn-delete-overview" data-id="${c.id}">Delete</button>
+              </div>
+            </div>
+            <p class="muted">${escapeHtml(c.text)}</p>
+            <ul style="color:#33495f;">
+              ${c.list.map(li => `<li>${escapeHtml(li)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+
+      // buttons
+      document.querySelectorAll('.btn-edit-overview').forEach(b => {
+        b.addEventListener('click', e => openOverviewEditModal(e.target.dataset.id));
+      });
+      document.querySelectorAll('.btn-delete-overview').forEach(b => {
+        b.addEventListener('click', e => {
+          if (!confirm('Delete this overview card?')) return;
+          deleteOverviewCard(e.target.dataset.id);
+        });
+      });
+    }
+
+    function renderEligibility(elig) {
+      document.getElementById('eligibility_heading').innerHTML = elig.heading || '';
+      document.getElementById('eligibility_text').innerHTML = elig.text || '';
+      const listEl = document.getElementById('eligibility_list');
+      listEl.innerHTML = (elig.list || []).map(it => `<li>${it}</li>`).join('');
+    }
+
+    function renderBridge(bridge) {
+      document.getElementById('bridge_title').textContent = bridge.title || '';
+      document.getElementById('bridge_text').innerHTML = bridge.text || '';
+      document.getElementById('bridge_list').innerHTML = (bridge.list || []).map(it => `<li>${it}</li>`).join('');
+    }
+
+    function renderRegister(reg) {
+      document.getElementById('register_title').textContent = reg.title || '';
+      document.getElementById('register_text').textContent = reg.text || '';
+    }
+
+    function renderBook(book) {
+      document.getElementById('book_image').src = book.image || '';
+      document.getElementById('book_title').textContent = book.title || '';
+      document.getElementById('book_text').textContent = book.text || '';
+    }
+
+    function renderFooter(footer) {
+      document.getElementById('footer_left').textContent = footer.left || '';
+      document.getElementById('footer_right').textContent = footer.right || '';
+      document.getElementById('footer_tag').textContent = footer.tag || '';
+    }
+
+    // Editing logic ---------------------------------------------------
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    let currentEditing = null;
+
+    // Generic section edit button (top-right of each section)
+    document.querySelectorAll('.btn-edit-section').forEach(b => {
+      b.addEventListener('click', e => {
+        const key = e.target.dataset.target;
+        openSectionEditModal(key);
+      });
+    });
+
+    // Generic delete button for entire sections
+    document.querySelectorAll('.btn-delete-section').forEach(b => {
+      b.addEventListener('click', e => {
+        const key = e.target.dataset.target;
+        if (!confirm('Delete this entire section from the page?')) return;
+        deleteSection(key);
+      });
+    });
+
+    // Add new course button
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+      const data = loadData();
+      const newCourse = {
+        id: generateId(),
+        title: 'New Course Title',
+        image: '', // start blank
+        duration: 'Duration',
+        price: '$0.00',
+        bullets: ['Key learning 1', 'Key learning 2'],
+        featured: ''
+      };
+      data.hero.courses.unshift(newCourse); // add top
+      saveData(data);
+      renderAll();
+      // open edit modal for the new course immediately
+      openCourseEditModal(newCourse.id);
+    });
+
+    // Clear all / reset to defaults
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      if (!confirm('Reset page to default content? This will overwrite your changes in localStorage.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      renderAll();
+    });
+
+    // Open section-wide edit modal
+    function openSectionEditModal(key) {
+      const data = loadData();
+      currentEditing = { type: 'section', key };
+      // populate modal fields based on key
+      document.getElementById('edit_key').value = key;
+      document.getElementById('edit_title').value = '';
+      document.getElementById('edit_subtitle').value = '';
+      document.getElementById('edit_content').value = '';
+      document.getElementById('edit_image_preview').classList.add('admin-hidden');
+      document.getElementById('edit_image_input').value = '';
+      document.getElementById('edit_extra_fields').innerHTML = '';
+
+      if (key === 'hero') {
+        document.getElementById('edit_title').value = data.hero.title || '';
+        document.getElementById('edit_subtitle').value = data.hero.subtitle || '';
+        document.getElementById('edit_content').value = ''; // not used
+        // show course count in extra fields (informational)
+        document.getElementById('edit_extra_fields').innerHTML = `<small class="text-muted">This section manages course cards separately. Use the Edit buttons on each course card to edit them individually.</small>`;
+      } else if (key === 'overview') {
+        document.getElementById('edit_title').value = 'Overview';
+        document.getElementById('edit_subtitle').value = '';
+        document.getElementById('edit_content').value = '';
+        document.getElementById('edit_extra_fields').innerHTML = `<small class="text-muted">This edit modal allows editing the whole section's header only. To edit individual cards open the "Edit" on each card.</small>`;
+      } else if (key === 'eligibility') {
+        document.getElementById('edit_title').value = data.eligibility.heading || '';
+        document.getElementById('edit_subtitle').value = '';
+        document.getElementById('edit_content').value = data.eligibility.text || '';
+        document.getElementById('edit_extra_fields').innerHTML = `<small class="text-muted">Edit the list below as HTML (each &lt;li&gt; on a new line).</small>`;
+      } else if (key === 'bridge') {
+        document.getElementById('edit_title').value = data.bridge.title || '';
+        document.getElementById('edit_subtitle').value = '';
+        document.getElementById('edit_content').value = data.bridge.text || '';
+        document.getElementById('edit_extra_fields').innerHTML = `<small class="text-muted">Edit the list below as newline-separated values for items in the bridge course list.</small>`;
+      } else if (key === 'register') {
+        document.getElementById('edit_title').value = data.register.title || '';
+        document.getElementById('edit_subtitle').value = '';
+        document.getElementById('edit_content').value = data.register.text || '';
+        document.getElementById('edit_extra_fields').innerHTML = '';
+      } else if (key === 'book') {
+        document.getElementById('edit_title').value = data.book.title || '';
+        document.getElementById('edit_subtitle').value = '';
+        document.getElementById('edit_content').value = data.book.text || '';
+        // show current image
+        if (data.book.image) {
+          document.getElementById('edit_image_preview').src = data.book.image;
+          document.getElementById('edit_image_preview').classList.remove('admin-hidden');
+        }
+      } else if (key === 'footer') {
+        document.getElementById('edit_title').value = data.footer.left || '';
+        document.getElementById('edit_subtitle').value = data.footer.right || '';
+        document.getElementById('edit_content').value = data.footer.tag || '';
+      }
+
+      editModal.show();
+    }
+
+    // Open course-specific edit modal: more fields (title, duration, price, bullets, image)
+    function openCourseEditModal(courseId) {
+      const data = loadData();
+      const c = data.hero.courses.find(x => x.id === courseId);
+      if (!c) { alert('Course not found'); return; }
+
+      currentEditing = { type: 'course', id: courseId };
+      document.getElementById('edit_key').value = 'course';
+      document.getElementById('edit_title').value = c.title || '';
+      document.getElementById('edit_subtitle').value = '';
+      document.getElementById('edit_content').value = c.featured || '';
+      document.getElementById('edit_image_input').value = '';
+      if (c.image) {
+        document.getElementById('edit_image_preview').src = c.image;
+        document.getElementById('edit_image_preview').classList.remove('admin-hidden');
+      } else {
+        document.getElementById('edit_image_preview').classList.add('admin-hidden');
+      }
+
+      // build extra fields: duration, price, bullets
+      const extra = document.getElementById('edit_extra_fields');
+      extra.innerHTML = `
+        <div class="mb-2 row">
+          <div class="col-sm-6">
+            <label class="form-label">Duration</label>
+            <input id="edit_course_duration" class="form-control" value="${escapeAttr(c.duration || '')}" />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Price</label>
+            <input id="edit_course_price" class="form-control" value="${escapeAttr(c.price || '')}" />
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Bullets (one per line)</label>
+          <textarea id="edit_course_bullets" class="form-control" rows="4">${escapeHtml(c.bullets.join('\n'))}</textarea>
+        </div>
+      `;
+      editModal.show();
+    }
+
+    // handle image input preview in modal
+    document.getElementById('edit_image_input').addEventListener('change', function(e){
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('edit_image_preview').src = ev.target.result;
+        document.getElementById('edit_image_preview').classList.remove('admin-hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // save changes from modal
+    document.getElementById('editForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+      const data = loadData();
+      const key = document.getElementById('edit_key').value;
+      // get image data (if a new image selected)
+      const imageInput = document.getElementById('edit_image_input');
+      let imageDataUrl = null;
+      if (imageInput.files && imageInput.files[0]) {
+        imageDataUrl = await fileToDataUrl(imageInput.files[0]);
+      }
+
+      if (currentEditing && currentEditing.type === 'section') {
+        if (key === 'hero') {
+          data.hero.title = document.getElementById('edit_title').value.trim();
+          data.hero.subtitle = document.getElementById('edit_subtitle').value.trim();
+        } else if (key === 'overview') {
+          // top-level overview edit is simple header only for now
+          // nothing to change other than placeholder title
+        } else if (key === 'eligibility') {
+          data.eligibility.heading = document.getElementById('edit_title').value.trim();
+          data.eligibility.text = document.getElementById('edit_content').value.trim();
+          // parse list items from current DOM instead of modal; but allow textarea of <li> lines
+          // We will parse each newline into list items (strip empty)
+          const content = document.getElementById('edit_content').value;
+          // attempt to extract <li> from html; fallback to splitting lines
+          const tmp = content.replace(/<\/?li>/g,'\n').replace(/<\/?ul>/g,'').trim();
+          const lines = tmp.split('\n').map(s => s.trim()).filter(Boolean);
+          if (lines.length > 0) data.eligibility.list = lines;
+        } else if (key === 'bridge') {
+          data.bridge.title = document.getElementById('edit_title').value.trim();
+          data.bridge.text = document.getElementById('edit_content').value.trim();
+          // parse newline -> list
+          const lines = document.getElementById('edit_content').value.split('\n').map(s=>s.trim()).filter(Boolean);
+          if (lines.length > 0) data.bridge.list = lines;
+        } else if (key === 'register') {
+          data.register.title = document.getElementById('edit_title').value.trim();
+          data.register.text = document.getElementById('edit_content').value.trim();
+        } else if (key === 'book') {
+          data.book.title = document.getElementById('edit_title').value.trim();
+          data.book.text = document.getElementById('edit_content').value.trim();
+          if (imageDataUrl) data.book.image = imageDataUrl;
+        } else if (key === 'footer') {
+          data.footer.left = document.getElementById('edit_title').value.trim();
+          data.footer.right = document.getElementById('edit_subtitle').value.trim();
+          data.footer.tag = document.getElementById('edit_content').value.trim();
+        }
+      } else if (currentEditing && currentEditing.type === 'course') {
+        const courseId = currentEditing.id;
+        const c = data.hero.courses.find(x => x.id === courseId);
+        if (!c) { alert('Course not found'); return; }
+        c.title = document.getElementById('edit_title').value.trim();
+        c.featured = document.getElementById('edit_content').value.trim();
+        c.duration = document.getElementById('edit_course_duration').value.trim();
+        c.price = document.getElementById('edit_course_price').value.trim();
+        const bulletsRaw = document.getElementById('edit_course_bullets').value || '';
+        c.bullets = bulletsRaw.split('\n').map(s => s.trim()).filter(Boolean);
+        if (imageDataUrl) c.image = imageDataUrl;
+      }
+
+      saveData(data);
+      editModal.hide();
+      renderAll();
+    });
+
+    // Convert File to DataURL (Promise)
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = e => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Delete course
+    function deleteCourse(id) {
+      const data = loadData();
+      data.hero.courses = data.hero.courses.filter(c => c.id !== id);
+      saveData(data);
+      renderAll();
+    }
+
+    // Delete entire section (hide by removing key from data)
+    function deleteSection(key) {
+      const data = loadData();
+      if (key === 'hero') {
+        data.hero = { title: 'Oncology Esthetics Certification', subtitle: '', courses: [] };
+      } else if (key === 'overview') {
+        data.overview = { cards: [] };
+      } else if (key === 'eligibility') {
+        data.eligibility = { heading: '', text: '', list: [] };
+      } else if (key === 'bridge') {
+        data.bridge = { title:'', text:'', list:[] };
+      } else if (key === 'register') {
+        data.register = { title:'', text:'' };
+      } else if (key === 'book') {
+        data.book = { image:'', title:'', text:'' };
+      } else if (key === 'footer') {
+        data.footer = { left:'', right:'', tag:'' };
+      }
+      saveData(data);
+      renderAll();
+    }
+
+    // Delete overview card
+    function deleteOverviewCard(id) {
+      const data = loadData();
+      data.overview.cards = data.overview.cards.filter(c => c.id !== id);
+      saveData(data);
+      renderAll();
+    }
+
+    // Open overview card edit modal (re-use the same edit modal but mark currentEditing type)
+    function openOverviewEditModal(id) {
+      const data = loadData();
+      const card = data.overview.cards.find(c => c.id === id);
+      if (!card) return;
+      currentEditing = { type: 'overview', id };
+      document.getElementById('edit_key').value = 'overview_item';
+      document.getElementById('edit_title').value = card.title || '';
+      document.getElementById('edit_subtitle').value = '';
+      document.getElementById('edit_content').value = card.text || '';
+      document.getElementById('edit_image_input').value = '';
+      document.getElementById('edit_image_preview').classList.add('admin-hidden');
+
+      document.getElementById('edit_extra_fields').innerHTML = `
+        <div class="mb-2">
+          <label class="form-label">Icon / Emoji (optional)</label>
+          <input id="edit_overview_icon" class="form-control" value="${escapeAttr(card.icon||'')}">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">List items (one per line)</label>
+          <textarea id="edit_overview_list" class="form-control" rows="4">${escapeHtml((card.list||[]).join('\n'))}</textarea>
+        </div>
+      `;
+      editModal.show();
+    }
+
+    // Intercept save when editing an overview item
+    // We'll extend the submission handling to cover overview edits
+    // (We already handle course & section edits above)
+    // So patch the existing submit handler to apply overview edits when currentEditing.type === 'overview'
+    // (This is already implicitly covered by checking currentEditing.type in the generic submit handler)
+    // Implement the apply for overview now:
+    (function patchOverviewSave(){
+      const originalSubmit = document.getElementById('editForm').onsubmit;
+      // no-op here; the main handler above checks currentEditing.type === 'course' or 'section'
+      // so we need to insert handling for 'overview' before saving - but it's simpler to handle inside existing 'submit' listener
+      // We'll rely on the existing listener — to ensure overview edits are applied, add support there:
+    })();
+
+    // Since we didn't handle overview explicitly in main submit, add a second listener that will run after the first (safe)
+    document.getElementById('editForm').addEventListener('submit', function(e){
+      // if currentEditing is overview, apply edits after main handler
+      if (!currentEditing) return;
+      if (currentEditing.type === 'overview' && currentEditing.id) {
+        e.preventDefault(); // prevent default again (no double)
+        const data = loadData();
+        const card = data.overview.cards.find(c => c.id === currentEditing.id);
+        if (!card) { alert('Card not found'); return; }
+        card.title = document.getElementById('edit_title').value.trim();
+        card.text = document.getElementById('edit_content').value.trim();
+        card.icon = document.getElementById('edit_overview_icon').value.trim();
+        const listRaw = document.getElementById('edit_overview_list').value || '';
+        card.list = listRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+        saveData(data);
+        editModal.hide();
+        renderAll();
+      } else if (currentEditing.type === 'section' && document.getElementById('edit_key').value === 'overview') {
+        // if editing the section header, nothing more to do (handled previously)
+      }
+    });
+
+    // Delete overview (card) button event assignment is added in renderOverview
+
+    // Delete entire overview section (already handled by deleteSection)
+
+    // Helper escaping to avoid breaking attributes/HTML
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function escapeAttr(s) {
+      return s == null ? '' : String(s).replace(/"/g, '&quot;');
+    }
+
+    // Initialize: seed localStorage if missing and render
+    (function init(){
+      loadData(); // ensures defaults
+      renderAll();
+      // attach delete handlers that are static part of DOM (btn-delete-section, btn-edit-section)
+      // Already attached above for initial set, but re-attach after rendering to be safe
+      // Re-attach generic section edit/delete events after future render calls:
+      setInterval(() => {
+        // (noop) placeholder - renderAll attaches handlers as needed
+      }, 3000);
+    })();
+
+    // Small helper: when deleting overview cards or courses, re-render handles UI
+  </script>
+</body>
+</html>

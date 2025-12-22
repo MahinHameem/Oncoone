@@ -1,0 +1,659 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--====== Required meta tags ======-->
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!--====== Title ======-->
+  <title>OncoOne | Aesthetic School</title>
+
+  <!--====== Favicon Icon ======-->
+  <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+
+  <!--====== Bootstrap css ======-->
+  <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+
+  <!--====== Line Icons css ======-->
+  <link rel="stylesheet" href="{% static 'assets/css/lineicons.css' %}" />
+
+  <!--====== Tiny Slider css ======-->
+  <link rel="stylesheet" href="{% static 'assets/css/tiny-slider.css' %}" />
+
+  <!--====== gLightBox css ======-->
+  <link rel="stylesheet" href="{% static 'assets/css/glightbox.min.css' %}" />
+
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+
+  <!-- AOS Library -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+
+
+<style>
+.navbar-area .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+
+.sticky {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99 !important;
+  transition: all 0.3s ease-out;
+  width: 100vw; /* ensures full viewport width without overflow */
+}
+
+
+.services-section .card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.services-section .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+  <!--====== NAVBAR NINE PART START ======-->
+
+  <section class="navbar-area navbar-nine">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <nav class="navbar navbar-expand-lg">
+            <a class="navbar-brand" href="{% url 'home' %}">
+              <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height: 80px;" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNine"
+              aria-controls="navbarNine" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="toggler-icon"></span>
+              <span class="toggler-icon"></span>
+              <span class="toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
+              <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                  <a class="page-scroll active" href="#hero-area">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'products' %}">Courses</a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="page-scroll" href="#about">About Us</a>
+                </li>
+                <li class="nav-item">
+                  <a class="page-scroll" href="#contact">Contact</a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="navbar-btn d-none d-lg-inline-block">
+              <a class="menu-bar" href="#side-menu-left"><i class="lni lni-menu"></i></a>
+            </div>
+          </nav>
+          <!-- navbar -->
+        </div>
+      </div>
+      <!-- row -->
+    </div>
+    <!-- container -->
+  </section>
+
+  <!--====== NAVBAR NINE PART ENDS ======-->
+
+  <!--====== SIDEBAR PART START ======-->
+
+
+
+  <!--====== SIDEBAR PART ENDS ======-->
+
+  <!-- Start header Area -->
+<section id="hero-area" class="header-eight" style="position: relative; overflow: hidden;" data-aos="fade-left">
+  <!-- Full background image -->
+      <div id="hero-bg" style="background-image: url('{% static 'assets/images/hero.jpg' %}'); background-size: cover; background-position: center; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+  <div class="container" style="position: relative; z-index: 2; padding: 100px 0;">
+    <div class="row align-items-center">
+      
+      <div class="col-lg-6 col-md-12 col-12">
+        <div id="hero-text">
+          <h1 style="color: black; font-weight: 700; font-size: 3rem; text-shadow: black;">"Canada's First Survivor-Led Oncology Esthetics Certificate"</h1>
+          <p style="color: black; padding-top: 15px; font-size: 1.875rem;">
+            Empowering estheticians to care with skill, safety, and soul.
+          </p>
+
+          <div class="button-a mt-4 d-flex gap-3">
+            <a href="{% url 'products' %}"
+               class="btn primary-btn" 
+               id="enroll-btn" 
+               style="background-color: white; color: #1a4272; border-radius: 25px; padding: 12px 25px; font-weight: 600;"
+               onmouseover="this.style.backgroundColor='#1a4272'; this.style.color='white';"
+               onmouseout="this.style.backgroundColor='white'; this.style.color='#1a4272';">
+              Enroll now
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-lg-6 col-md-12 col-12">
+        <!-- optional additional hero image if needed -->
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- End header Area -->
+
+
+    <!--====== ABOUT FIVE PART ENDS ======-->
+
+  <!-- ===== service-area start ===== -->
+  <section id="services" class="services-area services-eight" data-aos="fade-left">
+    <!--======  Start Section Title Five ======-->
+    <div class="section-title-five">
+      <div class="container">
+        <div class="row">
+          <div class="col-12" style="width: 112%;">
+            <div class="content" >
+              <h2 class="fw-bold" style="color: #1a4272;"> Integrated Tools for Your Journey</h2>
+            </div>
+          </div>
+        </div>
+        <!-- row -->
+      </div>
+      <!-- container -->
+    </div>
+    <!--======  End Section Title Five ======-->
+<section class="services-section py-5" data-aos="fade-right" style="background-color: #ffffff;">
+  <div class="container">
+    <div class="row align-items-stretch g-4">
+      
+      <!-- Content Card (Left) -->
+      <div class="col-lg-6 col-md-12 d-flex">
+        <div class="card shadow-sm border-0 flex-fill" style="border-radius: 15px;">
+          <div class="card-body d-flex flex-column justify-content-between text-center">
+            <div>
+              <h3 class="card-title mb-3" style="color: #1a4272;">The Resilience Course</h3>
+              <p class="card-text text-justify" style="color: #555;">
+                The <strong>Gold standard in Survivor-Sensitive Training</strong> — Ontario's first hands-on oncology esthetics course led by a cancer survivor.
+                <br><br>
+                Blending rigorous theory with compassionate, trauma-informed practice, it sets a benchmark for safe, empowering care.
+                Students gain real-world protocols, survivor-sensitive techniques, and emotional insight — preparing them to serve with skill, dignity, and heart.
+              </p>
+            </div>
+            <div class="mt-4" style="padding-bottom: 50px;">
+              <a href="{% url 'products' %}#course"
+                class="btn btn-primary px-4 py-2 mx-auto d-block"
+                style="background-color: #1a4272; border-color: #1a4272; border-radius: 8px; width: fit-content;">
+                View Course
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Card (Right) -->
+      <div class="col-lg-6 col-md-12 d-flex">
+        <div class="card shadow-sm border-0 flex-fill" style="border-radius: 15px; overflow: hidden;">
+          <img src="{% static 'assets/images/graduation.jpg' %}"
+               alt="The Resilience Course" 
+               class="img-fluid w-100 h-100" 
+               style="object-fit: cover;">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+</section>
+
+  <!-- ===== service-area end ===== -->
+
+  <!--====== ABOUT FIVE PART START ======-->
+
+  <section class="about-area about-five" id="about" data-aos="fade-left">
+  <div class="text-center mb-4" style="font-size: 2.25em; font-weight: 700; color: #1a4272;">
+    About Us
+  </div>
+
+  <div class="container">
+    <div class="row align-items-start">
+
+      <!-- Left: Image -->
+<div class="col-lg-6 col-12 mb-4 mb-lg-0">
+  <div class="about-image-five position-relative">
+    <!-- Default: YouTube iframe -->
+<iframe width= 100% height="450" src="https://www.youtube.com/embed/1n2Z2YeKj7M?si=0kq91AjPbPwftbTy" 
+title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+</div>
+
+
+      <!-- Right: Content -->
+      <div class="col-lg-6 col-12">
+        <div class="about-five-content">
+
+          <!-- Tabs: Fixed at top -->
+          <nav class="mb-3">
+            <div class="nav nav-tabs border-0 d-flex flex-wrap gap-2 justify-content-start sticky-top bg-white py-2" id="nav-tab" role="tablist" style="top: 0; z-index: 10;">
+              <button class="nav-link active about-tab" id="nav-founder-tab"
+                      data-bs-toggle="tab" data-bs-target="#nav-founder"
+                      type="button" role="tab" aria-controls="nav-founder" aria-selected="true">
+                Our Founder
+              </button>
+              <button class="nav-link about-tab" id="nav-mission-tab"
+                      data-bs-toggle="tab" data-bs-target="#nav-mission"
+                      type="button" role="tab" aria-controls="nav-mission" aria-selected="false">
+                Our Mission
+              </button>
+              <button class="nav-link about-tab" id="nav-vision-tab"
+                      data-bs-toggle="tab" data-bs-target="#nav-vision"
+                      type="button" role="tab" aria-controls="nav-vision" aria-selected="false">
+                Our Vision
+              </button>
+            </div>
+          </nav>
+
+          <!-- Tab Content -->
+<!-- Tab Content -->
+<div class="tab-content mt-3" style="color: #1a4272;">
+
+  <!-- Founder Tab -->
+  <div class="tab-pane fade show active" id="nav-founder" role="tabpanel">
+    <p>
+      Marilyn is a cancer survivor, nutritionist, and founder of Ontario's first advanced oncology esthetic certificate school. 
+      Her journey inspired a sanctuary of healing and empowerment for survivors and aestheticians alike. With decades of experience, she blends science, soul, and survivor wisdom into a trauma-informed, emotionally sensitive curriculum. Fluent in Italian and connected to her heritage, Marilyn champions diversity, mentorship, and international collaboration. 
+      <br><br>Through OncoOne, she empowers students to become ambassadors of healing, serving with empathy and purpose.
+    </p>
+
+    <!-- Legacy Statement: MUST be inside the Founder tab -->
+    <div class="legacy-statement p-3 my-3" style="background-color: #f0f4f8; border-left: 5px solid #1a4272; font-style: italic;">
+      "I didn't survive cancer to stay silent. I survived to teach. To heal. To leave something behind that matters. OncoOne™ is my legacy—a school where estheticians learn to care for survivors with skill, safety, and soul. This is my gift to Toronto, to Canada, and to every student who chooses to carry this mission forward."
+    </div>
+  </div>
+
+  <!-- Mission Tab -->
+  <div class="tab-pane fade" id="nav-mission" role="tabpanel">
+    <p style="font-size: 1.4rem; font-weight: 500;">
+      "Empowering aestheticians with trauma-informed, survivor-sensitive training rooted in dignity, healing, and cultural respect."
+    </p>
+  </div>
+
+  <!-- Vision Tab -->
+  <div class="tab-pane fade" id="nav-vision" role="tabpanel">
+    <p style="font-size: 1.4rem; font-weight: 500;">
+      "Through premium training, advocacy, and innovation, OncoOne will set the national standard for oncology aesthetics — cultivating a legacy of care that transforms lives, one touch at a time."
+    </p>
+  </div>
+
+</div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- ========================= contact-section start ========================= -->
+  <section id="contact" class="contact-section" data-aos="fade-right">
+      <div style="padding: 40px 0px 15px;text-align: center;font-size: 2.25em;font-weight: 700; color: #1a4272;">Contact Us</div>
+
+    <div class="container">
+  <div class="row contact-item-wrapper text-center">
+    <div class="col-md-4">
+      <div class="contact-item border rounded-3 p-4 shadow-sm">
+        <div class="contact-icon mb-3" style="background: #1a4272;">
+          <i class="lni lni-phone fs-2" ></i>
+        </div>
+        <div class="contact-content">
+          <h4 style="color: #1a4272;">Contact</h4>
+          <p>0984537278623</p>
+          <p>yourmail@gmail.com</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="contact-item border rounded-3 p-4 shadow-sm">
+        <div class="contact-icon mb-3" style="background: #1a4272;">
+          <i class="lni lni-map-marker fs-2"></i>
+        </div>
+        <div class="contact-content">
+          <h4 style="color: #1a4272;">Address</h4>
+          <p>175 5th Ave, New York, NY 10010</p>
+          <p>United States</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="contact-item border rounded-3 p-4 shadow-sm">
+        <div class="contact-icon mb-3" style="background: #1a4272;">
+          <i class="lni lni-alarm-clock fs-2" ></i>
+        </div>
+        <div class="contact-content">
+          <h4 style="color: #1a4272;">Schedule</h4>
+          <p>24 Hours / 7 Days Open</p>
+          <p>Office time: 10 AM - 5:30 PM</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </section>
+
+<!-- ================= OUR PARTNERS SECTION ================= -->
+<section id="partners" style="background-color: #ffffff; padding: 70px 0;" data-aos="fade-left">
+  <div class="container" style="max-width: 1200px; margin: 0 auto; text-align: center;">
+    <h2 style="color: #1a4272; font-size: 2rem; margin-bottom: 15px; font-weight: bold;">
+      Our Partners
+    </h2>
+    <p style="color: #444; font-size: 1rem; margin-bottom: 50px;">
+      We proudly collaborate with innovative organizations who share our vision of excellence.
+    </p>
+
+    <div class="partner-grid">
+      <!-- Partner 1 -->
+      <a href="https://www.cns-scn.ca/" target="_blank" class="partner-card">
+        <div class="partner-logo">
+          <img src="{% static 'assets/images/Partners/CanadianNutritionSociety.jpg' %}" alt="Partner 1">
+        </div>
+        <h3>Canadian Nutrition Society</h3>
+      </a>
+
+      <!-- Partner 2 -->
+      <a href="https://canadianauthors.org/national/" target="_blank" class="partner-card">
+        <div class="partner-logo">
+          <img src="{% static 'assets/images/Partners/CAO.jpg' %}" alt="Partner 2">
+        </div>
+        <h3>Canadian Authors association</h3>
+      </a>
+
+      <!-- Partner 3 -->
+      <a href="https://www.hrh.ca/patients-visitors/patient-family-advisors/" target="_blank" class="partner-card">
+        <div class="partner-logo">
+          <img src="{% static 'assets/images/Partners/humber-river.jpeg' %}" alt="Partner 3">
+        </div>
+        <h3>Humber River Hospital (Wilson Ave)</h3>
+        <p>Cancer Advisory council for patient and family</p>
+      </a>
+
+      <!-- Partner 4 -->
+      <a href="https://www.hrh.ca/programs/cancer-care-haematology-oncology/" target="_blank" class="partner-card">
+        <div class="partner-logo">
+          <img src="{% static 'assets/images/Partners/humber-river.jpeg' %}" alt="Partner 4">
+        </div>
+        <h3>Humber River Hospital (Wilson Ave)</h3>
+        <p>Corporate Cancer Care Council</p>
+      </a>
+
+      <!-- Partner 5 -->
+      <a href="https://www.partner4.com" target="_blank" class="partner-card">
+        <div class="partner-logo">
+          <img src="{% static 'assets/images/Partners/No-Dp-Black.jpeg' %}" alt="Partner 5">
+        </div>
+        <h3>Ontario Oncology Association/ continuing education</h3>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STYLES ================= -->
+<style>
+  /* Grid layout centered even when wrapping */
+  .partner-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;  /* centers cards when wrapping */
+    align-items: stretch;
+    gap: 30px;
+  }
+
+  .partner-card {
+    background-color: #f8f9fc;
+    border: 2px solid #1a4272;
+    border-radius: 15px;
+    padding: 25px 20px;
+    width: 220px;
+    text-align: center;
+    text-decoration: none;
+    color: #1a4272;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(26, 66, 114, 0.1);
+  }
+
+  .partner-card:hover {
+    transform: translateY(-8px);
+    background-color: #1a4272;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(26, 66, 114, 0.2);
+  }
+
+  .partner-card img {
+    max-height: 60px;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 15px;
+    transition: filter 0.3s ease;
+  }
+
+  .partner-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .partner-card p {
+    font-size: 0.9rem;
+    color: #444;
+    transition: color 0.3s ease;
+  }
+
+  .partner-card:hover p {
+    color: #e0e0e0;
+  }
+
+  @media (max-width: 768px) {
+    .partner-card {
+      width: 80%;
+      max-width: 300px;
+    }
+  }
+</style>
+
+<!-- Start Footer Area -->
+<footer class="footer-area" style="background-color: #1a4272; color: white; padding: 40px 0; font-family: Arial, sans-serif;">
+  <div class="container">
+    <div class="row text-center text-lg-start align-items-center">
+
+      <!-- Left: Copyright -->
+      <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+        <p style="margin: 0; font-size: 16px;">
+          © 2025 <b>OncoOne</b>. All rights reserved.
+        </p>
+      </div>
+
+      <!-- Center: Social Links -->
+      <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+        <div class="social-links d-flex justify-content-center gap-3">
+          <!-- Instagram -->
+          <a href="https://instagram.com" target="_blank" class="social-icon">
+            <i class="lni lni-instagram-original"></i>
+          </a>
+          <!-- Facebook -->
+          <a href="https://facebook.com" target="_blank" class="social-icon">
+            <i class="lni lni-facebook-filled"></i>
+          </a>
+          <!-- X (Twitter) -->
+          <a href="https://twitter.com" target="_blank" class="social-icon">
+            <i class="lni lni-twitter-original"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Powered by -->
+      <div class="col-lg-4 col-md-12">
+        <p style="margin: 0; font-size: 14px;">
+          Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span>
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Optional bottom tagline -->
+    <div class="row mt-3">
+      <div class="col-12 text-center">
+        <p style="margin: 0; font-size: 15px; color: #dfe4eb;">
+          Empowering Post-Cancer Thriving
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!--/ End Footer Area -->
+
+  <a href="#" class="scroll-top btn-hover">
+    <i class="lni lni-chevron-up"></i>
+  </a>
+
+  <!--====== js ======-->
+  <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/js/main.js' %}"></script>
+  <script src="{% static 'assets/js/tiny-slider.js' %}"></script>
+
+  <script>
+
+    //===== close navbar-collapse when a  clicked
+    let navbarTogglerNine = document.querySelector(
+      ".navbar-nine .navbar-toggler"
+    );
+    navbarTogglerNine.addEventListener("click", function () {
+      navbarTogglerNine.classList.toggle("active");
+    });
+
+    // ==== left sidebar toggle
+    let sidebarLeft = document.querySelector(".sidebar-left");
+    let overlayLeft = document.querySelector(".overlay-left");
+    let sidebarClose = document.querySelector(".sidebar-close .close");
+
+    overlayLeft.addEventListener("click", function () {
+      sidebarLeft.classList.toggle("open");
+      overlayLeft.classList.toggle("open");
+    });
+    sidebarClose.addEventListener("click", function () {
+      sidebarLeft.classList.remove("open");
+      overlayLeft.classList.remove("open");
+    });
+
+    // ===== navbar nine sideMenu
+    let sideMenuLeftNine = document.querySelector(".navbar-nine .menu-bar");
+
+    sideMenuLeftNine.addEventListener("click", function () {
+      sidebarLeft.classList.add("open");
+      overlayLeft.classList.add("open");
+    });
+
+    //========= glightbox
+    GLightbox({
+      'href': 'https://www.youtube.com/watch?v=r44RKWyfcFw&fbclid=IwAR21beSJORalzmzokxDRcGfkZA1AtRTE__l5N4r09HcGS5Y6vOluyouM9EM',
+      'type': 'video',
+      'source': 'youtube', //vimeo, youtube or local
+      'width': 900,
+      'autoplayVideos': true,
+    });
+
+  </script>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000,   // animation duration in ms
+    once: true,       // animate only once when scrolling down
+    offset: 100,      // trigger point before the section
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const imageContainer = document.querySelector(".about-image-five");
+
+  const founderTab = document.getElementById("nav-founder-tab");
+  const missionTab = document.getElementById("nav-mission-tab");
+  const visionTab = document.getElementById("nav-vision-tab");
+
+  // YouTube video embed (default view)
+  const youtubeEmbed = `
+   <iframe width= 100% height="450" src="https://www.youtube.com/embed/1n2Z2YeKj7M?si=0kq91AjPbPwftbTy" 
+title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  `;
+
+  // Founder image (for mission and vision)
+  const founderImage = `
+    <img id="myImage"
+         src="{% static 'assets/images/mission.jpg' %}"
+         alt="Founder"
+         class="rounded shadow-sm"
+         style="width: 100%; height: 450px; object-fit: cover; transition: opacity 0.6s ease-in-out;">
+  `;
+
+  // Functions to swap content
+  const showVideo = () => {
+    imageContainer.innerHTML = youtubeEmbed;
+  };
+
+  const showImage = () => {
+    imageContainer.innerHTML = founderImage;
+  };
+
+  // Event Listeners
+  founderTab.addEventListener("click", showVideo);
+  missionTab.addEventListener("click", showImage);
+  visionTab.addEventListener("click", showImage);
+});
+</script>
+
+<script>
+  window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.navbar-nine');
+    if (window.scrollY > 50) { // scroll threshold
+      navbar.classList.add('shrink');
+    } else {
+      navbar.classList.remove('shrink');
+    }
+  });
+</script>
+
+</body>
+
+</html>

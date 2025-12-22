@@ -1,0 +1,568 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Courses | OncoOne Aesthetic School</title>
+
+  <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+  <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/lineicons.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/tiny-slider.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/glightbox.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+  .body { 
+  background-color: #ffffff; 
+  color: #1a4272; 
+  font-family: 'Poppins', sans-serif; 
+  overflow-x: hidden !important;
+}
+
+.section-title {
+  margin-top: 70px;
+  margin-bottom: 45px;
+  font-weight: 700;
+  font-size: 2.3rem;
+  color: #1a4272;
+  letter-spacing: -0.5px;
+}
+
+.card {
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(26,66,114,0.10);
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(26,66,114,0.14);
+}
+
+.course-hero-card {
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.14);
+}
+
+.course-hero-card img {
+  height: 300px;
+  object-fit: cover;
+}
+
+.course-section {
+  padding: 100px 0 70px 0;
+}
+
+#overview .card {
+  background: linear-gradient(to bottom, #ffffff, #f5f7fb);
+  border-left: 5px solid #1a4272;
+}
+
+#eligibility .card,
+#bridge-course .card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #dfe6ef;
+  padding: 30px;
+}
+
+.muted {
+  color: #5a6b84;
+  line-height: 1.65;
+}
+
+.btn-primary {
+  background-color: #1a4272 !important;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.btn-primary:hover {
+  background-color: #19365d !important;
+  transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+  border-color: #1a4272;
+  color: #1a4272;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: #1a4272;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.form-control {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cdd7e5;
+  transition: 0.25s;
+}
+
+.form-control:focus {
+  border-color: #1a4272;
+  box-shadow: 0 0 0 0.1rem rgba(26,66,114,0.25);
+}
+
+.book-section {
+  padding: 80px 0;
+  background: linear-gradient(to bottom right, #f8fbff, #eef3fa);
+}
+
+.book-section img {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+footer {
+  background-color: #1a4272;
+  color: white;
+  padding: 45px 0;
+  font-size: 16px;
+}
+
+footer p {
+  color: #e8eef8;
+  margin-bottom: 0;
+}
+
+@media (max-width:768px) {
+  .section-title { font-size: 1.8rem; margin-top: 45px; }
+  .course-hero-card img { height: 230px; }
+}
+
+html, body {
+  overflow-x: hidden !important;
+}
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <section class="navbar-area navbar-nine sticky">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="{% url 'home' %}">
+          <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height:80px;" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNine">
+          <span class="toggler-icon"></span>
+          <span class="toggler-icon"></span>
+          <span class="toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}">Home</a></li>
+            <li class="nav-item"><a class="page-scroll active" href="{% url 'products' %}">Courses</a></li>
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#about">About Us</a></li>
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#contact">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </section>
+
+  <!-- MAIN COURSE HERO -->
+  <section class="course-section" data-aos="fade-left" id="course">
+    <div class="container">
+      <h1 class="section-title" style="text-align: center;">Oncology Esthetics Certification</h1>
+      <p class="text-center muted mb-4" style="max-width:880px; margin:0 auto;">
+        A 40-hour professional certification designed to train estheticians and allied professionals
+        in safe, trauma-informed, oncology-focused skincare and client care.
+      </p>
+
+      <div class="row justify-content-center g-4 mt-4">
+        <div class="col-lg-8">
+          <div class="card p-0 overflow-hidden" style="border-radius:16px;">
+            <img src="{% static 'assets/images/pexels-ivan-s-6436283.jpg' %}" alt="Certification Image" class="img-fluid w-100" style="height:280px; object-fit:cover;">
+            <div class="p-4">
+              <div class="row g-3 align-items-center">
+                <div class="col-md-8">
+                  <h3 class="mb-2" style="color:#1a4272; font-weight:700;">Full Oncology Esthetics Certificate</h3>
+                  <p class="small-note mb-0">Duration: <strong>40 hours</strong> &nbsp;|&nbsp; Price: <strong>$1,999.00</strong></p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                  <a href="#register" class="btn btn-primary px-4 py-2">Register</a>
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <h5 style="color:#1a4272;">What You Will Learn</h5>
+              <ul class="muted" style="line-height:1.8; list-style-type: disc; padding-left: 20px;">
+                <li>Understanding cancer and treatment impacts across the body</li>
+                <li>Post-surgical skin and emotional recovery</li>
+                <li>Adapting esthetic protocols for oncology-safe practice</li>
+                <li>Lymphedema awareness & gentle lymphatic techniques</li>
+                <li>Ingredient safety, fragile skin protocols, oncology nail care</li>
+                <li>Emotional literacy & mental wellness in esthetic care</li>
+                <li>Featuring guest speakers: nurses, oncologists & survivor advocates</li>
+              </ul>
+
+              <p class="mt-3 muted"><strong>Featuring guest speakers</strong> including oncology nurses, oncologists, and survivor advocates.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section id="overview" style="padding:40px 0; background:#f7f9fc;" data-aos="fade-right">
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+
+        <div class="col-md-4">
+          <div class="card p-4 h-100">
+            <h4>👩‍⚕️ About the Instructor</h4>
+            <p class="muted">Marilyn — certified medical esthetics instructor, cancer survivor & advocate with 20+ years experience.</p>
+            <ul style="color:#33495f;">
+              <li>Certified Nutritionist & Medical Esthetics Expert</li>
+              <li>20+ years in skincare & oncology esthetics</li>
+              <li>Author of Nonna Ma's Cancer Survivor Cookbook</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-4 h-100">
+            <h4>🎓 Who Should Join?</h4>
+            <p class="muted">Designed for professionals passionate about compassionate oncology esthetic care.</p>
+            <ul style="color:#33495f;">
+              <li>Medical estheticians & spa professionals</li>
+              <li>Nurses & skincare therapists</li>
+              <li>Students & transitioning professionals</li>
+              <li>Anyone passionate about holistic wellness</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-4 h-100">
+            <h4>📍 Format & Delivery</h4>
+            <p class="muted">Hands-on, in-person training plus expert talks.</p>
+            <ul style="color:#33495f;">
+              <li>Duration: 40 hours (certification)</li>
+              <li>Hands-on, in-person practice</li>
+              <li>Guest speakers & real-world case studies</li>
+              <li>Certificate awarded upon successful completion</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ELIGIBILITY -->
+  <section id="eligibility" class="py-5" data-aos="fade-left">
+    <div class="container">
+      <h2 class="section-title" style="text-align: center;">Prerequisite Requirement</h2>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card p-4">
+            <h5 style="color:#1a4272;">Before you enroll</h5>
+            <p class="muted">
+              To ensure safe, ethical, and trauma-informed care, all students must meet <strong>one</strong> of the following before enrolling in the Oncology Esthetics Certification:
+            </p>
+            <ul style="color:#33495f; line-height:1.8;">
+              <li>A certificate or diploma in esthetics or a related field.</li>
+              <li>A letter from an employer verifying hands-on esthetics experience.</li>
+              <li>Completion of our <strong>Pre-Certificate Bridge Course</strong> for those without formal training.</li>
+            </ul>
+
+            <p class="small-note mt-3">
+              <strong>Upload Proof of Prerequisite</strong> is required during registration. Accepted formats: <strong>PDF, JPG, PNG</strong>. Max file size: <strong>5MB</strong>.
+            </p>
+
+            <div class="mt-3">
+              <a href="#register" class="btn btn-primary">Proceed to Registration</a>
+              <a href="#bridge-course" class="btn btn-outline-primary ms-2">View Bridge Course</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRIDGE COURSE SECTION (NEW) -->
+  <section id="bridge-course" class="py-5" data-aos="fade-right">
+    <div class="container">
+      <h2 class="section-title" style="text-align: center;">Pre-Certificate Bridge Course</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <div class="card p-4">
+            <h3 class="mb-3">Bridge Course Overview</h3>
+            <p class="muted">
+              Don't have a certificate or formal esthetics training? No problem.<br>
+              Our <strong>Pre-Certificate Bridge Course</strong> is designed to prepare you with the foundational
+              knowledge needed to enter the Oncology Esthetics Certification.
+            </p>
+
+            <ul class="muted" style="line-height:1.8;">
+              <li><strong>Duration:</strong> 20 hours</li>
+              <li><strong>Format:</strong> In-person training</li>
+              <li><strong>Scheduling Options:</strong> 3 Saturdays or 5 evenings (final schedule based on availability)</li>
+              <li><strong>Price:</strong> $745.00 + Roots & Release Kit</li>
+              <li><strong>Certification:</strong> Certificate of Completion included</li>
+            </ul>
+
+            <h5 class="mt-4">Course Includes:</h5>
+            <ul class="muted" style="line-height:1.8;">
+              <li>Skin Anatomy & Facial Mapping</li>
+              <li>Product Safety & Technique Awareness</li>
+              <li>Infection Control & Professional Image</li>
+              <li>Common Skin Conditions & Treatment Awareness</li>
+              <li>Final Quiz & Certification</li>
+            </ul>
+
+            <div class="mt-3 text-end" >
+              <a href="#register" class="btn btn-outline-primary px-4 py-2" >Register for Bridge Course</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRATION -->
+  <section id="register" class="py-5" data-aos="fade-left">
+    <div class="container">
+      <h2 class="section-title" style="text-align: center;">Register for the Course</h2>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-7">
+          <div class="card p-4">
+
+            <h4 class="mb-3" style="color:#1a4272;">Registration</h4>
+            <p class="muted">Please tell us whether you meet the prerequisite qualification below.</p>
+
+            <form id="registerForm" enctype="multipart/form-data" novalidate>
+
+              <!-- MCQ QUESTION -->
+              <div class="mb-3">
+                <label class="form-label">Do you have the above-mentioned qualifications? <span class="required-star">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="hasQualification" id="qualYes" value="yes" required>
+                  <label class="form-check-label" for="qualYes">Yes — I have a certificate / employer verification</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="hasQualification" id="qualNo" value="no">
+                  <label class="form-check-label" for="qualNo">No — I do not have prerequisites and need the Bridge Course</label>
+                </div>
+              </div>
+
+              <!-- File upload only visible if user selects YES -->
+              <div class="mb-3" id="proofContainer" style="display:none;">
+                <label for="proof" class="form-label">Upload Proof of Prerequisite <span class="required-star">*</span></label>
+                <input type="file" name="proof" id="proof" class="form-control" accept=".pdf, image/jpeg, image/png" />
+                <div id="proofHelp" class="form-text">Accepted formats: PDF, JPG, PNG — Max size: 5MB.</div>
+              </div>
+
+              <!-- Auto-bridge note (only shows when NO is selected) -->
+              <p id="bridgeNote" class="muted" style="display:none; font-weight:600;">
+                You selected <strong>No</strong>. You will be automatically enrolled in the <strong>Pre-Certificate Bridge Course (20 hours)</strong>.
+              </p>
+
+              <!-- Contact fields -->
+              <div class="mb-3">
+                <label for="name" class="form-label">Full Name <span class="required-star">*</span></label>
+                <input type="text" id="name" name="name" class="form-control" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email Address <span class="required-star">*</span></label>
+                <input type="email" id="email" name="email" class="form-control" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="contact" class="form-label">Contact Number <span class="required-star">*</span></label>
+                <input type="text" id="contact" name="contact" class="form-control" required>
+              </div>
+
+              <input type="hidden" name="course" id="courseField" value="Oncology Esthetics Certificate">
+              <input type="hidden" name="autoBridge" id="autoBridge" value="false">
+
+              <div class="d-grid gap-2">
+                <button type="submit" id="submitBtn" class="btn btn-primary">Submit Registration</button>
+              </div>
+            </form>
+
+          </div>
+
+          <!-- small note about book -->
+          <div class="mt-3 text-center">
+            <p class="muted mb-0">🎁 <strong>Nonna Ma's Cancer Survivor Cookbook</strong> is complimentary upon course registration.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOK SECTION -->
+  <section class="book-section" id="book" data-aos="fade-left">
+    <div class="container">
+      <h2 class="section-title" style="color:#1a4272; text-align: center;">Nonna Ma's Cancer Survivor Cookbook</h2>
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <div style="width:100%; height:320px; overflow:hidden; border-radius:12px;">
+            <img src="{% static 'assets/images/book1.PNG' %}" alt="Aesthetic Book" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h3 class="mb-3" style="color:#1a4272;">"The Art of Modern Aesthetics"</h3>
+          <p style="font-size:16px; line-height:1.6;">
+            Dive into the science and artistry of oncology-focused esthetics with this practical cookbook and guide.
+            Complimentary for all students who register for any full or bridge course.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-area" style="background-color: #1a4272; color: white; padding: 40px 0; font-family: Arial, sans-serif;">
+    <div class="container">
+      <div class="row text-center text-lg-start align-items-center">
+        <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+          <p style="margin: 0; font-size: 16px;">© 2025 <b>OncoOne</b>. All rights reserved.</p>
+        </div>
+        <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+          <div class="social-links d-flex justify-content-center gap-3">
+            <a href="https://instagram.com" target="_blank" class="social-icon"><i class="lni lni-instagram-original"></i></a>
+            <a href="https://facebook.com" target="_blank" class="social-icon"><i class="lni lni-facebook-filled"></i></a>
+            <a href="https://twitter.com" target="_blank" class="social-icon"><i class="lni lni-twitter-original"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-12">
+          <p style="margin: 0; font-size: 14px;">Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span></p>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12 text-center">
+          <p style="margin: 0; font-size: 15px; color: #dfe4eb;">Empowering Post-Cancer Thriving</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" class="scroll-top btn-hover"><i class="lni lni-chevron-up"></i></a>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 900, once: true, offset: 80 });
+  </script>
+
+  <script>
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar-nine');
+      if (!navbar) return;
+      if (window.scrollY > 50) navbar.classList.add('shrink'); else navbar.classList.remove('shrink');
+    });
+
+    (function(){
+      const form = document.getElementById('registerForm');
+      const qualYes = document.getElementById('qualYes');
+      const qualNo = document.getElementById('qualNo');
+      const proofContainer = document.getElementById('proofContainer');
+      const bridgeNote = document.getElementById('bridgeNote');
+      const proofInput = document.getElementById('proof');
+      const courseField = document.getElementById('courseField');
+      const autoBridge = document.getElementById('autoBridge');
+      const submitBtn = document.getElementById('submitBtn');
+
+      function setForYes() {
+        proofContainer.style.display = 'block';
+        bridgeNote.style.display = 'none';
+        courseField.value = 'Oncology Esthetics Certificate';
+        autoBridge.value = 'false';
+      }
+      function setForNo() {
+        proofContainer.style.display = 'none';
+        bridgeNote.style.display = 'block';
+        courseField.value = 'Pre-Certificate Bridge Course';
+        autoBridge.value = 'true';
+      }
+
+      qualYes.addEventListener('change', setForYes);
+      qualNo.addEventListener('change', setForNo);
+
+      function isValidFile(file) {
+        if (!file) return false;
+        const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!allowed.includes(file.type)) return false;
+        const maxBytes = 5 * 1024 * 1024;
+        if (file.size > maxBytes) return false;
+        return true;
+      }
+
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const contact = document.getElementById('contact').value.trim();
+        if (!name || !email || !contact) {
+          alert('Please complete name, email and contact before submitting.');
+          return;
+        }
+
+        if (qualYes.checked) {
+          const file = proofInput.files[0];
+          if (!file) { alert('Please upload proof of prerequisite (PDF/JPG/PNG under 5MB).'); return; }
+          if (!isValidFile(file)) { alert('Invalid file. Please upload a PDF, JPG or PNG under 5MB.'); return; }
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          const formData = new FormData(form);
+          const resp = await fetch('{% url "api-register" %}', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!resp.ok) {
+            const text = await resp.text();
+            throw new Error(text || 'Submission failed');
+          }
+
+          const data = await resp.json();
+          alert('Registration submitted successfully. Thank you!');
+          form.reset();
+        } catch (err) {
+          console.error(err);
+          alert('There was an error submitting your registration. Please try again later.');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Registration';
+        }
+      });
+
+      proofContainer.style.display = 'none';
+      bridgeNote.style.display = 'none';
+    })();
+  </script>
+
+  <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
