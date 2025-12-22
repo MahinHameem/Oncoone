@@ -247,10 +247,11 @@ html, body {
       <!-- Left: Image -->
 <div class="col-lg-6 col-12 mb-4 mb-lg-0">
   <div class="about-image-five position-relative">
-    <!-- Default: YouTube iframe -->
-<iframe width= 100% height="450" src="https://www.youtube.com/embed/1n2Z2YeKj7M?si=0kq91AjPbPwftbTy" 
-title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <!-- Local video file -->
+<video width="100%" height="450" controls style="border-radius: 10px;">
+  <source src="static/assets/video/video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
   </div>
 </div>
 
@@ -613,7 +614,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // YouTube video embed (default view)
   const youtubeEmbed = `
-   <iframe width= 100% height="450" src="https://www.youtube.com/embed/1n2Z2YeKj7M?si=0kq91AjPbPwftbTy" 
+   <iframe width="100%" height="450" src="https://www.youtube.com/embed/L2MLcm8EoEM" 
 title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   `;
