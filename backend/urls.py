@@ -22,8 +22,18 @@ from django.urls import include
 
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+from django.views import View
+
+# View to return 404 for .well-known to let Nginx handle it
+class WellKnownPassthrough(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(status=404)
 
 urlpatterns = [
+    # Let Nginx handle .well-known (for SSL certificates)
+    path('.well-known/<path:path>', WellKnownPassthrough.as_view()),
+    
     path('', index_view, name='home'),
     path('products/', products_view, name='products'),
     path('portal/login/', core_views.staff_login, name='staff-login'),
