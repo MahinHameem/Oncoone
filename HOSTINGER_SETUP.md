@@ -76,14 +76,19 @@ sudo -u postgres psql
 
 ### 4.2 Create Database and User
 In the PostgreSQL prompt, type these commands **one by one**:
+POSTGRES_DB=businessdb
+POSTGRES_USER=businessusers
+POSTGRES_PASSWORD=dts@1#2#3
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
 
 ```sql
-CREATE DATABASE oncoone_db;
-CREATE USER oncoone_user WITH PASSWORD 'YourStrongPassword123!';
-ALTER ROLE oncoone_user SET client_encoding TO 'utf8';
-ALTER ROLE oncoone_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE oncoone_user SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE oncoone_db TO oncoone_user;
+CREATE DATABASE businessdb;
+CREATE USER businessusers WITH PASSWORD 'dts@1#2#3';
+ALTER ROLE businessusers SET client_encoding TO 'utf8';
+ALTER ROLE businessusers SET default_transaction_isolation TO 'read committed';
+ALTER ROLE businessusers SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE businessdb TO businessusers;
 \q
 ```
 
@@ -144,14 +149,14 @@ nano .env
 ### 7.2 Paste This Content (Edit the values!)
 ```env
 # Django Settings
-DJANGO_SECRET_KEY=paste-the-secret-key-you-generated-in-step-1.1
+DJANGO_SECRET_KEY=ms0n14madan50ph7o=ym(w8ju-udc(be2#%+6x*tlklu$7yiit
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=oncoesthetics.ca,www.oncoesthetics.ca,72.62.86.111
 
 # Database
-POSTGRES_DB=oncoone_db
-POSTGRES_USER=oncoone_user
-POSTGRES_PASSWORD=YourStrongPassword123!
+POSTGRES_DB=businessdb
+POSTGRES_USER=POSTGRES_USER=businessusers
+POSTGRES_PASSWORD=dts@1#2#3
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 
@@ -159,11 +164,11 @@ POSTGRES_PORT=5432
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.hostinger.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=noreply@oncoesthetics.ca
-EMAIL_HOST_PASSWORD=your-email-password
+EMAIL_HOST_USER=mahinham@gmail.com
+EMAIL_HOST_PASSWORD=dxbjicmmdaxpcngf
 EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL=noreply@oncoesthetics.ca
-ADMIN_EMAIL=admin@oncoesthetics.ca
+DEFAULT_FROM_EMAIL=mahinham@gmail.com
+ADMIN_EMAIL=mahinham@gmail.com
 ```
 
 **Press Ctrl+X, then Y, then Enter to save**
