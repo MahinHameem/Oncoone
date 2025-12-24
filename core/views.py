@@ -72,13 +72,33 @@ def register_view(request):
         try:
             email_msg = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [admin_email])
             if reg.proof:
-                # read file content and attach
+                # read file content and attach; derive mime safely
                 reg.proof.open()
-                email_msg.attach(reg.proof.name.split('/')[-1], reg.proof.read(), reg.proof.file.content_type if hasattr(reg.proof, 'file') else None)
+                mime = None
+                if hasattr(reg.proof, 'file') and hasattr(reg.proof.file, 'content_type'):
+                    mime = reg.proof.file.content_type
+                elif reg.proof_mime:
+                    mime = reg.proof_mime
+                email_msg.attach(reg.proof.name.split('/')[-1], reg.proof.read(), mime)
                 reg.proof.close()
-            email_msg.send(fail_silently=True)
+            email_msg.send(fail_silently=False)
+        except Exception as exc:  # surface email errors instead of silently swallowing
+            print(f"Email send failed: {exc}")
+            raise
+
+    # Send confirmation email to the registrant (no attachment to keep it lightweight)
+    if reg.email:
+        try:
+            user_subject = f"We received your registration for {reg.course}"
+            user_body = (
+                f"Hi {reg.name},\n\n"
+                f"Thank you for registering for {reg.course}. We have received your details and will be in touch shortly.\n"
+                f"If you have questions, reply to this email.\n\n"
+                f"– OncoOne Team"
+            )
+            EmailMessage(user_subject, user_body, settings.DEFAULT_FROM_EMAIL, [reg.email]).send(fail_silently=True)
         except Exception:
-            # don't crash on email errors; in production log the exception
+            # don't block flow if user confirmation fails
             pass
 
     return JsonResponse({'status': 'ok', 'id': reg.id})
