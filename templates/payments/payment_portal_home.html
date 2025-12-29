@@ -1,0 +1,271 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OncoOne Online Payments Portal</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .payment-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .payment-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-continue {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-continue:active {
+            transform: translateY(0);
+        }
+        
+        .btn-continue.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            padding: 12px;
+            background-color: #fee;
+            color: #c33;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            padding: 12px;
+            background-color: #efe;
+            color: #3c3;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>OncoOne Online Payments</h1>
+                <p>Enter your Student ID or Registration ID to continue</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="studentForm" onsubmit="handleStudentLookup(event)">
+                <div class="form-group">
+                    <label for="studentId">Student ID or Registration ID</label>
+                    <input 
+                        type="text" 
+                        id="studentId" 
+                        name="student_id" 
+                        placeholder="Enter your ID" 
+                        required
+                    />
+                    <div class="help-text">Enter your registration ID number or email</div>
+                </div>
+                
+                <button type="submit" class="btn-continue" id="submitBtn">
+                    Continue
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function handleStudentLookup(event) {
+            event.preventDefault();
+            
+            const studentId = document.getElementById('studentId').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            if (!studentId) {
+                errorMsg.textContent = 'Please enter your Student ID';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<span class="loading-spinner"></span>Verifying...';
+            submitBtn.disabled = true;
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // Verify student
+            fetch('/api/payment/verify-student/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    student_id: studentId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorMsg.textContent = data.error;
+                    errorMsg.style.display = 'block';
+                    submitBtn.classList.remove('loading');
+                    submitBtn.innerHTML = 'Continue';
+                    submitBtn.disabled = false;
+                } else {
+                    // Success - navigate to course selection
+                    successMsg.textContent = `Welcome, ${data.student.name}! Loading your courses...`;
+                    successMsg.style.display = 'block';
+                    
+                    // Store student data in session
+                    sessionStorage.setItem('student_id', data.student.id);
+                    sessionStorage.setItem('student_data', JSON.stringify(data.student));
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = `/api/payment/select-course/${data.student.id}/`;
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error('Error:', error);
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = 'Continue';
+                submitBtn.disabled = false;
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

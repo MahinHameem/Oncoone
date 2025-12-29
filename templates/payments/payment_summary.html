@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Summary - OncoOne Payments</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .payment-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .payment-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .summary-section {
+            margin-bottom: 30px;
+        }
+        
+        .summary-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .summary-row .label {
+            color: #666;
+        }
+        
+        .summary-row .value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .summary-row.total {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        
+        .summary-row.total .label {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .summary-row.total .value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .balance-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #00bcd4;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .balance-row .label {
+            color: #00796b;
+            font-weight: 600;
+        }
+        
+        .balance-row .value {
+            color: #00796b;
+            font-weight: 600;
+        }
+        
+        .terms-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .checkbox-label a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #bbb;
+        }
+        
+        .error-message {
+            padding: 12px;
+            background-color: #fee;
+            color: #c33;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>Payment Summary</h1>
+                <p>Review your payment details before continuing</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- Student Information -->
+            <div class="summary-section">
+                <div class="summary-title">Student Information</div>
+                <div class="summary-row">
+                    <span class="label">Student ID:</span>
+                    <span class="value">{{ student_id }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ student.name }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ student.email }}</span>
+                </div>
+            </div>
+            
+            <!-- Course Information -->
+            <div class="summary-section">
+                <div class="summary-title">Course Information</div>
+                <div class="summary-row">
+                    <span class="label">Course Name:</span>
+                    <span class="value">{{ course }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Full Course Fee:</span>
+                    <span class="value">{{ currency }} ${{ course_full_price }}</span>
+                </div>
+            </div>
+            
+            <!-- Payment Amount -->
+            <div class="summary-section">
+                <div class="summary-title">Payment Details</div>
+                <div class="summary-row">
+                    <span class="label">Payment Amount:</span>
+                    <span class="value">{{ currency }} ${{ payment_amount }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Tax (5% GST):</span>
+                    <span class="value">{{ currency }} ${{ tax_amount }}</span>
+                </div>
+                <div class="summary-row total">
+                    <span class="label">Total Amount to Pay:</span>
+                    <span class="value">{{ currency }} ${{ total_amount }}</span>
+                </div>
+            </div>
+            
+            <!-- Remaining Balance -->
+            <div class="balance-info">
+                <div class="balance-row">
+                    <span class="label">Remaining Balance:</span>
+                    <span class="value">{{ currency }} ${{ remaining_balance }}</span>
+                </div>
+                <div style="font-size: 12px; color: #00796b; margin-top: 5px;">
+                    You will still owe this amount after this payment
+                </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <form id="summaryForm" onsubmit="proceedToPayment(event)">
+                <div class="terms-section">
+                    <div class="checkbox-group">
+                        <input 
+                            type="checkbox" 
+                            id="termsCheck" 
+                            name="terms_agreed"
+                            required
+                        />
+                        <label for="termsCheck" class="checkbox-label">
+                            I agree to the terms and conditions and authorize this payment
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="goBack()">← Back</button>
+                    <button type="submit" class="btn-primary" id="proceedBtn">
+                        Continue to Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const studentId = {{ student_id }};
+        const paymentAmount = {{ payment_amount }};
+        const taxAmount = {{ tax_amount }};
+        const totalAmount = {{ total_amount }};
+        const currency = "{{ currency }}";
+        
+        function proceedToPayment(event) {
+            event.preventDefault();
+            
+            const termsCheck = document.getElementById('termsCheck').checked;
+            
+            if (!termsCheck) {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = 'You must agree to the terms and conditions';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Redirect to card entry page
+            const url = `/api/payment/card-entry/${studentId}/?amount=${paymentAmount}&tax=${taxAmount}&total=${totalAmount}`;
+            window.location.href = url;
+        }
+        
+        function goBack() {
+            window.location.href = `/api/payment/select-course/${studentId}/`;
+        }
+    </script>
+</body>
+</html>

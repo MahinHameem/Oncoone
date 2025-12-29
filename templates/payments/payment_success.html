@@ -1,0 +1,319 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - OncoOne Payments</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        .success-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #4caf50;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .success-header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .success-header p {
+            color: #666;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .confirmation-box {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .confirmation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+        
+        .confirmation-row .label {
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .confirmation-row .value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            color: #333;
+            font-size: 14px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .detail-row .label {
+            color: #666;
+        }
+        
+        .detail-row .value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .detail-row.highlight {
+            background: #fffaf0;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .invoice-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #bbb;
+            text-decoration: none;
+            color: #333;
+        }
+        
+        .note {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #2e7d32;
+            line-height: 1.5;
+        }
+        
+        .note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="success-header">
+                <div class="success-icon">✓</div>
+                <h1>Payment Successful!</h1>
+                <p>Your payment has been processed successfully</p>
+            </div>
+            
+            <!-- Confirmation -->
+            <div class="confirmation-box">
+                <div class="confirmation-row">
+                    <span class="label">Invoice Number:</span>
+                    <span class="value">{{ payment.invoice_number }}</span>
+                </div>
+                <div class="confirmation-row">
+                    <span class="label">Transaction ID:</span>
+                    <span class="value">{{ payment.transaction_id }}</span>
+                </div>
+                <div class="confirmation-row">
+                    <span class="label">Payment Date:</span>
+                    <span class="value">{{ payment.completed_at|date:"M d, Y H:i:s" }}</span>
+                </div>
+            </div>
+            
+            <!-- Student Information -->
+            <div class="section">
+                <div class="section-title">Student Information</div>
+                <div class="detail-row">
+                    <span class="label">Student ID:</span>
+                    <span class="value">{{ student.id }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ student.name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ student.email }}</span>
+                </div>
+            </div>
+            
+            <!-- Course Information -->
+            <div class="section">
+                <div class="section-title">Course Information</div>
+                <div class="detail-row">
+                    <span class="label">Course Name:</span>
+                    <span class="value">{{ payment.course_name }}</span>
+                </div>
+            </div>
+            
+            <!-- Payment Details -->
+            <div class="section">
+                <div class="section-title">Payment Details</div>
+                <div class="detail-row">
+                    <span class="label">Course Fee:</span>
+                    <span class="value">{{ currency }} ${{ payment.total_price_cad }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Payment Amount:</span>
+                    <span class="value">{{ currency }} ${{ payment.payment_amount_cad }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Tax (5% GST):</span>
+                    <span class="value">{{ currency }} ${{ payment.tax_amount }}</span>
+                </div>
+                <div class="detail-row" style="font-size: 16px; font-weight: bold;">
+                    <span class="label">Total Paid:</span>
+                    <span class="value" style="color: #667eea;">{{ currency }} ${{ payment.final_amount_cad }}</span>
+                </div>
+                <div class="detail-row highlight">
+                    <span class="label">Remaining Balance:</span>
+                    <span class="value" style="color: #ff9800;">{{ currency }} ${{ remaining_balance }}</span>
+                </div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="section">
+                <div class="section-title">Payment Method</div>
+                <div class="detail-row">
+                    <span class="label">Card Type:</span>
+                    <span class="value">{{ payment.payment_method|upper }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Card (Last 4):</span>
+                    <span class="value">•••• •••• •••• {{ payment.card_last_four }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Cardholder:</span>
+                    <span class="value">{{ payment.card_holder_name }}</span>
+                </div>
+            </div>
+            
+            <!-- Notes -->
+            <div class="note">
+                <strong>📧 Invoice Sent</strong>
+                A detailed invoice has been sent to {{ student.email }}. Please keep it for your records. 
+                You can also download this invoice from your payment portal.
+            </div>
+            
+            {% if remaining_balance > 0 %}
+            <div class="note" style="background: #fff3cd; border-left-color: #ff9800; color: #856404;">
+                <strong>⚠️ Remaining Balance</strong>
+                You still have a remaining balance of {{ currency }} ${{ remaining_balance }} for this course. 
+                You can make another payment at any time through your payment portal.
+            </div>
+            {% else %}
+            <div class="note">
+                <strong>✓ Payment Complete</strong>
+                Your course has been fully paid. Thank you for your payment!
+            </div>
+            {% endif %}
+            
+            <!-- Buttons -->
+            <div class="button-group">
+                <a href="/" class="btn-secondary">← Back to Home</a>
+                <a href="/api/payment/" class="btn-primary">Make Another Payment</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

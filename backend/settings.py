@@ -191,3 +191,15 @@ if 'smtp' in EMAIL_BACKEND:
 
 # For development allow CORS from localhost dev server; in production lock this down
 CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+# -------
+# STRIPE CONFIGURATION (Payment Processing)
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_STATEMENT_DESCRIPTOR = os.getenv('STRIPE_STATEMENT_DESCRIPTOR', 'OncoOne')
+
+# Business Settings
+BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'OncoOne')
+BUSINESS_EMAIL = os.getenv('BUSINESS_EMAIL', 'info@oncoesthetics.ca')
+BUSINESS_CURRENCY = os.getenv('BUSINESS_CURRENCY', 'cad').lower()

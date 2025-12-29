@@ -1,0 +1,547 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Card Details - OncoOne Payments</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .payment-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .payment-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .amount-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .amount-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .amount-display .amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .security-note {
+            background: #e8f5e9;
+            padding: 12px;
+            border-left: 4px solid #4caf50;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+        
+        .security-note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .card-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-option {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .card-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .card-option input {
+            display: none;
+        }
+        
+        .card-option input:checked + label {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .card-option.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #bbb;
+        }
+        
+        .error-message {
+            padding: 12px;
+            background-color: #fee;
+            color: #c33;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>Enter Card Details</h1>
+                <p>Secure payment through OncoOne</p>
+            </div>
+            
+            <!-- Amount Display -->
+            <div class="amount-display">
+                <div class="label">Total Amount to Pay</div>
+                <div class="amount">{{ currency }} ${{ total_amount }}</div>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- Security Note -->
+            <div class="security-note">
+                <strong>🔒 Secure Payment</strong>
+                Your payment information is encrypted and secure. We never store your full card details.
+            </div>
+            
+            <!-- Payment Form -->
+            <form id="cardForm" onsubmit="processCardPayment(event)">
+                <!-- Card Type Selection -->
+                <div class="form-section">
+                    <h3>Card Type</h3>
+                    <div class="card-type-selector">
+                        <div class="card-option" onclick="selectCardType('visa')">
+                            <input type="radio" id="visa" name="card_type" value="visa" required />
+                            <label for="visa">💳 Visa</label>
+                        </div>
+                        <div class="card-option" onclick="selectCardType('mastercard')">
+                            <input type="radio" id="mastercard" name="card_type" value="mastercard" />
+                            <label for="mastercard">💳 Mastercard</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Details -->
+                <div class="form-section">
+                    <h3>Card Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input 
+                            type="text" 
+                            id="cardNumber" 
+                            name="card_number" 
+                            placeholder="0000 0000 0000 0000"
+                            inputmode="numeric"
+                            maxlength="19"
+                            required
+                        />
+                        <div class="help-text">Enter 13-19 digit card number</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cardHolder">Cardholder Name</label>
+                        <input 
+                            type="text" 
+                            id="cardHolder" 
+                            name="card_holder" 
+                            placeholder="John Doe"
+                            required
+                        />
+                        <div class="help-text">Name as it appears on your card</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryMonth">Expiry Month</label>
+                            <select id="expiryMonth" name="expiry_month" required>
+                                <option value="">-- Select --</option>
+                                <option value="01">01 - January</option>
+                                <option value="02">02 - February</option>
+                                <option value="03">03 - March</option>
+                                <option value="04">04 - April</option>
+                                <option value="05">05 - May</option>
+                                <option value="06">06 - June</option>
+                                <option value="07">07 - July</option>
+                                <option value="08">08 - August</option>
+                                <option value="09">09 - September</option>
+                                <option value="10">10 - October</option>
+                                <option value="11">11 - November</option>
+                                <option value="12">12 - December</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expiryYear">Expiry Year</label>
+                            <select id="expiryYear" name="expiry_year" required>
+                                <option value="">-- Select --</option>
+                                {% for year in "2024,2025,2026,2027,2028,2029,2030,2031,2032,2033" %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cvn">CVN / CVC</label>
+                            <input 
+                                type="text" 
+                                id="cvn" 
+                                name="cvn" 
+                                placeholder="123"
+                                inputmode="numeric"
+                                maxlength="4"
+                                required
+                            />
+                            <div class="help-text">3-4 digit code on back</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Terms -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <div style="display: flex; gap: 10px; align-items: flex-start;">
+                            <input 
+                                type="checkbox" 
+                                id="termsCheck" 
+                                name="terms_agreed"
+                                required
+                                style="margin-top: 4px; width: 18px; height: 18px; cursor: pointer;"
+                            />
+                            <label for="termsCheck" style="font-size: 13px; color: #333; cursor: pointer; flex: 1; margin: 0;">
+                                I agree to the terms and conditions and authorize this payment to my card
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="goBack()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="payBtn">
+                        Pay {{ currency }} ${{ total_amount }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const studentId = {{ student.id }};
+        const paymentAmount = {{ payment_amount }};
+        const taxAmount = {{ tax_amount }};
+        const totalAmount = {{ total_amount }};
+        const currency = "{{ currency }}";
+        
+        // Format card number with spaces
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '');
+            let formatted = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
+                }
+                formatted += value[i];
+            }
+            e.target.value = formatted;
+        });
+        
+        function selectCardType(type) {
+            document.getElementById(type).checked = true;
+            
+            // Update visual selection
+            document.querySelectorAll('.card-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.card-option').classList.add('selected');
+        }
+        
+        function processCardPayment(event) {
+            event.preventDefault();
+            
+            const cardType = document.getElementById('cardNumber').value.trim() ? document.querySelector('input[name="card_type"]:checked').value : null;
+            const cardNumber = document.getElementById('cardNumber').value.trim();
+            const cardHolder = document.getElementById('cardHolder').value.trim();
+            const expiryMonth = document.getElementById('expiryMonth').value;
+            const expiryYear = document.getElementById('expiryYear').value;
+            const cvn = document.getElementById('cvn').value.trim();
+            const termsCheck = document.getElementById('termsCheck').checked;
+            const errorMsg = document.getElementById('errorMessage');
+            const payBtn = document.getElementById('payBtn');
+            
+            // Validation
+            if (!cardType) {
+                errorMsg.textContent = 'Please select a card type';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!cardNumber || cardNumber.replace(/\s+/g, '').length < 13) {
+                errorMsg.textContent = 'Please enter a valid card number';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!cardHolder) {
+                errorMsg.textContent = 'Please enter cardholder name';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!expiryMonth || !expiryYear) {
+                errorMsg.textContent = 'Please select expiry date';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!cvn || cvn.length < 3) {
+                errorMsg.textContent = 'Please enter a valid CVN';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!termsCheck) {
+                errorMsg.textContent = 'You must agree to the terms and conditions';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Show loading state
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading-spinner"></span>Processing...';
+            errorMsg.style.display = 'none';
+            
+            // Submit payment and create OTP
+            fetch('/api/payment/create-and-send-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    payment_amount: paymentAmount,
+                    tax_amount: taxAmount,
+                    total_amount: totalAmount,
+                    card_type: cardType,
+                    card_number: cardNumber,
+                    card_holder: cardHolder,
+                    expiry_month: expiryMonth,
+                    expiry_year: expiryYear,
+                    cvn: cvn,
+                    terms_agreed: termsCheck
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    errorMsg.textContent = data.error;
+                    errorMsg.style.display = 'block';
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `Pay ${currency} $${totalAmount}`;
+                } else if (data.status === 'success') {
+                    // Redirect to OTP verification page
+                    window.location.href = `/api/payment/otp-verification/${data.payment_id}/`;
+                }
+            })
+            .catch(error => {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error('Error:', error);
+                payBtn.disabled = false;
+                payBtn.innerHTML = `Pay ${currency} $${totalAmount}`;
+            });
+        }
+        
+        function goBack() {
+            if (confirm('Are you sure you want to cancel this payment?')) {
+                window.location.href = `/api/payment/cancelled/${studentId}/`;
+            }
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

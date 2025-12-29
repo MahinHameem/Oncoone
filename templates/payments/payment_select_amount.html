@@ -1,0 +1,410 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Payment Amount - OncoOne Payments</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .payment-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .payment-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .payment-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .payment-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .student-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .info-row strong {
+            color: #333;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-addon {
+            display: flex;
+            gap: 0;
+        }
+        
+        .input-addon input {
+            flex: 1;
+            border-radius: 6px 0 0 6px;
+        }
+        
+        .input-addon .addon-text {
+            background: #f0f0f0;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-left: none;
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .price-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 14px;
+        }
+        
+        .price-row .label {
+            color: #666;
+        }
+        
+        .price-row .value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .payment-summary {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .summary-row .label {
+            color: #333;
+        }
+        
+        .summary-row .value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #bbb;
+        }
+        
+        .error-message {
+            padding: 12px;
+            background-color: #fee;
+            color: #c33;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>Select Payment Amount</h1>
+                <p>How much would you like to pay for this course?</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- Student Information -->
+            <div class="student-info">
+                <div class="info-row">
+                    <strong>Student ID:</strong>
+                    <span>{{ student.id }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Name:</strong>
+                    <span>{{ student.name }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Course:</strong>
+                    <span>{{ course }}</span>
+                </div>
+            </div>
+            
+            <!-- Price Information -->
+            <div class="price-info">
+                <div class="price-row">
+                    <span class="label">Total Course Fee:</span>
+                    <span class="value">{{ currency }} ${{ total_price }}</span>
+                </div>
+                <div class="price-row">
+                    <span class="label">You can pay partial amount or full amount</span>
+                </div>
+            </div>
+            
+            <!-- Payment Form -->
+            <form id="paymentForm" onsubmit="handlePaymentSelection(event)">
+                <div class="form-section">
+                    <h3>Payment Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="paymentAmount">Payment Amount</label>
+                        <div class="input-addon">
+                            <input 
+                                type="number" 
+                                id="paymentAmount" 
+                                name="payment_amount" 
+                                placeholder="0.00"
+                                min="0.01"
+                                max="{{ total_price }}"
+                                step="0.01"
+                                required
+                            />
+                            <div class="addon-text">{{ currency }}</div>
+                        </div>
+                        <div class="help-text">Enter amount between 0.01 and {{ currency }} {{ total_price }}</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" name="payment_method" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                            <option value="">-- Select Payment Method --</option>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Summary Preview -->
+                <div class="payment-summary" id="summaryPreview" style="display: none;">
+                    <div class="summary-row">
+                        <span class="label">Payment Amount:</span>
+                        <span class="value"><span id="summaryAmount">0.00</span> {{ currency }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">Tax (5% GST):</span>
+                        <span class="value"><span id="summaryTax">0.00</span> {{ currency }}</span>
+                    </div>
+                    <div class="summary-row" style="border-top: 2px solid #ff9800; padding-top: 8px; margin-top: 8px;">
+                        <span class="label" style="font-weight: bold;">Total Amount:</span>
+                        <span class="value"><span id="summaryTotal">0.00</span> {{ currency }}</span>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="goBack()">← Back</button>
+                    <button type="submit" class="btn-primary" id="continueBtn">Continue to Summary</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const studentId = {{ student.id }};
+        const totalPrice = {{ total_price }};
+        const currency = "{{ currency }}";
+        
+        // Calculate summary on amount change
+        document.getElementById('paymentAmount').addEventListener('change', function() {
+            const amount = parseFloat(this.value) || 0;
+            const tax = amount * 0.05;
+            const total = amount + tax;
+            
+            document.getElementById('summaryAmount').textContent = amount.toFixed(2);
+            document.getElementById('summaryTax').textContent = tax.toFixed(2);
+            document.getElementById('summaryTotal').textContent = total.toFixed(2);
+            
+            if (amount > 0) {
+                document.getElementById('summaryPreview').style.display = 'block';
+            } else {
+                document.getElementById('summaryPreview').style.display = 'none';
+            }
+        });
+        
+        function handlePaymentSelection(event) {
+            event.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (!method) {
+                errorMsg.textContent = 'Please select a payment method';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (amount <= 0) {
+                errorMsg.textContent = 'Payment amount must be greater than 0';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (amount > totalPrice) {
+                errorMsg.textContent = `Payment amount cannot exceed CAD $${totalPrice}`;
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Calculate tax
+            const tax = amount * 0.05;
+            const total = amount + tax;
+            
+            // Redirect to summary
+            const url = `/api/payment/summary/${studentId}/?amount=${amount.toFixed(2)}&tax=${tax.toFixed(2)}&total=${total.toFixed(2)}`;
+            window.location.href = url;
+        }
+        
+        function goBack() {
+            window.location.href = '/api/payment/';
+        }
+    </script>
+</body>
+</html>

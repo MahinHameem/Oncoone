@@ -1,0 +1,584 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Payment - OncoOne</title>
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #48bb78;
+            --danger-color: #f56565;
+            --warning-color: #ed8936;
+            --light-bg: #f7fafc;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .otp-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .otp-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .otp-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .otp-header h2 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .otp-header p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .payment-summary {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .payment-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .payment-summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-summary-row label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .payment-summary-row .value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .payment-summary-row.total {
+            padding: 15px 0;
+            border-top: 2px solid var(--primary-color);
+            margin-top: 10px;
+        }
+
+        .payment-summary-row.total label {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .payment-summary-row.total .value {
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+
+        .otp-input-section {
+            margin-bottom: 25px;
+        }
+
+        .otp-input-section label {
+            display: block;
+            margin-bottom: 12px;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .otp-input-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .otp-input.filled {
+            border-color: var(--primary-color);
+            background: var(--light-bg);
+        }
+
+        .otp-input.error {
+            border-color: var(--danger-color);
+        }
+
+        .otp-timer {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .otp-timer .time-left {
+            color: var(--warning-color);
+            font-weight: 600;
+        }
+
+        .otp-timer.expired .time-left {
+            color: var(--danger-color);
+        }
+
+        .resend-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        .resend-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        .resend-btn:disabled {
+            color: #cbd5e0;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .error-message {
+            background: var(--light-bg);
+            color: var(--danger-color);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-color);
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success-message {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--success-color);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success-color);
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-verify:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-verify:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--primary-color);
+            background: var(--light-bg);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .info-section {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .info-section strong {
+            color: #2d3748;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .otp-container {
+                padding: 30px 20px;
+            }
+
+            .otp-input {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .otp-header h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <div class="otp-header">
+            <div class="otp-icon">🔐</div>
+            <h2>Verify Your Payment</h2>
+            <p>Enter the OTP code sent to your email address to complete the payment</p>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <div class="payment-summary-row">
+                <label>Course</label>
+                <span class="value">{{ course }}</span>
+            </div>
+            <div class="payment-summary-row">
+                <label>Amount to Pay</label>
+                <span class="value">CAD ${{ payment_amount }}</span>
+            </div>
+            <div class="payment-summary-row">
+                <label>Tax (5%)</label>
+                <span class="value">CAD ${{ tax_amount }}</span>
+            </div>
+            <div class="payment-summary-row total">
+                <label>Total Payment</label>
+                <span class="value">CAD ${{ total_amount }}</span>
+            </div>
+        </div>
+
+        <!-- Error and Success Messages -->
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- OTP Input -->
+        <div class="otp-input-section">
+            <label>Enter 6-Digit OTP Code</label>
+            <div class="otp-input-group">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp1" autocomplete="off">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp2" autocomplete="off">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp3" autocomplete="off">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp4" autocomplete="off">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp5" autocomplete="off">
+                <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp6" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="otp-timer" id="timerDiv">
+            <span>OTP expires in <span class="time-left" id="timeLeft">10:00</span></span>
+        </div>
+
+        <!-- Buttons -->
+        <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">
+            Verify OTP & Complete Payment
+        </button>
+        <button class="btn-cancel" id="cancelBtn" onclick="cancelPayment()">
+            Cancel
+        </button>
+
+        <!-- Resend Section -->
+        <div class="resend-section" style="margin-top: 20px;">
+            <p style="color: #718096; font-size: 14px; margin-bottom: 10px;">Didn't receive the code?</p>
+            <button class="resend-btn" id="resendBtn" onclick="resendOTP()" style="display: none;">
+                Resend OTP
+            </button>
+            <p id="resendMsg" style="color: #718096; font-size: 13px;"></p>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <strong>⚠️ Security Note:</strong><br>
+            An OTP code has been sent to <strong>{{ student_email }}</strong>. 
+            This is to verify that you are making this payment. Never share your OTP with anyone.
+            Payment Method: {{ card_type }} ending in {{ card_last_four }}
+        </div>
+    </div>
+
+    <script>
+        // OTP Input Auto-focus
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const paymentId = {{ payment_id }};
+        const studentId = {{ student_id }};
+        
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                if (text.length === 6 && text.match(/^\d+$/)) {
+                    otpInputs.forEach((inp, idx) => {
+                        inp.value = text[idx];
+                        inp.classList.add('filled');
+                    });
+                    otpInputs[5].focus();
+                }
+            });
+        });
+
+        // Timer
+        let timeRemaining = 600; // 10 minutes
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                document.getElementById('timeLeft').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timerDiv').classList.add('expired');
+                    document.getElementById('timeLeft').textContent = 'Expired';
+                    document.getElementById('verifyBtn').disabled = true;
+                    document.getElementById('resendBtn').style.display = 'inline-block';
+                    document.getElementById('resendMsg').textContent = 'OTP has expired. Request a new one.';
+                }
+            }, 1000);
+        }
+
+        function verifyOTP() {
+            const otp = Array.from(otpInputs).map(inp => inp.value).join('');
+            
+            if (otp.length !== 6) {
+                showError('Please enter a valid 6-digit OTP');
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span class="loading-spinner"></span>Verifying...';
+
+            fetch('/api/payment/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    payment_id: paymentId,
+                    otp_code: otp
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showSuccess('Payment verified successfully!');
+                    clearInterval(timerInterval);
+                    setTimeout(() => {
+                        window.location.href = `/api/payment/success/${paymentId}/`;
+                    }, 2000);
+                } else {
+                    showError(data.message);
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = 'Verify OTP & Complete Payment';
+                    // Clear OTP inputs on error
+                    otpInputs.forEach(inp => {
+                        inp.value = '';
+                        inp.classList.remove('filled');
+                    });
+                    otpInputs[0].focus();
+                }
+            })
+            .catch(error => {
+                showError('An error occurred. Please try again.');
+                console.error('Error:', error);
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = 'Verify OTP & Complete Payment';
+            });
+        }
+
+        function resendOTP() {
+            // In a real implementation, this would call an API endpoint to resend the OTP
+            // For now, just reset the timer and show a message
+            timeRemaining = 600;
+            document.getElementById('timerDiv').classList.remove('expired');
+            document.getElementById('resendBtn').style.display = 'none';
+            document.getElementById('resendMsg').textContent = 'New OTP has been sent to your email';
+            startTimer();
+            showSuccess('OTP has been resent to your email');
+        }
+
+        function cancelPayment() {
+            if (confirm('Are you sure you want to cancel this payment?')) {
+                window.location.href = `/api/payment/cancelled/${studentId}/`;
+            }
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successMsg = document.getElementById('successMessage');
+            successMsg.textContent = message;
+            successMsg.classList.add('show');
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Start timer on page load
+        window.addEventListener('load', () => {
+            startTimer();
+            otpInputs[0].focus();
+        });
+    </script>
+</body>
+</html>

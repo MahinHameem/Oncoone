@@ -1,0 +1,634 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - OncoOne</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --light: #f7fafc;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .payment-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .payment-header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .payment-summary {
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .summary-row .value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .summary-row.total {
+            padding: 12px 0;
+            border-top: 2px solid var(--primary);
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .summary-row.total label {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .summary-row.total .value {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            color: #2d3748;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.expiry {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        #card-element {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            background: white;
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .stripe-error {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .stripe-error.show {
+            display: block;
+        }
+
+        .terms-section {
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+        }
+
+        .terms-checkbox label {
+            margin: 0;
+            font-size: 13px;
+            color: #718096;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .terms-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: rgba(245, 101, 101, 0.1);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid var(--danger);
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-pay:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .card-brands {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 35px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .card-brand:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .card-brand.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            color: #2d3748;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .payment-container {
+                padding: 25px;
+            }
+
+            .payment-header h1 {
+                font-size: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row.expiry {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <!-- Header -->
+        <div class="payment-header">
+            <h1>💳 Secure Payment</h1>
+            <p>Powered by Stripe</p>
+            <div class="security-badge">
+                🔒 Secure & Encrypted
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <div class="summary-row">
+                <label>Course</label>
+                <span class="value">{{ course }}</span>
+            </div>
+            <div class="summary-row">
+                <label>Amount</label>
+                <span class="value">CAD ${{ payment_amount }}</span>
+            </div>
+            <div class="summary-row">
+                <label>Tax (5% GST)</label>
+                <span class="value">CAD ${{ tax_amount }}</span>
+            </div>
+            <div class="summary-row total">
+                <label>Total Due</label>
+                <span class="value">CAD ${{ total_amount }}</span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Payment Form -->
+        <form id="paymentForm" onsubmit="handlePayment(event)">
+            <!-- Cardholder Name -->
+            <div class="form-section">
+                <label>Cardholder Name</label>
+                <div class="form-group">
+                    <input type="text" id="cardholderName" placeholder="John Doe" required autocomplete="name">
+                </div>
+            </div>
+
+            <!-- Stripe Card Element -->
+            <div class="form-section">
+                <label>Card Details</label>
+                <div id="card-element"></div>
+                <div class="stripe-error" id="card-errors"></div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-section">
+                <label>Email Address</label>
+                <div class="form-group">
+                    <input type="email" id="email" value="{{ student_email }}" required readonly>
+                </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="terms-section">
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="termsCheck" required>
+                    <label for="termsCheck">
+                        I agree to the terms and conditions and authorize OncoOne to charge my card
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-pay" id="payBtn">
+                Pay CAD ${{ total_amount }}
+            </button>
+            <button type="button" class="btn btn-cancel" onclick="cancelPayment()">
+                Cancel
+            </button>
+        </form>
+
+        <!-- Security Info -->
+        <div class="info-box">
+            <strong>🔐 Your Security:</strong><br>
+            Card details are processed securely by Stripe. We never see your full card number. 
+            After payment, you'll receive an OTP verification and invoice via email.
+        </div>
+    </div>
+
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('{{ stripe_public_key }}');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        // Handle card errors
+        cardElement.addEventListener('change', (event) => {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+                displayError.classList.add('show');
+            } else {
+                displayError.textContent = '';
+                displayError.classList.remove('show');
+            }
+        });
+
+        // Form data
+        const studentId = {{ student_id }};
+        const paymentAmount = parseFloat('{{ payment_amount }}');
+        const taxAmount = parseFloat('{{ tax_amount }}');
+        const totalAmount = parseFloat('{{ total_amount }}');
+        const stripePublicKey = '{{ stripe_public_key }}';
+
+        // Handle payment submission
+        async function handlePayment(event) {
+            event.preventDefault();
+
+            const cardholderName = document.getElementById('cardholderName').value;
+            const email = document.getElementById('email').value;
+            const termsCheck = document.getElementById('termsCheck').checked;
+            const payBtn = document.getElementById('payBtn');
+            const errorDiv = document.getElementById('errorMessage');
+
+            // Validation
+            if (!cardholderName) {
+                showError('Please enter cardholder name');
+                return;
+            }
+
+            if (!termsCheck) {
+                showError('You must agree to the terms and conditions');
+                return;
+            }
+
+            if (!stripePublicKey || stripePublicKey.includes('YOUR')) {
+                showError('Payment system not configured. Please add Stripe API keys.');
+                return;
+            }
+
+            // Disable button and show loading
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading-spinner"></span>Processing Payment...';
+            errorDiv.classList.remove('show');
+
+            try {
+                // Create payment method from card
+                const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardElement,
+                    billing_details: {
+                        name: cardholderName,
+                        email: email
+                    }
+                });
+
+                if (pmError) {
+                    showError(pmError.message);
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `Pay CAD $${totalAmount}`;
+                    return;
+                }
+
+                // Send to backend to create payment and OTP
+                const response = await fetch('/api/payment/create-and-send-otp/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        payment_method_id: paymentMethod.id,
+                        card_holder: cardholderName,
+                        card_type: paymentMethod.card.brand,
+                        card_last_four: paymentMethod.card.last4,
+                        payment_amount: paymentAmount,
+                        tax_amount: taxAmount,
+                        total_amount: totalAmount,
+                        email: email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    showError(data.error || 'Payment processing failed');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `Pay CAD $${totalAmount}`;
+                    return;
+                }
+
+                // Redirect to OTP verification
+                window.location.href = `/api/payment/otp-verification/${data.payment_id}/`;
+
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+                payBtn.disabled = false;
+                payBtn.innerHTML = `Pay CAD $${totalAmount}`;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelPayment() {
+            if (confirm('Are you sure you want to cancel this payment?')) {
+                window.location.href = `/api/payment/cancelled/${studentId}/`;
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Focus on card element when page loads
+        window.addEventListener('load', () => {
+            cardElement.focus();
+        });
+    </script>
+</body>
+</html>
