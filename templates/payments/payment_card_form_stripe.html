@@ -504,6 +504,7 @@
 
         // Form data
         const studentId = {{ student_id }};
+        const enrollmentId = {{ enrollment_id }};
         const paymentAmount = parseFloat('{{ payment_amount }}');
         const taxAmount = parseFloat('{{ tax_amount }}');
         const totalAmount = parseFloat('{{ total_amount }}');
@@ -567,6 +568,7 @@
                     },
                     body: JSON.stringify({
                         student_id: studentId,
+                        enrollment_id: enrollmentId,
                         payment_method_id: paymentMethod.id,
                         card_holder: cardholderName,
                         card_type: paymentMethod.card.brand,

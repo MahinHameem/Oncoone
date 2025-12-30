@@ -10,14 +10,28 @@ urlpatterns = [
     # Admin pages
     path('admin/students/', views.admin_students_page, name='admin-students-page'),
     path('admin/courses/', views.admin_courses_page, name='admin-courses-page'),
+    path('admin/payments-page/', views.admin_payments_page, name='admin-payments-page'),
+    
+    # Admin API endpoints
+    path('admin/payments/', views.admin_payments_list, name='admin-payments-list'),
+    path('admin/payments/<int:payment_id>/generate-invoice/', views.admin_generate_invoice, name='admin-generate-invoice'),
+    path('admin/download-invoice/<int:payment_id>/', views.admin_download_invoice, name='admin-download-invoice'),
     
     # Authentication
     path('admin/login/', views.staff_login, name='staff-login'),
     path('admin/logout/', views.staff_logout, name='staff-logout'),
     
+    # Student Portal - Login & Dashboard
+    path('student/login/', views.student_login, name='student-login'),
+    path('student/logout/', views.student_logout, name='student-logout'),
+    path('student/dashboard/<int:student_id>/', views.student_dashboard, name='student-dashboard'),
+    path('student/invoice/<int:payment_id>/download/', views.download_payment_invoice, name='download-invoice'),
+    
     # Payment Portal Routes (now under /api/ in main urls.py)
     path('payment/', views.payment_portal_home, name='payment-portal-home'),
     path('payment/select-course/<int:student_id>/', views.payment_select_course, name='payment-select-course'),
+    path('payment/amount/<int:student_id>/', views.payment_amount, name='payment-amount'),
+    path('payment/already-paid/<int:student_id>/<int:enrollment_id>/', views.payment_already_paid, name='payment-already-paid'),
     path('payment/summary/<int:student_id>/', views.payment_summary, name='payment-summary'),
     path('payment/card-entry/<int:student_id>/', views.payment_card_entry, name='payment-card-entry'),
     path('payment/otp-verification/<int:payment_id>/', views.payment_otp_verification_page, name='payment-otp-verification'),
@@ -31,3 +45,4 @@ urlpatterns = [
     path('payment/create-and-send-otp/', views.create_payment_and_send_otp, name='api-create-payment-otp'),
     path('payment/verify-otp/', views.verify_payment_otp, name='api-verify-payment-otp'),
 ]
+

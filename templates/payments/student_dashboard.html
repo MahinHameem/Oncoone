@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - OncoOne Payments</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Student Dashboard - Payment History</title>
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
     <style>
         * {
             margin: 0;
@@ -22,16 +23,15 @@
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
+            padding: 15px 20px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            width: 100%;
+            padding: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -457,40 +457,97 @@
                 transform: translateY(0);
             }
         }
+
+        /* Tabs */
+        .tab-link { color:#1f2937 !important; font-weight:600; text-decoration:none; }
+        .tab-link.active { color:#111827 !important; background:#eef6ff; border-radius:6px; }
+
+        /* Dropdown hover effects */
+        .dropdown-menu a:hover {
+            background: #f5f7fb;
+        }
+
+        .user-icon-btn:hover {
+            background: rgba(255,255,255,0.35) !important;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="/" class="navbar-brand">OncoOne</a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="{% static 'assets/images/logos.png' %}" alt="OncoOne" style="height: 60px; width: 60px;">
+                <a href="/" class="navbar-brand">OncoOne</a>
+            </div>
             <div class="navbar-actions">
-                <div class="user-info">
-                    <div class="user-name">{{ student_name }}</div>
-                    <div class="user-id">{{ registration_id }}</div>
+                <div class="user-dropdown" style="position: relative; display: flex; align-items: center; gap: 12px;">
+                    <span style="color: white; font-weight: 500;">{{ student_name }}</span>
+                    <button class="user-icon-btn" onclick="toggleDropdown()" style="background: rgba(255,255,255,0.2); border: 2px solid white; color: white; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease;">
+                        👤
+                    </button>
+                    <div id="userDropdownMenu" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 50px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; z-index: 1000;">
+                        <a href="#" onclick="alert('Profile feature coming soon!'); return false;" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                            <span style="margin-right: 8px;">👤</span> View Profile
+                        </a>
+                        <a href="/api/student/logout/" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; transition: background 0.2s;">
+                            <span style="margin-right: 8px;">🚪</span> Logout
+                        </a>
+                    </div>
                 </div>
-                <a href="/api/payment/student-logout/" class="btn-logout">Logout</a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container">
+        <!-- Filters removed per request -->
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Payment Dashboard</h1>
-            <p>View your payment history and manage your account</p>
+            <h1>Hello {{ student_name }}</h1>
         </div>
 
         <!-- Alert Messages -->
         <div id="alertContainer"></div>
 
+        <!-- Course Switcher -->
+        {% if course_options %}
+        <div style="margin: 10px 0 24px;">
+            <div style="font-weight:600; color:#555; margin-bottom:8px;">Your Courses</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="?course=all" class="btn-make-first-payment course-switch-link" style="padding:8px 14px; {% if not selected_course or selected_course == 'all' %}background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);{% else %}background:#4c6ef5;{% endif %}">All Courses</a>
+                {% for c in course_options %}
+                    <a href="?course={{ c|urlencode }}" class="btn-make-first-payment course-switch-link" style="padding:8px 14px; {% if selected_course == c %}background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);{% else %}background:#4c6ef5;{% endif %}">{{ c }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tabs: Materials | History -->
+        <div class="tab-nav" style="display:flex; gap:24px; align-items:center; border-bottom:1px solid #e5efe5; margin:-6px 0 16px;">
+            <a href="#" class="tab-link" data-tab="materials" style="padding:10px 4px; position:relative;">
+                Course Materials
+                <span class="tab-underline" style="position:absolute; left:0; bottom:-1px; height:2px; width:0; background:#2f7a2f; transition:width .2s;"></span>
+            </a>
+            <a href="#" class="tab-link active" data-tab="history" style="padding:10px 4px; position:relative;">
+                Payment History
+                <span class="tab-underline" style="position:absolute; left:0; bottom:-1px; height:2px; width:100%; background:#2f7a2f; transition:width .2s;"></span>
+            </a>
+        </div>
+
         <!-- Statistics -->
-        <div class="stats-grid">
+        <div id="stats-grid" class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">Total Paid</div>
                 <div class="stat-value">CAD ${{ total_paid|floatformat:2 }}</div>
-                <div class="stat-subtext">Across all payments</div>
+                <div class="stat-subtext">
+                    {% if selected_course and selected_course != 'all' %}
+                        Selected course
+                    {% else %}
+                        Across all payments
+                    {% endif %}
+                </div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Remaining Balance</div>
@@ -504,10 +561,47 @@
             </div>
         </div>
 
-        <!-- Payment History -->
-        <div class="payment-history">
+        <!-- Course Materials (placeholder) -->
+        <div id="tab-materials" class="payment-history" style="margin-bottom:24px; display:none;">
             <div class="payment-history-header">
-                <h2>Payment History</h2>
+                {% if selected_course and selected_course != 'all' %}
+                    <h2>Course Materials — {{ selected_course }}</h2>
+                {% else %}
+                    <h2>Course Materials</h2>
+                {% endif %}
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Link</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if selected_course and selected_course != 'all' %}
+                            <tr>
+                                <td colspan="3" style="text-align:center; color:#777; padding:20px;">No materials available yet.</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align:center; color:#777; padding:20px;">Select a course to view materials.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div id="tab-history" class="payment-history">
+            <div class="payment-history-header">
+                {% if selected_course and selected_course != 'all' %}
+                    <h2>Payment History — {{ selected_course }}</h2>
+                {% else %}
+                    <h2>Payment History</h2>
+                {% endif %}
             </div>
 
             {% if payments %}
@@ -529,7 +623,7 @@
                                 <tr>
                                     <td class="invoice-number">{{ payment.invoice_number }}</td>
                                     <td class="course-name">{{ payment.course_name }}</td>
-                                    <td class="amount">CAD ${{ payment.payment_amount_cad|floatformat:2 }}</td>
+                                    <td class="amount">CAD ${{ payment.final_amount_cad|floatformat:2 }}</td>
                                     <td class="amount">CAD ${{ payment.total_price_cad|floatformat:2 }}</td>
                                     <td>
                                         <span class="status-badge status-{{ payment.status }}">
@@ -539,18 +633,11 @@
                                     <td class="payment-date">{{ payment.completed_at|date:"M d, Y" }}</td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="/api/payment/invoice/{{ payment.id }}/download/" 
+                                            <a href="/api/student/invoice/{{ payment.id }}/download/" 
                                                class="btn-download" 
                                                title="Download Invoice">
                                                 📥 Invoice
                                             </a>
-                                            {% if payment.calculate_remaining_balance > 0 %}
-                                                <a href="/api/payment/?student_id={{ student_id }}" 
-                                                   class="btn-make-payment"
-                                                   title="Make another payment">
-                                                    💳 Pay More
-                                                </a>
-                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -577,8 +664,8 @@
         </div>
 
         <!-- Quick Actions -->
-        {% if payments %}
-            <div style="text-align: center; margin-top: 40px; margin-bottom: 40px;">
+        {% if payments and remaining_balance > 0 %}
+            <div id="another-payment-cta" style="text-align: center; margin-top: 40px; margin-bottom: 40px;">
                 <a href="/api/payment/" class="btn-make-first-payment" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                     💳 Make Another Payment
                 </a>
@@ -587,6 +674,87 @@
     </div>
 
     <script>
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            const menu = document.getElementById('userDropdownMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (!dropdown.contains(e.target)) {
+                document.getElementById('userDropdownMenu').style.display = 'none';
+            }
+        });
+
+        // Tabs behavior
+        (function() {
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const materials = document.getElementById('tab-materials');
+            const history = document.getElementById('tab-history');
+            const stats = document.getElementById('stats-grid');
+            const anotherPaymentCta = document.getElementById('another-payment-cta');
+            const courseLinks = document.querySelectorAll('.course-switch-link');
+
+            function setActive(tab) {
+                tabLinks.forEach(l => {
+                    l.classList.toggle('active', l.dataset.tab === tab);
+                    const ul = l.querySelector('.tab-underline');
+                    if (ul) ul.style.width = l.classList.contains('active') ? '100%' : '0';
+                });
+                if (tab === 'materials') {
+                    materials.style.display = '';
+                    history.style.display = 'none';
+                    if (stats) stats.style.display = 'none';
+                    if (anotherPaymentCta) anotherPaymentCta.style.display = 'none';
+                } else {
+                    materials.style.display = 'none';
+                    history.style.display = '';
+                    if (stats) stats.style.display = '';
+                    if (anotherPaymentCta) anotherPaymentCta.style.display = '';
+                }
+            }
+
+            tabLinks.forEach(l => l.addEventListener('click', (e) => {
+                e.preventDefault();
+                setActive(l.dataset.tab);
+            }));
+
+            // Preserve current tab when switching courses (including All Courses)
+            function setParam(url, key, value){
+                // Resolve relative links (e.g., '?course=all') against current page URL
+                const u = new URL(url, window.location.href);
+                if (value) {
+                    u.searchParams.set(key, value);
+                } else {
+                    u.searchParams.delete(key);
+                }
+                return u.pathname + '?' + u.searchParams.toString();
+            }
+            courseLinks.forEach(a => a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const active = Array.from(tabLinks).find(x => x.classList.contains('active'))?.dataset.tab || 'history';
+                const hrefWithTab = setParam(a.getAttribute('href'), 'tab', active);
+                window.location.href = hrefWithTab;
+            }));
+
+            // Decide initial tab:
+            // 1) Respect explicit ?tab=materials|history
+            // 2) Else, if ?course is a specific course (not 'all'), open Materials
+            // 3) Fallback to History
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = (params.get('tab') || '').toLowerCase();
+            const courseParam = (params.get('course') || '').toLowerCase();
+            if (tabParam === 'materials' || tabParam === 'history') {
+                setActive(tabParam);
+            } else if (courseParam && courseParam !== 'all') {
+                setActive('materials');
+            } else {
+                setActive('history');
+            }
+        })();
+
         // Auto-refresh payment history every 30 seconds
         setTimeout(() => {
             location.reload();

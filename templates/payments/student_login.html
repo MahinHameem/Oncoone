@@ -4,458 +4,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login - OncoOne Payments</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Student Login - OncoOne</title>
+    <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .payment-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
         }
-
-        .login-container {
+        
+        .payment-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 10px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 450px;
-            width: 100%;
             padding: 40px;
-            animation: slideUp 0.4s ease-out;
+            max-width: 500px;
+            width: 100%;
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-header {
+        
+        .payment-header {
             text-align: center;
             margin-bottom: 40px;
         }
-
-        .login-header h1 {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .login-header p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            font-weight: 600;
+        
+        .payment-header h1 {
+            font-size: 28px;
             color: #333;
             margin-bottom: 10px;
+        }
+        
+        .payment-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
             display: block;
-            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
         }
-
-        .form-group input,
-        .form-group select {
+        
+        .form-group input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            font-family: 'Segoe UI', sans-serif;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
-
-        .form-group input:focus,
-        .form-group select:focus {
+        
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
-        .form-group input::placeholder {
-            color: #aaa;
-        }
-
-        .login-type-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .login-type-tabs button {
-            flex: 1;
-            padding: 12px 0;
-            background: none;
-            border: none;
-            color: #999;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .login-type-tabs button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .login-form-section {
-            display: none;
-        }
-
-        .login-form-section.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .btn-login {
+        
+        .btn-continue {
             width: 100%;
             padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 16px;
             font-weight: 600;
-            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        .btn-login:hover {
+        
+        .btn-continue:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
-
-        .btn-login:active {
+        
+        .btn-continue:active {
             transform: translateY(0);
         }
-
-        .btn-login.loading {
+        
+        .btn-continue.loading {
             opacity: 0.7;
             cursor: not-allowed;
         }
-
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .login-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .login-footer a:hover {
-            color: #764ba2;
-        }
-
+        
         .error-message {
+            padding: 12px;
             background-color: #fee;
             color: #c33;
-            padding: 12px 15px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            border-left: 4px solid #c33;
             display: none;
-            animation: slideDown 0.3s ease-out;
         }
-
-        .error-message.show {
-            display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        
         .success-message {
+            padding: 12px;
             background-color: #efe;
             color: #3c3;
-            padding: 12px 15px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            border-left: 4px solid #3c3;
             display: none;
-            animation: slideDown 0.3s ease-out;
         }
-
-        .success-message.show {
-            display: block;
+        
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
         }
-
-        .spinner {
-            display: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .spinner.show {
-            display: inline-block;
-        }
-
-        .info-text {
-            color: #666;
-            font-size: 0.85rem;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-
+        
         .back-link {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 20px;
         }
-
+        
         .back-link a {
             color: #667eea;
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 14px;
         }
-
+        
         .back-link a:hover {
-            color: #764ba2;
-            gap: 10px;
+            text-decoration: underline;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>OncoOne</h1>
-            <p>Student Payment Portal</p>
-        </div>
-
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
-
-        <form id="loginForm">
-            <div class="login-type-tabs">
-                <button type="button" class="tab-btn active" data-tab="registration-id">
-                    Registration ID
-                </button>
-                <button type="button" class="tab-btn" data-tab="email">
-                    Email
-                </button>
-                <button type="button" class="tab-btn" data-tab="student-id">
-                    Student ID
-                </button>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <img src="{% static 'assets/images/logos.png' %}" alt="OncoOne" style="width: 80px; height: 80px; margin-bottom: 20px;">
+                <h1>OncoOne Student Portal</h1>
+                <p>Enter your Student ID or Registration Number to continue</p>
             </div>
 
-            <!-- Registration ID Login -->
-            <div class="login-form-section active" id="registration-id">
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="registrationId">Registration ID</label>
+                    <label for="studentInput">Student ID or Registration Number</label>
                     <input 
                         type="text" 
-                        id="registrationId" 
-                        name="registration_id" 
-                        placeholder="e.g., REG-20240115-ABC123"
+                        id="studentInput" 
+                        name="student_input" 
+                        placeholder="Enter Student ID or Registration Number"
                         autocomplete="off"
+                        required
                     >
-                    <div class="info-text">Format: REG-YYYYMMDD-XXXXXX</div>
+                    <div class="help-text">You can use either your numeric Student ID or your Registration Number</div>
                 </div>
+
+                <button type="submit" class="btn-continue" id="submitBtn">
+                    Continue
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
             </div>
-
-            <!-- Email Login -->
-            <div class="login-form-section" id="email">
-                <div class="form-group">
-                    <label for="loginEmail">Email Address</label>
-                    <input 
-                        type="email" 
-                        id="loginEmail" 
-                        name="email" 
-                        placeholder="Enter your registered email"
-                        autocomplete="email"
-                    >
-                </div>
-            </div>
-
-            <!-- Student ID Login -->
-            <div class="login-form-section" id="student-id">
-                <div class="form-group">
-                    <label for="studentId">Student ID</label>
-                    <input 
-                        type="number" 
-                        id="studentId" 
-                        name="student_id" 
-                        placeholder="Enter your numeric Student ID"
-                        autocomplete="off"
-                    >
-                </div>
-            </div>
-
-            <button type="submit" class="btn-login">
-                <span class="spinner" id="spinner"></span>
-                <span id="btnText">Login to Dashboard</span>
-            </button>
-        </form>
-
-        <div class="back-link">
-            <a href="/">← Back to Home</a>
         </div>
     </div>
-
+    
     <script>
-        const form = document.getElementById('loginForm');
-        const errorMsg = document.getElementById('errorMessage');
-        const successMsg = document.getElementById('successMessage');
-        const spinner = document.getElementById('spinner');
-        const btnText = document.getElementById('btnText');
-        const btn = form.querySelector('button[type="submit"]');
-        const tabs = document.querySelectorAll('.tab-btn');
-        const sections = document.querySelectorAll('.login-form-section');
-
-        // Tab switching
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tabName = tab.getAttribute('data-tab');
-                
-                tabs.forEach(t => t.classList.remove('active'));
-                sections.forEach(s => s.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(tabName).classList.add('active');
-                
-                // Clear previous messages
-                errorMsg.classList.remove('show');
-                successMsg.classList.remove('show');
-            });
-        });
-
-        // Form submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        function handleLogin(event) {
+            event.preventDefault();
             
-            // Clear messages
-            errorMsg.classList.remove('show');
-            successMsg.classList.remove('show');
+            const studentInput = document.getElementById('studentInput').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
             
-            // Get active tab and value
-            const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
-            let loginIdentifier = '';
-            let loginType = '';
-
-            if (activeTab === 'registration-id') {
-                loginIdentifier = document.getElementById('registrationId').value.trim();
-                loginType = 'registration_id';
-            } else if (activeTab === 'email') {
-                loginIdentifier = document.getElementById('loginEmail').value.trim();
-                loginType = 'email';
-            } else if (activeTab === 'student-id') {
-                loginIdentifier = document.getElementById('studentId').value.trim();
-                loginType = 'student_id';
-            }
-
-            if (!loginIdentifier) {
-                showError('Please enter your ' + activeTab.replace('-', ' '));
+            if (!studentInput) {
+                errorMsg.textContent = 'Please enter your Student ID or Registration Number';
+                errorMsg.style.display = 'block';
                 return;
             }
-
+            
             // Show loading state
-            spinner.classList.add('show');
-            btn.classList.add('loading');
-            btn.disabled = true;
-            btnText.textContent = 'Logging in...';
-
-            try {
-                const response = await fetch('/api/payment/student-login/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({
-                        [loginType]: loginIdentifier
-                    })
-                });
-
-                const data = await response.json();
-
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<span class="loading-spinner"></span>Logging in...';
+            submitBtn.disabled = true;
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // Login request
+            fetch('/api/student/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    student_input: studentInput
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 if (data.status === 'success') {
-                    successMsg.textContent = 'Login successful! Redirecting...';
-                    successMsg.classList.add('show');
+                    successMsg.textContent = `Welcome, ${data.student_name}! Redirecting to your dashboard...`;
+                    successMsg.style.display = 'block';
                     
                     setTimeout(() => {
-                        window.location.href = '/api/payment/student-dashboard/';
+                        window.location.href = `/api/student/dashboard/${data.student_id}/`;
                     }, 1500);
                 } else {
-                    showError(data.error || 'Login failed. Please check your credentials.');
+                    errorMsg.textContent = data.error || 'Login failed. Please check your credentials.';
+                    errorMsg.style.display = 'block';
+                    submitBtn.classList.remove('loading');
+                    submitBtn.innerHTML = 'Continue';
+                    submitBtn.disabled = false;
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Login error:', error);
-                showError('An error occurred. Please try again.');
-            } finally {
-                spinner.classList.remove('show');
-                btn.classList.remove('loading');
-                btn.disabled = false;
-                btnText.textContent = 'Login to Dashboard';
-            }
-        });
-
-        function showError(message) {
-            errorMsg.textContent = message;
-            errorMsg.classList.add('show');
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = 'Continue';
+                submitBtn.disabled = false;
+            });
         }
-
+        
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -470,15 +263,8 @@
             }
             return cookieValue;
         }
+        
 
-        // Real-time validation
-        document.getElementById('registrationId').addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase();
-        });
-
-        document.getElementById('studentId').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-        });
     </script>
 </body>
 </html>

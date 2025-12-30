@@ -356,8 +356,25 @@ html, body {
 
             <form id="registerForm" enctype="multipart/form-data" novalidate>
 
-              <!-- MCQ QUESTION -->
+              <!-- Course Selection -->
               <div class="mb-3">
+                <label class="form-label">Which course would you like to register for? <span class="required-star">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input course-option" type="radio" name="course" id="courseOncology" value="Oncology Esthetics Certificate" required>
+                  <label class="form-check-label" for="courseOncology">
+                    <strong>Oncology Esthetics Certificate</strong> (Full Program - Requires prerequisite)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input course-option" type="radio" name="course" id="courseBridge" value="Pre-Certificate Bridge Course">
+                  <label class="form-check-label" for="courseBridge">
+                    <strong>Pre-Certificate Bridge Course</strong> (For those without esthetics certification)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Prerequisite Qualification (Only for Oncology Certificate) -->
+              <div class="mb-3" id="qualificationContainer" style="display:none;">
                 <label class="form-label">Do you have the above-mentioned qualifications? <span class="required-star">*</span></label>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="hasQualification" id="qualYes" value="yes" required>
@@ -365,7 +382,7 @@ html, body {
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="hasQualification" id="qualNo" value="no">
-                  <label class="form-check-label" for="qualNo">No — I do not have prerequisites and need the Bridge Course</label>
+                  <label class="form-check-label" for="qualNo">No — I do not have prerequisites (will suggest Bridge Course)</label>
                 </div>
               </div>
 
@@ -376,9 +393,9 @@ html, body {
                 <div id="proofHelp" class="form-text">Accepted formats: PDF, JPG, PNG — Max size: 5MB.</div>
               </div>
 
-              <!-- Auto-bridge note (only shows when NO is selected) -->
-              <p id="bridgeNote" class="muted" style="display:none; font-weight:600;">
-                You selected <strong>No</strong>. You will be automatically enrolled in the <strong>Pre-Certificate Bridge Course (20 hours)</strong>.
+              <!-- Bridge Course note (only shows when NO is selected) -->
+              <p id="bridgeNote" class="muted" style="display:none; font-weight:600; background-color:#f0f4f8; padding:10px; border-left:3px solid #1a4272;">
+                💡 You don't have a certificate. You can take our <strong>Pre-Certificate Bridge Course</strong> first, or register for both!
               </p>
 
               <!-- Contact fields -->
@@ -396,9 +413,6 @@ html, body {
                 <label for="contact" class="form-label">Contact Number <span class="required-star">*</span></label>
                 <input type="text" id="contact" name="contact" class="form-control" required>
               </div>
-
-              <input type="hidden" name="course" id="courseField" value="Oncology Esthetics Certificate">
-              <input type="hidden" name="autoBridge" id="autoBridge" value="false">
 
               <div class="d-grid gap-2">
                 <button type="submit" id="submitBtn" class="btn btn-primary">Submit Registration</button>
@@ -481,26 +495,49 @@ html, body {
 
     (function(){
       const form = document.getElementById('registerForm');
+      const courseOptions = document.querySelectorAll('.course-option');
+      const qualificationContainer = document.getElementById('qualificationContainer');
       const qualYes = document.getElementById('qualYes');
       const qualNo = document.getElementById('qualNo');
       const proofContainer = document.getElementById('proofContainer');
       const bridgeNote = document.getElementById('bridgeNote');
       const proofInput = document.getElementById('proof');
-      const courseField = document.getElementById('courseField');
-      const autoBridge = document.getElementById('autoBridge');
       const submitBtn = document.getElementById('submitBtn');
 
+      // Handle course selection
+      courseOptions.forEach(option => {
+        option.addEventListener('change', function() {
+          if (this.value === 'Oncology Esthetics Certificate') {
+            // Show prerequisite questions for Oncology certificate
+            qualificationContainer.style.display = 'block';
+            // Reset qualification fields
+            qualYes.checked = false;
+            qualNo.checked = false;
+            proofContainer.style.display = 'none';
+            bridgeNote.style.display = 'none';
+            proofInput.required = false;
+          } else {
+            // Hide prerequisite questions for Bridge course
+            qualificationContainer.style.display = 'none';
+            proofContainer.style.display = 'none';
+            bridgeNote.style.display = 'none';
+            qualYes.checked = false;
+            qualNo.checked = false;
+            proofInput.required = false;
+          }
+        });
+      });
+
+      // Handle prerequisite qualification (only for Oncology certificate)
       function setForYes() {
         proofContainer.style.display = 'block';
         bridgeNote.style.display = 'none';
-        courseField.value = 'Oncology Esthetics Certificate';
-        autoBridge.value = 'false';
+        proofInput.required = true;
       }
       function setForNo() {
         proofContainer.style.display = 'none';
         bridgeNote.style.display = 'block';
-        courseField.value = 'Pre-Certificate Bridge Course';
-        autoBridge.value = 'true';
+        proofInput.required = false;
       }
 
       qualYes.addEventListener('change', setForYes);
@@ -520,15 +557,29 @@ html, body {
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
         const contact = document.getElementById('contact').value.trim();
+        const selectedCourse = document.querySelector('.course-option:checked');
+        
         if (!name || !email || !contact) {
           alert('Please complete name, email and contact before submitting.');
           return;
         }
 
-        if (qualYes.checked) {
-          const file = proofInput.files[0];
-          if (!file) { alert('Please upload proof of prerequisite (PDF/JPG/PNG under 5MB).'); return; }
-          if (!isValidFile(file)) { alert('Invalid file. Please upload a PDF, JPG or PNG under 5MB.'); return; }
+        if (!selectedCourse) {
+          alert('Please select a course.');
+          return;
+        }
+
+        // For Oncology certificate, validate prerequisite
+        if (selectedCourse.value === 'Oncology Esthetics Certificate') {
+          if (!qualYes.checked && !qualNo.checked) {
+            alert('Please indicate whether you have the required qualifications.');
+            return;
+          }
+          if (qualYes.checked) {
+            const file = proofInput.files[0];
+            if (!file) { alert('Please upload proof of prerequisite (PDF/JPG/PNG under 5MB).'); return; }
+            if (!isValidFile(file)) { alert('Invalid file. Please upload a PDF, JPG or PNG under 5MB.'); return; }
+          }
         }
 
         submitBtn.disabled = true;
@@ -547,11 +598,13 @@ html, body {
           }
 
           const data = await resp.json();
-          alert('Registration submitted successfully. Thank you!');
-          form.reset();
+          alert('Registration submitted successfully! Your Registration ID: ' + data.registration_id + '\n\nYou will be redirected to the payment portal.');
+          setTimeout(() => {
+            window.location.href = '/api/payment/';
+          }, 2000);
         } catch (err) {
           console.error(err);
-          alert('There was an error submitting your registration. Please try again later.');
+          alert('Error: ' + (err.message || 'Submission failed. Please try again.'));
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit Registration';

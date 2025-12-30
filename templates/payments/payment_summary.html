@@ -256,6 +256,10 @@
                     <span class="label">Email:</span>
                     <span class="value">{{ student.email }}</span>
                 </div>
+                <div class="summary-row">
+                    <span class="label">Registration Number:</span>
+                    <span class="value">{{ student.registration_id }}</span>
+                </div>
             </div>
             
             <!-- Course Information -->
@@ -319,7 +323,7 @@
                 <div class="button-group">
                     <button type="button" class="btn-secondary" onclick="goBack()">← Back</button>
                     <button type="submit" class="btn-primary" id="proceedBtn">
-                        Continue to Payment
+                        PAY NOW
                     </button>
                 </div>
             </form>
@@ -332,6 +336,7 @@
         const taxAmount = {{ tax_amount }};
         const totalAmount = {{ total_amount }};
         const currency = "{{ currency }}";
+        const enrollmentId = {{ enrollment.id }};
         
         function proceedToPayment(event) {
             event.preventDefault();
@@ -345,8 +350,8 @@
                 return;
             }
             
-            // Redirect to card entry page
-            const url = `/api/payment/card-entry/${studentId}/?amount=${paymentAmount}&tax=${taxAmount}&total=${totalAmount}`;
+            // Redirect to card entry page with enrollment
+            const url = `/api/payment/card-entry/${studentId}/?enrollment_id=${enrollmentId}&amount=${paymentAmount}&tax=${taxAmount}&total=${totalAmount}`;
             window.location.href = url;
         }
         

@@ -7,26 +7,68 @@ import string
 
 
 class Registration(models.Model):
-	"""Student registration model"""
+	"""Student registration model - single student can register for multiple courses"""
 	
 	name = models.CharField(max_length=255)
 	email = models.EmailField(unique=True, db_index=True)  # Prevent duplicate emails
 	contact = models.CharField(max_length=50)
-	course = models.CharField(max_length=255)
-	auto_bridge = models.BooleanField(default=False)
 	
-	# keep FileField for compatibility, but also store file bytes in DB for small-scale projects
-	proof = models.FileField(upload_to='proofs/', blank=True, null=True)
-	# DB storage fields
-	proof_name = models.CharField(max_length=255, blank=True, null=True)
-	proof_mime = models.CharField(max_length=100, blank=True, null=True)
-	proof_data = models.BinaryField(blank=True, null=True)
-	
+	# Student info (common across all courses)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		ordering = ['-created_at']
+
+	def __str__(self):
+		return f"{self.name} <{self.email}>"
+	
+	@property
+	def registration_id(self):
+		"""Generate registration ID on the fly from ID and creation date"""
+		if self.id:
+			timestamp = self.created_at.strftime('%Y%m%d')
+			return f"REG-{timestamp}-{self.id:06d}"
+		return None
+	
+	def get_enrolled_courses(self):
+		"""Get all courses this student is enrolled in"""
+		return StudentCourseEnrollment.objects.filter(registration=self)
+
+
+class StudentCourseEnrollment(models.Model):
+	"""Track each course enrollment for a student (allows multiple courses per student)"""
+	
+	registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='course_enrollments')
+	course_name = models.CharField(max_length=255)  # e.g., "Oncology Esthetics Certificate", "Pre-Certificate Bridge Course"
+	has_prerequisite = models.BooleanField(default=True)  # True = has cert/proof, False = needs bridge course
+	
+	# Proof of prerequisite (only required if has_prerequisite=True)
+	proof = models.FileField(upload_to='proofs/', blank=True, null=True)
+	proof_name = models.CharField(max_length=255, blank=True, null=True)
+	proof_mime = models.CharField(max_length=100, blank=True, null=True)
+	proof_data = models.BinaryField(blank=True, null=True)
+	
+	enrollment_status = models.CharField(
+		max_length=20,
+		choices=[
+			('pending', 'Pending'),
+			('approved', 'Approved'),
+			('in_progress', 'In Progress'),
+			('completed', 'Completed'),
+		],
+		default='pending'
+	)
+	
+	enrolled_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		unique_together = ['registration', 'course_name']  # Prevent duplicate enrollments
+		ordering = ['-enrolled_at']
+
+	def __str__(self):
+		return f"{self.registration.email} - {self.course_name}"
 
 	def __str__(self):
 		return f"{self.name} <{self.email}>"
@@ -56,7 +98,7 @@ class CoursePrice(models.Model):
 
 
 class Payment(models.Model):
-	"""Store payment transactions"""
+	"""Store payment transactions - links to specific course enrollment"""
 	PAYMENT_STATUS_CHOICES = [
 		('pending', 'Pending'),
 		('processing', 'Processing'),
@@ -66,6 +108,7 @@ class Payment(models.Model):
 	]
 
 	registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='payments')
+	enrollment = models.ForeignKey(StudentCourseEnrollment, on_delete=models.CASCADE, related_name='payments', blank=True, null=True)
 	student_id = models.CharField(max_length=50)  # student/registration ID
 	course_name = models.CharField(max_length=255)
 	total_price_cad = models.DecimalField(max_digits=10, decimal_places=2)  # Original course price
