@@ -1434,11 +1434,18 @@ def verify_payment_otp(request):
                     payment.generate_invoice_number()
                     payment.save()
                     
-                    # Generate and save PDF invoice
-                    pdf_bytes = generate_invoice_pdf(payment)
-                    pdf_filename = f"invoice_{payment.invoice_number}.pdf"
-                    payment.invoice.invoice_pdf.save(pdf_filename, ContentFile(pdf_bytes), save=False)
-                    payment.invoice.save()
+                    # Ensure invoice record exists
+                    if not hasattr(payment, 'invoice'):
+                        PaymentInvoice.objects.create(payment=payment)
+
+                    # Generate and save PDF invoice safely
+                    try:
+                        pdf_bytes = generate_invoice_pdf(payment)
+                        pdf_filename = f"invoice_{payment.invoice_number}.pdf"
+                        payment.invoice.invoice_pdf.save(pdf_filename, ContentFile(pdf_bytes), save=False)
+                        payment.invoice.save()
+                    except Exception as pdf_err:
+                        logger.error(f"❌ Failed to generate/save invoice PDF for payment {payment.id}: {pdf_err}")
                     
                     # Send payment confirmation email with invoice
                     try:
