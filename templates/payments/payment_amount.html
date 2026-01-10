@@ -317,7 +317,7 @@
                                 id="paymentAmount" 
                                 name="payment_amount" 
                                 placeholder="0.00"
-                                min="0.01"
+                                min="10.00"
                                 max="{{ total_price }}"
                                 step="0.01"
                                 required
@@ -395,6 +395,7 @@
             
             const amount = parseFloat(document.getElementById('paymentAmount').value);
             const errorMsg = document.getElementById('errorMessage');
+            const MIN_PAYMENT = 10.00;
             
             if (!methodSelected) {
                 errorMsg.textContent = 'Please click VISA / MASTER CARD to continue';
@@ -402,14 +403,14 @@
                 return;
             }
             
-            if (amount <= 0) {
-                errorMsg.textContent = 'Payment amount must be greater than 0';
+            if (amount < MIN_PAYMENT) {
+                errorMsg.textContent = `Minimum payment amount is ${currency} $${MIN_PAYMENT.toFixed(2)}`;
                 errorMsg.style.display = 'block';
                 return;
             }
             
             if (amount > totalPrice) {
-                errorMsg.textContent = `Payment amount cannot exceed ${currency} $${totalPrice}`;
+                errorMsg.textContent = `Payment amount cannot exceed ${currency} $${totalPrice.toFixed(2)}`;
                 errorMsg.style.display = 'block';
                 return;
             }
