@@ -220,7 +220,7 @@ OTP_LENGTH = 6
 # Payment Security & Validation
 PAYMENT_TIMEOUT_MINUTES = int(os.getenv('PAYMENT_TIMEOUT_MINUTES', '30'))
 from decimal import Decimal
-MIN_PAYMENT_AMOUNT = Decimal(os.getenv('MIN_PAYMENT_AMOUNT', '10.00'))
+MIN_PAYMENT_AMOUNT = Decimal(os.getenv('MIN_PAYMENT_AMOUNT', '1.00'))
 MAX_PAYMENT_AMOUNT = Decimal(os.getenv('MAX_PAYMENT_AMOUNT', '10000.00'))
 
 # Tax Configuration (Canadian GST/HST)
