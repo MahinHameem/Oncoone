@@ -502,8 +502,12 @@
                     otp_code: otp
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.status === 'success') {
                     showSuccess('Payment verified successfully!');
                     clearInterval(timerInterval);
@@ -511,7 +515,8 @@
                         window.location.href = `/api/payment/success/${paymentId}/`;
                     }, 2000);
                 } else {
-                    showError(data.message);
+                    const errorMsg = data.error || data.message || 'Verification failed';
+                    showError(errorMsg);
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = 'Verify OTP & Complete Payment';
                     // Clear OTP inputs on error
@@ -523,8 +528,8 @@
                 }
             })
             .catch(error => {
+                console.error('Verification error:', error);
                 showError('An error occurred. Please try again.');
-                console.error('Error:', error);
                 verifyBtn.disabled = false;
                 verifyBtn.innerHTML = 'Verify OTP & Complete Payment';
             });
