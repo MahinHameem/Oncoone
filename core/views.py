@@ -1415,43 +1415,43 @@ def verify_payment_otp(request):
         if success:
             # Confirm Stripe Payment Intent
             if payment.stripe_payment_intent_id:
-                # Retrieve and confirm the intent using the attached payment method from metadata
-                stripe_result = StripePaymentProcessor.confirm_payment(payment.stripe_payment_intent_id)
-                
-                if stripe_result['success']:
-                    payment_intent = stripe.PaymentIntent.retrieve(payment.stripe_payment_intent_id)
+                try:
+                    # Retrieve and confirm the intent using the attached payment method from metadata
+                    stripe_result = StripePaymentProcessor.confirm_payment(payment.stripe_payment_intent_id)
                     
-                    # Update payment with Stripe charge details
-                    if payment_intent.charges and payment_intent.charges.data:
-                        charge = payment_intent.charges.data[0]
-                        payment.stripe_charge_id = charge.id
-                    
-                    # Update payment status to completed
-                    payment.status = 'completed'
-                    payment.completed_at = timezone.now()
-                    payment.save()
-                    
-                    # Generate invoice number and create invoice
-                    payment.generate_invoice_number()
-                    payment.save()
-                    
-                    # Ensure invoice record exists
-                    if not hasattr(payment, 'invoice'):
-                        PaymentInvoice.objects.create(payment=payment)
+                    if stripe_result['success']:
+                        # Get charges from confirm result instead of calling retrieve again
+                        charges = stripe_result.get('charges', [])
+                        if charges and len(charges) > 0:
+                            charge = charges[0]
+                            payment.stripe_charge_id = charge.id
+                        
+                        # Update payment status to completed
+                        payment.status = 'completed'
+                        payment.completed_at = timezone.now()
+                        payment.save()
+                        
+                        # Generate invoice number and create invoice
+                        payment.generate_invoice_number()
+                        payment.save()
+                        
+                        # Ensure invoice record exists
+                        if not hasattr(payment, 'invoice'):
+                            PaymentInvoice.objects.create(payment=payment)
 
-                    # Generate and save PDF invoice safely
-                    try:
-                        pdf_bytes = generate_invoice_pdf(payment)
-                        pdf_filename = f"invoice_{payment.invoice_number}.pdf"
-                        payment.invoice.invoice_pdf.save(pdf_filename, ContentFile(pdf_bytes), save=False)
-                        payment.invoice.save()
-                    except Exception as pdf_err:
-                        logger.error(f"❌ Failed to generate/save invoice PDF for payment {payment.id}: {pdf_err}")
-                    
-                    # Send payment confirmation email with invoice
-                    try:
-                        subject = 'Payment Confirmed & Invoice - OncoOne'
-                        message = f"""
+                        # Generate and save PDF invoice safely
+                        try:
+                            pdf_bytes = generate_invoice_pdf(payment)
+                            pdf_filename = f"invoice_{payment.invoice_number}.pdf"
+                            payment.invoice.invoice_pdf.save(pdf_filename, ContentFile(pdf_bytes), save=False)
+                            payment.invoice.save()
+                        except Exception as pdf_err:
+                            logger.error(f"❌ Failed to generate/save invoice PDF for payment {payment.id}: {pdf_err}")
+                        
+                        # Send payment confirmation email with invoice
+                        try:
+                            subject = 'Payment Confirmed & Invoice - OncoOne'
+                            message = f"""
 Dear {payment.registration.name},
 
 Thank you for your payment! Your payment has been successfully processed.
@@ -1471,41 +1471,49 @@ Your invoice is attached to this email.
 Best regards,
 OncoOne Team
 info@oncoesthetics.ca
-                        """
+                            """
+                            
+                            email_obj = EmailMessage(
+                                subject=subject,
+                                body=message,
+                                from_email=settings.DEFAULT_FROM_EMAIL,
+                                to=[payment.registration.email]
+                            )
+                            
+                            # Attach PDF invoice
+                            email_obj.attach(
+                                pdf_filename,
+                                pdf_bytes,
+                                'application/pdf'
+                            )
+                            
+                            email_obj.send(fail_silently=True)
+                        except Exception as e:
+                            logger.error(f"Failed to send confirmation email: {e}")
                         
-                        email_obj = EmailMessage(
-                            subject=subject,
-                            body=message,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            to=[payment.registration.email]
-                        )
-                        
-                        # Attach PDF invoice
-                        email_obj.attach(
-                            pdf_filename,
-                            pdf_bytes,
-                            'application/pdf'
-                        )
-                        
-                        email_obj.send(fail_silently=True)
-                    except Exception as e:
-                        print(f"Failed to send confirmation email: {e}")
-                    
-                    return JsonResponse({
-                        'status': 'success',
-                        'payment_id': payment.id,
-                        'invoice_number': payment.invoice_number,
-                        'message': 'Payment verified and confirmed successfully!'
-                    })
-                else:
-                    # If 3DS or further action is required, surface info to client
+                        return JsonResponse({
+                            'status': 'success',
+                            'payment_id': payment.id,
+                            'invoice_number': payment.invoice_number,
+                            'message': 'Payment verified and confirmed successfully!'
+                        })
+                    else:
+                        # If 3DS or further action is required, surface info to client
+                        logger.error(f"Stripe confirmation failed: {stripe_result}")
+                        return JsonResponse({
+                            'status': 'error',
+                            'stripe_status': stripe_result.get('status'),
+                            'requires_action': stripe_result.get('requires_action'),
+                            'client_secret': stripe_result.get('client_secret'),
+                            'message': stripe_result.get('error', 'Failed to confirm payment. Please try again.')
+                        }, status=400)
+                except Exception as e:
+                    logger.error(f"❌ Error during payment confirmation: {str(e)}", exc_info=True)
                     return JsonResponse({
                         'status': 'error',
-                        'stripe_status': stripe_result.get('status'),
-                        'requires_action': stripe_result.get('requires_action'),
-                        'client_secret': stripe_result.get('client_secret'),
-                        'message': stripe_result.get('error', 'Failed to confirm payment. Please try again.')
-                    }, status=400)
+                        'error': 'An error occurred while processing your payment. Please contact support.',
+                        'message': str(e)
+                    }, status=500)
             else:
                 # Fallback for non-Stripe payments
                 payment.status = 'completed'
