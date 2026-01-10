@@ -138,7 +138,7 @@ class StripePaymentProcessor:
                 amount=amount_cents,
                 currency=settings.STRIPE_CURRENCY,
                 description=f'{settings.BUSINESS_NAME} - {course_name}',
-                statement_descriptor=settings.STRIPE_STATEMENT_DESCRIPTOR,
+                statement_descriptor_suffix=settings.STRIPE_STATEMENT_DESCRIPTOR[:22],  # Max 22 chars for suffix
                 receipt_email=email,
                 metadata=metadata,
                 automatic_payment_methods={'enabled': True},
