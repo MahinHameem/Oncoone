@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_courseprice_payment_paymentinvoice'),
+        ('core', '0003_5_cleanup_duplicate_emails'),
     ]
 
     operations = [
@@ -21,5 +21,6 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(auto_now=True),
         ),
     ]
+
 
 
