@@ -1276,9 +1276,10 @@ def create_payment_and_send_otp(request):
         otp.generate_otp()
         otp.save()
         
-        logger.info(f'✅ OTP generated for payment {payment.id} | Student: {email}')
+        logger.info(f'✅ OTP generated for payment {payment.id} | Student: {email} | Code: {otp.otp_code}')
         
         # Send professional OTP email
+        email_sent = False
         try:
             subject = f'🔐 Payment Verification Code - {settings.BUSINESS_NAME}'
             message = f"""
@@ -1325,9 +1326,10 @@ Thank you for your trust,
                 reply_to=[settings.BUSINESS_EMAIL]
             )
             email_obj.send(fail_silently=False)
-            logger.info(f'📧 OTP email sent to {email}')
+            email_sent = True
+            logger.info(f'✅ OTP email sent successfully to {email}')
         except Exception as e:
-            logger.error(f'❌ Failed to send OTP email to {email}: {str(e)}')
+            logger.error(f'❌ FAILED to send OTP email to {email}: {str(e)} | Type: {type(e).__name__}', exc_info=True)
             # Don't fail the request if email fails
             pass
         
@@ -1335,7 +1337,8 @@ Thank you for your trust,
             'success': True,
             'payment_id': payment.id,
             'stripe_client_secret': stripe_client_secret,
-            'message': f'OTP sent to {registration.email}. Valid for 10 minutes.'
+            'email_sent': email_sent,
+            'message': f'Payment created. OTP {"sent to " + registration.email if email_sent else "generation failed - please try again."}'
         })
     
     except json.JSONDecodeError:
@@ -1371,10 +1374,13 @@ def verify_payment_otp(request):
         try:
             payment = Payment.objects.select_related('registration', 'enrollment', 'otp').get(id=payment_id)
             otp = payment.otp
+            logger.info(f'OTP Verification Attempt: Payment {payment_id} | DB OTP Code: {otp.otp_code} (length={len(otp.otp_code)}) | Attempts: {otp.attempts}/{settings.OTP_MAX_ATTEMPTS} | Verified: {otp.is_verified}')
         except Payment.DoesNotExist:
+            logger.error(f'❌ OTP verification: Payment {payment_id} not found')
             security_logger.warning(f'OTP verification attempted for non-existent payment: {payment_id}')
             return JsonResponse({'error': 'Payment not found'}, status=404)
         except PaymentOTP.DoesNotExist:
+            logger.error(f'❌ OTP verification: No OTP record for payment {payment_id}')
             security_logger.error(f'Missing OTP for payment: {payment_id}')
             return JsonResponse({'error': 'OTP not found. Please request a new code'}, status=404)
         
@@ -1392,6 +1398,8 @@ def verify_payment_otp(request):
         # Verify OTP with enhanced security
         success, message = otp.verify_otp(otp_code)
         
+        logger.info(f'OTP Verification Result: Entered={otp_code} | Success={success} | Message={message}')
+        
         if not success:
             security_logger.warning(f'❌ Failed OTP verification for payment {payment_id}: {message}')
             
@@ -1406,7 +1414,8 @@ def verify_payment_otp(request):
         if success:
             # Confirm Stripe Payment Intent
             if payment.stripe_payment_intent_id:
-                stripe_result = StripePaymentProcessor.get_payment_intent(payment.stripe_payment_intent_id)
+                # Retrieve latest status/details from Stripe
+                stripe_result = StripePaymentProcessor.retrieve_payment_intent(payment.stripe_payment_intent_id)
                 
                 if stripe_result['success']:
                     payment_intent = stripe_result['payment_intent']

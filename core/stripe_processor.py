@@ -134,6 +134,7 @@ class StripePaymentProcessor:
                 metadata['payment_id'] = str(payment_id)
             
             # Create Payment Intent with Stripe
+            # Force 3DS challenge by requesting three_d_secure on card payments
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount_cents,
                 currency=settings.STRIPE_CURRENCY,
@@ -141,7 +142,12 @@ class StripePaymentProcessor:
                 statement_descriptor_suffix=settings.STRIPE_STATEMENT_DESCRIPTOR[:22],  # Max 22 chars for suffix
                 receipt_email=email,
                 metadata=metadata,
-                automatic_payment_methods={'enabled': True},
+                payment_method_types=['card'],
+                payment_method_options={
+                    'card': {
+                        'request_three_d_secure': 'any'
+                    }
+                },
             )
             
             logger.info(
