@@ -40,6 +40,156 @@
   padding-right: 0 !important;
 }
 
+/* Improve mobile navbar visibility */
+.navbar-area.navbar-nine .navbar .navbar-toggler {
+  border: 1px solid #1a4272;
+  padding: 8px;
+  background: #ffffffee;
+  border-radius: 12px;
+}
+
+.navbar-area.navbar-nine .navbar .navbar-toggler .toggler-icon {
+  background-color: #1a4272;
+}
+
+/* Mobile drawer toggle */
+.mobile-drawer-toggle {
+  display: none;
+  border: 1px solid #1a4272;
+  background: #ffffffee;
+  border-radius: 12px;
+  padding: 8px 10px;
+  color: #1a4272;
+  font-size: 22px;
+  line-height: 1;
+}
+
+@media (max-width: 991px) {
+  .mobile-drawer-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+  /* hide default collapse button */
+  .navbar-toggler { display: none !important; }
+}
+
+/* Right-side mobile drawer */
+#mobile-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 78%;
+  max-width: 360px;
+  background: #ffffff;
+  box-shadow: -6px 0 18px rgba(0,0,0,0.12);
+  z-index: 999;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+#mobile-drawer.open { transform: translateX(0); }
+#mobile-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#mobile-drawer .drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#mobile-drawer .drawer-close {
+  border: none;
+  background: #f3f6fb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 18px;
+  color: #1a4272;
+}
+
+#mobile-drawer .drawer-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  font-weight: 600;
+  color: #1a4272;
+  border-bottom: 1px solid #eef1f5;
+  text-decoration: none;
+}
+
+#mobile-drawer .drawer-nav a:last-child {
+  border-bottom: none;
+}
+
+#mobile-drawer .social-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+#mobile-drawer .social-row a {
+  color: #1a4272;
+  font-size: 18px;
+}
+
+.navbar-area.navbar-nine {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.navbar-area.navbar-nine .navbar-nav .nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #1a4272;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.navbar-area.navbar-nine .navbar-nav .nav-item a:hover {
+  background: #e8f2ff;
+  color: #0f305b;
+}
+
+.navbar-area.navbar-nine .navbar-nav .nav-item a.active {
+  background: #1a4272;
+  color: #fff;
+}
+
+/* Reduce hero image cropping on mobile */
+@media (max-width: 767px) {
+  #hero-area {
+    min-height: 110vh;
+  }
+  #hero-bg {
+    background-position: center top;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: #f8f8f8;
+  }
+}
+
 html, body {
   overflow-x: hidden;
 }
@@ -82,30 +232,28 @@ html, body {
             <a class="navbar-brand" href="{% url 'home' %}">
               <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height: 80px;" />
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNine"
-              aria-controls="navbarNine" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="toggler-icon"></span>
-              <span class="toggler-icon"></span>
-              <span class="toggler-icon"></span>
+            <!-- Mobile drawer toggle -->
+            <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="toggleDrawer()">
+              <i class="lni lni-menu"></i>
             </button>
 
             <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
               <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                  <a class="page-scroll active" href="#hero-area">Home</a>
+                  <a class="page-scroll active" href="#hero-area"><i class="lni lni-home"></i> Home</a>
                 </li>
                 <li class="nav-item">
-                  <a href="{% url 'products' %}">Courses</a>
+                  <a href="{% url 'products' %}"><i class="lni lni-graduation"></i> Courses</a>
                 </li>
 
                 <li class="nav-item">
-                  <a class="page-scroll" href="#about">About Us</a>
+                  <a class="page-scroll" href="#about"><i class="lni lni-information"></i> About Us</a>
                 </li>
                 <li class="nav-item">
-                  <a class="page-scroll" href="#contact">Contact</a>
+                  <a class="page-scroll" href="#contact"><i class="lni lni-phone"></i> Contact</a>
                 </li>
                 <li class="nav-item">
-                  <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;">💳 Payments</a>
+                  <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> Payments</a>
                 </li>
               </ul>
             </div>
@@ -120,6 +268,33 @@ html, body {
 
   <!--====== NAVBAR NINE PART ENDS ======-->
 
+  <!-- Mobile Drawer Navigation -->
+  <div id="mobile-drawer-overlay" onclick="toggleDrawer(false)"></div>
+  <div id="mobile-drawer">
+    <div class="drawer-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:50px; height:50px;">
+        <div style="font-weight:700; color:#1a4272;">OncoOne</div>
+      </div>
+      <button class="drawer-close" type="button" aria-label="Close navigation" onclick="toggleDrawer(false)">
+        <i class="lni lni-close"></i>
+      </button>
+    </div>
+    <div class="drawer-nav">
+      <a class="page-scroll" href="#hero-area" onclick="toggleDrawer(false)"><i class="lni lni-home"></i> Home</a>
+      <a href="{% url 'products' %}" onclick="toggleDrawer(false)"><i class="lni lni-graduation"></i> Courses</a>
+      <a class="page-scroll" href="#about" onclick="toggleDrawer(false)"><i class="lni lni-information"></i> About Us</a>
+      <a class="page-scroll" href="#contact" onclick="toggleDrawer(false)"><i class="lni lni-phone"></i> Contact</a>
+      <a href="/api/payment/" onclick="toggleDrawer(false)"><i class="lni lni-credit-cards"></i> Payments</a>
+    </div>
+    <div class="social-row">
+      <a href="#"><i class="lni lni-facebook"></i></a>
+      <a href="#"><i class="lni lni-instagram"></i></a>
+      <a href="#"><i class="lni lni-youtube"></i></a>
+      <a href="#"><i class="lni lni-tiktok"></i></a>
+    </div>
+  </div>
+
   <!--====== SIDEBAR PART START ======-->
 
 
@@ -129,9 +304,9 @@ html, body {
   <!-- Start header Area -->
 <section id="hero-area" class="header-eight" style="position: relative; overflow: hidden;" data-aos="fade-left">
   <!-- Full background image -->
-      <div id="hero-bg" style="background-image: url('{% static 'assets/images/hero.jpg' %}'); background-size: cover; background-position: center; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+      <div id="hero-bg" style="background-image: url('{% static 'assets/images/hero.jpg' %}'); background-size: cover; background-position: center center; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
 
-  <div class="container" style="position: relative; z-index: 2; padding: 100px 0;">
+  <div class="container" style="position: relative; z-index: 2; padding: 90px 0;">
     <div class="row align-items-center">
       
       <div class="col-lg-6 col-md-12 col-12">
@@ -165,6 +340,21 @@ html, body {
 
 
   <!-- End header Area -->
+
+<script>
+  function toggleDrawer(forceState) {
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('mobile-drawer-overlay');
+    const willOpen = forceState === undefined ? !drawer.classList.contains('open') : forceState;
+    if (willOpen) {
+      drawer.classList.add('open');
+      overlay.classList.add('open');
+    } else {
+      drawer.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+  }
+</script>
 
 
     <!--====== ABOUT FIVE PART ENDS ======-->
@@ -323,52 +513,166 @@ html, body {
 </section>
 
   <!-- ========================= contact-section start ========================= -->
-  <section id="contact" class="contact-section" data-aos="fade-right">
-      <div style="padding: 40px 0px 15px;text-align: center;font-size: 2.25em;font-weight: 700; color: #1a4272;">Contact Us</div>
-
+  <section id="contact" class="contact-section py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
     <div class="container">
-  <div class="row contact-item-wrapper text-center">
-    <div class="col-md-4">
-      <div class="contact-item border rounded-3 p-4 shadow-sm">
-        <div class="contact-icon mb-3" style="background: #1a4272;">
-          <i class="lni lni-phone fs-2" ></i>
+      <!-- Section Title -->
+      <div class="text-center mb-5" data-aos="fade-up">
+        <h2 style="font-size: 2.5em; font-weight: 700; color: #1a4272; margin-bottom: 15px;">
+          Contact Us
+        </h2>
+        <p style="font-size: 1.1em; color: #666; margin-bottom: 0;">
+          Get in touch with OncoOne Aesthetic School
+        </p>
+      </div>
+
+      <!-- Contact Items Grid -->
+      <div class="row contact-item-wrapper">
+        <!-- Phone & Email -->
+        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="contact-item h-100" style="
+            background: white;
+            border: 2px solid #e8e8e8;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+          " onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 25px rgba(26,66,114,0.15)'; this.style.borderColor='#1a4272';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'; this.style.borderColor='#e8e8e8';">
+            
+            <!-- Icon -->
+            <div class="contact-icon mb-4">
+              <div style="
+                width: 70px;
+                height: 70px;
+                margin: 0 auto;
+                background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 15px rgba(26,66,114,0.3);
+              ">
+                <i class="lni lni-phone" style="color: white; font-size: 32px;"></i>
+              </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="contact-content">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+                Contact
+              </h4>
+              <p style="color: #555; margin-bottom: 10px; font-size: 1em; font-weight: 500;">
+                <a href="tel:6472738779" style="color: #1a4272; text-decoration: none; transition: color 0.3s;">
+                  647 273 8779
+                </a>
+              </p>
+              <p style="color: #555; margin-bottom: 0; font-size: 0.95em;">
+                <a href="mailto:info@oncoesthetics.ca" style="color: #1a4272; text-decoration: none; transition: color 0.3s;">
+                  info@oncoesthetics.ca
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="contact-content">
-          <h4 style="color: #1a4272;">Contact</h4>
-          <p>0984537278623</p>
-          <p>yourmail@gmail.com</p>
+
+        <!-- Address -->
+        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="contact-item h-100" style="
+            background: white;
+            border: 2px solid #e8e8e8;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+          " onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 25px rgba(26,66,114,0.15)'; this.style.borderColor='#1a4272';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'; this.style.borderColor='#e8e8e8';">
+            
+            <!-- Icon -->
+            <div class="contact-icon mb-4">
+              <div style="
+                width: 70px;
+                height: 70px;
+                margin: 0 auto;
+                background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 15px rgba(26,66,114,0.3);
+              ">
+                <i class="lni lni-map-marker" style="color: white; font-size: 32px;"></i>
+              </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="contact-content">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+                Address
+              </h4>
+              <p style="color: #555; margin-bottom: 10px; font-size: 0.95em;">
+                700 Lawrence Ave West<br>
+                (Lawrence Allen Plaza) Suite 370
+              </p>
+              <p style="color: #555; margin-bottom: 0; font-size: 0.95em; font-weight: 500;">
+                Toronto, Ontario
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hours -->
+        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="contact-item h-100" style="
+            background: white;
+            border: 2px solid #e8e8e8;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+          " onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 25px rgba(26,66,114,0.15)'; this.style.borderColor='#1a4272';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'; this.style.borderColor='#e8e8e8';">
+            
+            <!-- Icon -->
+            <div class="contact-icon mb-4">
+              <div style="
+                width: 70px;
+                height: 70px;
+                margin: 0 auto;
+                background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 15px rgba(26,66,114,0.3);
+              ">
+                <i class="lni lni-alarm-clock" style="color: white; font-size: 32px;"></i>
+              </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="contact-content">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+                Schedule
+              </h4>
+              <p style="color: #555; margin-bottom: 10px; font-size: 0.95em;">
+                <span style="background: #e8f2ff; color: #1a4272; padding: 5px 12px; border-radius: 20px; display: inline-block; font-weight: 600;">
+                   Office Hours:<br>
+                </span>
+              </p>
+              <p style="color: #555; margin-bottom: 0; font-size: 0.95em;">
+                <span style="font-weight: 600;">10 AM - 5:30 PM</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="col-md-4">
-      <div class="contact-item border rounded-3 p-4 shadow-sm">
-        <div class="contact-icon mb-3" style="background: #1a4272;">
-          <i class="lni lni-map-marker fs-2"></i>
-        </div>
-        <div class="contact-content">
-          <h4 style="color: #1a4272;">Address</h4>
-          <p>175 5th Ave, New York, NY 10010</p>
-          <p>United States</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="contact-item border rounded-3 p-4 shadow-sm">
-        <div class="contact-icon mb-3" style="background: #1a4272;">
-          <i class="lni lni-alarm-clock fs-2" ></i>
-        </div>
-        <div class="contact-content">
-          <h4 style="color: #1a4272;">Schedule</h4>
-          <p>24 Hours / 7 Days Open</p>
-          <p>Office time: 10 AM - 5:30 PM</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
   </section>
 
 <!-- ================= OUR PARTNERS SECTION ================= -->
@@ -458,12 +762,27 @@ html, body {
     box-shadow: 0 4px 12px rgba(26, 66, 114, 0.2);
   }
 
-  .partner-card img {
-    max-height: 60px;
-    max-width: 100%;
-    object-fit: contain;
+  .partner-logo {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 15px;
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+  }
+
+  .partner-card img {
+    max-height: 80px;
+    max-width: 95%;
+    object-fit: contain;
+    margin-bottom: 0;
     transition: filter 0.3s ease;
+  }
+
+  .partner-card:hover img {
+    filter: brightness(0.8);
   }
 
   .partner-card h3 {
