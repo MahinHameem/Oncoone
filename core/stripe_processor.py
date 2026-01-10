@@ -102,7 +102,8 @@ class StripePaymentProcessor:
         email: str,
         student_name: str,
         course_name: str,
-        payment_id: Optional[str] = None
+        payment_id: Optional[str] = None,
+        payment_method_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a Stripe Payment Intent for secure payment processing
@@ -132,9 +133,11 @@ class StripePaymentProcessor:
             
             if payment_id:
                 metadata['payment_id'] = str(payment_id)
+            if payment_method_id:
+                metadata['payment_method_id'] = str(payment_method_id)
             
             # Create Payment Intent with Stripe
-            # Force 3DS challenge by requesting three_d_secure on card payments
+            # Attach payment method so we can confirm after OTP
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount_cents,
                 currency=settings.STRIPE_CURRENCY,
@@ -143,9 +146,12 @@ class StripePaymentProcessor:
                 receipt_email=email,
                 metadata=metadata,
                 payment_method_types=['card'],
+                payment_method=payment_method_id,
+                confirmation_method='automatic',
+                confirm=False,
                 payment_method_options={
                     'card': {
-                        'request_three_d_secure': 'any'
+                        'request_three_d_secure': 'automatic'
                     }
                 },
             )
@@ -263,19 +269,29 @@ class StripePaymentProcessor:
             }
     
     @staticmethod
-    def confirm_payment(payment_intent_id: str) -> Dict[str, Any]:
+    def confirm_payment(payment_intent_id: str, payment_method_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Confirm a payment intent is successfully completed
-        
-        Args:
-            payment_intent_id: Stripe Payment Intent ID
-            
-        Returns:
-            Dict with confirmation status and payment details
+        Confirm a payment intent and return latest status/details
         """
         try:
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-            
+
+            # If not succeeded, attempt to confirm with attached payment method
+            if payment_intent.status != 'succeeded':
+                try:
+                    confirm_kwargs = {}
+                    if payment_method_id:
+                        confirm_kwargs['payment_method'] = payment_method_id
+                    payment_intent = stripe.PaymentIntent.confirm(payment_intent_id, **confirm_kwargs)
+                except stripe.error.StripeError as e:
+                    logger.error(f'Error confirming payment {payment_intent_id}: {str(e)}')
+                    return {
+                        'success': False,
+                        'status': payment_intent.status,
+                        'error': f'Confirmation failed: {str(e)}',
+                        'error_type': 'confirmation_error'
+                    }
+
             if payment_intent.status == 'succeeded':
                 logger.info(f'✅ Payment confirmed successfully: {payment_intent_id}')
                 return {
@@ -293,11 +309,13 @@ class StripePaymentProcessor:
                 return {
                     'success': False,
                     'status': payment_intent.status,
+                    'requires_action': payment_intent.status == 'requires_action',
+                    'client_secret': payment_intent.client_secret,
                     'error': f'Payment status: {payment_intent.status.replace("_", " ").title()}'
                 }
-                
+
         except stripe.error.StripeError as e:
-            logger.error(f'Error confirming payment {payment_intent_id}: {str(e)}')
+            logger.error(f'Error retrieving payment {payment_intent_id}: {str(e)}')
             return {
                 'success': False,
                 'error': 'Unable to confirm payment status.',

@@ -1233,7 +1233,8 @@ def create_payment_and_send_otp(request):
             email=email,
             student_name=registration.name,
             course_name=enrollment.course_name,
-            payment_id=None  # We'll update after creating Payment
+            payment_id=None,  # We'll update after creating Payment
+            payment_method_id=payment_method_id
         )
         
         if not stripe_result['success']:
@@ -1414,14 +1415,14 @@ def verify_payment_otp(request):
         if success:
             # Confirm Stripe Payment Intent
             if payment.stripe_payment_intent_id:
-                # Retrieve latest status/details from Stripe
-                stripe_result = StripePaymentProcessor.retrieve_payment_intent(payment.stripe_payment_intent_id)
+                # Retrieve and confirm the intent using the attached payment method from metadata
+                stripe_result = StripePaymentProcessor.confirm_payment(payment.stripe_payment_intent_id)
                 
                 if stripe_result['success']:
-                    payment_intent = stripe_result['payment_intent']
+                    payment_intent = stripe.PaymentIntent.retrieve(payment.stripe_payment_intent_id)
                     
                     # Update payment with Stripe charge details
-                    if payment_intent.charges.data:
+                    if payment_intent.charges and payment_intent.charges.data:
                         charge = payment_intent.charges.data[0]
                         payment.stripe_charge_id = charge.id
                     
@@ -1497,9 +1498,13 @@ info@oncoesthetics.ca
                         'message': 'Payment verified and confirmed successfully!'
                     })
                 else:
+                    # If 3DS or further action is required, surface info to client
                     return JsonResponse({
                         'status': 'error',
-                        'message': 'Failed to confirm payment. Please try again.'
+                        'stripe_status': stripe_result.get('status'),
+                        'requires_action': stripe_result.get('requires_action'),
+                        'client_secret': stripe_result.get('client_secret'),
+                        'message': stripe_result.get('error', 'Failed to confirm payment. Please try again.')
                     }, status=400)
             else:
                 # Fallback for non-Stripe payments
