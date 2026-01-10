@@ -244,6 +244,10 @@ CSRF_TRUSTED_ORIGINS = [
     h.strip() for h in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if h.strip()
 ]
 
+# Create logs directory BEFORE logging config
+LOGS_DIR = BASE_DIR / 'logs'
+os.makedirs(LOGS_DIR, exist_ok=True)
+
 # Logging Configuration (Production-Ready)
 LOGGING = {
     'version': 1,
@@ -266,12 +270,12 @@ LOGGING = {
         },
         'file_payment': {
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'payment.log',
+            'filename': str(LOGS_DIR / 'payment.log'),
             'formatter': 'verbose',
         },
         'file_security': {
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'security.log',
+            'filename': str(LOGS_DIR / 'security.log'),
             'formatter': 'verbose',
         },
     },
@@ -293,6 +297,3 @@ LOGGING = {
         },
     },
 }
-
-# Create logs directory
-os.makedirs(BASE_DIR / 'logs', exist_ok=True)
