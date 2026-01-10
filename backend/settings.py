@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     'core',
 ]
 
+# Use BigAutoField for primary keys (Django 3.2+)
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
@@ -244,56 +247,66 @@ CSRF_TRUSTED_ORIGINS = [
     h.strip() for h in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if h.strip()
 ]
 
-# Create logs directory BEFORE logging config
-LOGS_DIR = BASE_DIR / 'logs'
-os.makedirs(LOGS_DIR, exist_ok=True)
-
-# Logging Configuration (Production-Ready)
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[{levelname}] {asctime} {module} {funcName} - {message}',
-            'style': '{',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
+# Logging Configuration
+if DEBUG:
+    # Development: Console logging only
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '[{levelname}] {asctime} {module} - {message}',
+                'style': '{',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            },
         },
-        'simple': {
-            'format': '[{levelname}] {message}',
-            'style': '{',
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose',
+            },
         },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+        'loggers': {
+            'core': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'stripe': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
         },
-        'file_payment': {
-            'class': 'logging.FileHandler',
-            'filename': str(LOGS_DIR / 'payment.log'),
-            'formatter': 'verbose',
+    }
+else:
+    # Production: Console only (Gunicorn handles logging)
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '[{levelname}] {asctime} {module} - {message}',
+                'style': '{',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
+            },
         },
-        'file_security': {
-            'class': 'logging.FileHandler',
-            'filename': str(LOGS_DIR / 'security.log'),
-            'formatter': 'verbose',
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose',
+            },
         },
-    },
-    'loggers': {
-        'core.payment': {
-            'handlers': ['console', 'file_payment'],
-            'level': 'INFO',
-            'propagate': False,
+        'loggers': {
+            'core': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'stripe': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
         },
-        'core.security': {
-            'handlers': ['console', 'file_security'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'stripe': {
-            'handlers': ['console', 'file_payment'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-    },
-}
+    }
