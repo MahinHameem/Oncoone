@@ -247,16 +247,28 @@ class StripePaymentProcessor:
             Dict with payment intent details or error
         """
         try:
-            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            payment_intent = stripe.PaymentIntent.retrieve(
+                payment_intent_id,
+                expand=['charges', 'latest_charge', 'payment_method']
+            )
             
             logger.info(f'Payment Intent retrieved: {payment_intent_id} | Status: {payment_intent.status}')
             
+            charges_list = []
+            try:
+                if hasattr(payment_intent, 'charges') and payment_intent.charges is not None:
+                    data = getattr(payment_intent.charges, 'data', None)
+                    if data:
+                        charges_list = data
+            except Exception:
+                charges_list = []
+
             return {
                 'success': True,
                 'status': payment_intent.status,
                 'amount': payment_intent.amount / 100,
                 'currency': payment_intent.currency.upper(),
-                'charges': payment_intent.charges.data if payment_intent.charges else [],
+                'charges': charges_list,
                 'payment_intent': payment_intent
             }
             
@@ -274,7 +286,10 @@ class StripePaymentProcessor:
         Confirm a payment intent and return latest status/details
         """
         try:
-            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            payment_intent = stripe.PaymentIntent.retrieve(
+                payment_intent_id,
+                expand=['charges', 'latest_charge', 'payment_method']
+            )
 
             # If not succeeded, attempt to confirm with attached payment method
             if payment_intent.status != 'succeeded':
@@ -294,11 +309,31 @@ class StripePaymentProcessor:
 
             if payment_intent.status == 'succeeded':
                 logger.info(f'✅ Payment confirmed successfully: {payment_intent_id}')
+
+                # Safely extract charges; fallback to latest_charge when not expanded
+                charges_list = []
+                charge_id = None
+                try:
+                    if hasattr(payment_intent, 'charges') and payment_intent.charges is not None:
+                        data = getattr(payment_intent.charges, 'data', None)
+                        if data:
+                            charges_list = data
+                            try:
+                                charge_id = charges_list[0].id
+                            except Exception:
+                                charge_id = None
+                    # Fallback: use latest_charge if available
+                    if not charge_id and getattr(payment_intent, 'latest_charge', None):
+                        charge_id = payment_intent.latest_charge
+                except Exception as ex:
+                    logger.warning(f"Unable to extract charges for {payment_intent_id}: {ex}")
+
                 return {
                     'success': True,
                     'status': 'succeeded',
                     'amount': payment_intent.amount / 100,
-                    'charges': payment_intent.charges.data,
+                    'charges': charges_list,
+                    'charge_id': charge_id,
                     'payment_method': payment_intent.payment_method
                 }
             else:

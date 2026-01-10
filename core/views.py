@@ -1420,11 +1420,17 @@ def verify_payment_otp(request):
                     stripe_result = StripePaymentProcessor.confirm_payment(payment.stripe_payment_intent_id)
                     
                     if stripe_result['success']:
-                        # Get charges from confirm result instead of calling retrieve again
+                        # Get charge id from confirm result; fallback to first charge
                         charges = stripe_result.get('charges', [])
-                        if charges and len(charges) > 0:
-                            charge = charges[0]
-                            payment.stripe_charge_id = charge.id
+                        charge_id = stripe_result.get('charge_id')
+                        if not charge_id and charges and len(charges) > 0:
+                            first_charge = charges[0]
+                            try:
+                                charge_id = first_charge.id
+                            except Exception:
+                                charge_id = None
+                        if charge_id:
+                            payment.stripe_charge_id = charge_id
                         
                         # Update payment status to completed
                         payment.status = 'completed'
