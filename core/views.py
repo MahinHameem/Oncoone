@@ -11,10 +11,15 @@ from decimal import Decimal
 from django.db.models import Sum
 import json
 import uuid
-
+import logging
 
 from .models import Registration, StudentCourseEnrollment, Payment, CoursePrice, PaymentInvoice, PaymentOTP
 from .stripe_processor import StripePaymentProcessor
+from .payment_security import OTPSecurityManager, PaymentSecurityValidator
+
+# Initialize loggers
+logger = logging.getLogger('core.payment')
+security_logger = logging.getLogger('core.security')
 
 
 @csrf_exempt
@@ -1164,30 +1169,45 @@ def generate_invoice_pdf(payment):
 
 @csrf_exempt
 def create_payment_and_send_otp(request):
-    """Create payment record with Stripe and send OTP for verification"""
+    """Create payment record with Stripe and send OTP for verification (Production-Ready)"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
     try:
         data = json.loads(request.body.decode('utf-8'))
         
+        # Extract and sanitize inputs
         student_id = data.get('student_id')
         enrollment_id = data.get('enrollment_id')
         payment_method_id = data.get('payment_method_id')  # Stripe payment method ID
         payment_amount = Decimal(str(data.get('payment_amount', '0')))
         tax_amount = Decimal(str(data.get('tax_amount', '0')))
         total_amount = Decimal(str(data.get('total_amount', '0')))
-        card_holder = data.get('card_holder', '').strip()
-        card_type = data.get('card_type', '').lower()
-        card_last_four = data.get('card_last_four', '0000')
-        email = data.get('email', '').strip()
+        card_holder = PaymentSecurityValidator.sanitize_input(data.get('card_holder', ''))
+        card_type = data.get('card_type', '').lower().strip()
+        card_last_four = data.get('card_last_four', '0000')[:4]
+        email = PaymentSecurityValidator.sanitize_input(data.get('email', ''))
         
-        # Validation
+        # Comprehensive validation
         if not all([student_id, enrollment_id, payment_method_id, card_holder, card_type, email]):
+            logger.warning(f'Missing required payment information from {email}')
             return JsonResponse({'error': 'Missing required payment information'}, status=400)
         
-        if card_type not in ['visa', 'mastercard', 'amex']:
-            return JsonResponse({'error': 'Invalid card type'}, status=400)
+        # Validate email format
+        if not PaymentSecurityValidator.validate_email_format(email):
+            logger.warning(f'Invalid email format: {email}')
+            return JsonResponse({'error': 'Invalid email address format'}, status=400)
+        
+        # Validate card type
+        if not PaymentSecurityValidator.validate_card_type(card_type):
+            logger.warning(f'Invalid card type: {card_type}')
+            return JsonResponse({'error': 'Unsupported card type'}, status=400)
+        
+        # Validate payment amount
+        is_valid, error_msg = PaymentSecurityValidator.validate_payment_amount(total_amount)
+        if not is_valid:
+            logger.warning(f'Invalid payment amount: ${total_amount} - {error_msg}')
+            return JsonResponse({'error': error_msg}, status=400)
         
         # Get registration
         try:
@@ -1244,48 +1264,72 @@ def create_payment_and_send_otp(request):
         # Create PaymentInvoice record (will be filled after payment confirmation)
         PaymentInvoice.objects.create(payment=payment)
         
-        # Create OTP
+        # Create OTP with security settings
         from datetime import timedelta
+        otp_expiry_minutes = getattr(settings, 'OTP_EXPIRY_MINUTES', 10)
+        
         otp = PaymentOTP.objects.create(
             payment=payment,
-            expires_at=timezone.now() + timedelta(minutes=10)
+            expires_at=timezone.now() + timedelta(minutes=otp_expiry_minutes),
+            ip_address=request.META.get('REMOTE_ADDR')
         )
         otp.generate_otp()
         otp.save()
         
-        # Send OTP to student email
+        logger.info(f'✅ OTP generated for payment {payment.id} | Student: {email}')
+        
+        # Send professional OTP email
         try:
-            subject = 'Verify Your OncoOne Payment'
+            subject = f'🔐 Payment Verification Code - {settings.BUSINESS_NAME}'
             message = f"""
 Dear {registration.name},
 
-To complete your payment of CAD ${total_amount:.2f} for {enrollment.course_name}, please enter the following OTP code:
+Thank you for choosing {settings.BUSINESS_NAME}.
 
-🔐 OTP Code: {otp.otp_code}
+To complete your secure payment, please verify your transaction with the following One-Time Password (OTP):
 
-This code is valid for 10 minutes.
+╔═══════════════════════════╗
+║   OTP CODE: {otp.otp_code}        ║
+╚═══════════════════════════╝
 
-Payment Details:
-- Course: {enrollment.course_name}
-- Amount: CAD ${total_amount:.2f}
-- Card: {card_type.upper()} ending in {card_last_four}
+This code is valid for {otp_expiry_minutes} minutes and can be used only once.
 
-If you did not initiate this payment, please ignore this email.
+📋 PAYMENT SUMMARY
+─────────────────────────────────
+Course:          {enrollment.course_name}
+Payment Amount:  CAD ${payment_amount:.2f}
+Tax ({settings.TAX_NAME}):         CAD ${tax_amount:.2f}
+Total Amount:    CAD ${total_amount:.2f}
+─────────────────────────────────
+Payment Method:  {card_type.upper()} ending in {card_last_four}
+Cardholder:      {card_holder}
 
-Best regards,
-OncoOne Team
-info@oncoesthetics.ca
+🔒 SECURITY NOTICE:
+• Do not share this code with anyone
+• Our staff will never ask for your OTP
+• You have {settings.OTP_MAX_ATTEMPTS} verification attempts
+
+If you did not initiate this payment, please contact us immediately at {settings.BUSINESS_EMAIL}
+
+Thank you for your trust,
+{settings.BUSINESS_NAME} Team
+{settings.BUSINESS_EMAIL}
+{settings.BUSINESS_PHONE}
             """
             
             email_obj = EmailMessage(
                 subject=subject,
                 body=message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[registration.email]
+                to=[registration.email],
+                reply_to=[settings.BUSINESS_EMAIL]
             )
-            email_obj.send(fail_silently=True)
+            email_obj.send(fail_silently=False)
+            logger.info(f'📧 OTP email sent to {email}')
         except Exception as e:
-            print(f"Failed to send OTP email: {e}")
+            logger.error(f'❌ Failed to send OTP email to {email}: {str(e)}')
+            # Don't fail the request if email fails
+            pass
         
         return JsonResponse({
             'success': True,
@@ -1303,7 +1347,7 @@ info@oncoesthetics.ca
 
 @csrf_exempt
 def verify_payment_otp(request):
-    """Verify OTP for payment"""
+    """Verify OTP for payment with comprehensive security checks (Production-Ready)"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
@@ -1313,20 +1357,51 @@ def verify_payment_otp(request):
         payment_id = data.get('payment_id')
         otp_code = data.get('otp_code', '').strip()
         
+        # Input validation
         if not all([payment_id, otp_code]):
+            security_logger.warning('OTP verification attempted with missing data')
             return JsonResponse({'error': 'Missing payment ID or OTP code'}, status=400)
+        
+        # Validate OTP format before database query
+        if not OTPSecurityManager.validate_otp_format(otp_code):
+            security_logger.warning(f'Invalid OTP format attempted for payment {payment_id}')
+            return JsonResponse({'error': 'Invalid OTP format'}, status=400)
         
         # Get payment and OTP
         try:
-            payment = Payment.objects.get(id=payment_id)
+            payment = Payment.objects.select_related('registration', 'enrollment', 'otp').get(id=payment_id)
             otp = payment.otp
         except Payment.DoesNotExist:
+            security_logger.warning(f'OTP verification attempted for non-existent payment: {payment_id}')
             return JsonResponse({'error': 'Payment not found'}, status=404)
         except PaymentOTP.DoesNotExist:
-            return JsonResponse({'error': 'OTP not found'}, status=404)
+            security_logger.error(f'Missing OTP for payment: {payment_id}')
+            return JsonResponse({'error': 'OTP not found. Please request a new code'}, status=404)
         
-        # Verify OTP
+        # Check for lockout
+        identifier = f'payment_{payment.id}'
+        is_locked, seconds_remaining = OTPSecurityManager.is_locked_out(identifier)
+        
+        if is_locked:
+            security_logger.warning(f'🔒 Locked out payment OTP verification: {payment_id}')
+            minutes_remaining = seconds_remaining // 60
+            return JsonResponse({
+                'error': f'Account temporarily locked due to multiple failed attempts. Please try again in {minutes_remaining} minutes.'
+            }, status=429)
+        
+        # Verify OTP with enhanced security
         success, message = otp.verify_otp(otp_code)
+        
+        if not success:
+            security_logger.warning(f'❌ Failed OTP verification for payment {payment_id}: {message}')
+            
+            # Check if should lock out
+            if otp.attempts >= settings.OTP_MAX_ATTEMPTS:
+                OTPSecurityManager.lockout_user(identifier)
+            
+            return JsonResponse({'error': message}, status=400)
+        
+        logger.info(f'✅ OTP verified successfully for payment {payment.id}')
         
         if success:
             # Confirm Stripe Payment Intent

@@ -440,9 +440,15 @@
 
             <!-- Stripe Card Element -->
             <div class="form-section">
-                <label>Card Details</label>
-                <div id="card-element"></div>
+                <label>Card Information <span style="color: #f56565;">*</span></label>
+                <div class="security-note" style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+                    🔐 Enter card number, expiry date, CVC, and postal code
+                </div>
+                <div id="card-element" style="padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: white;"></div>
                 <div class="stripe-error" id="card-errors"></div>
+                <div style="font-size: 11px; color: #a0aec0; margin-top: 6px;">
+                    💡 Your CVC is the 3 or 4-digit security code on your card
+                </div>
             </div>
 
             <!-- Email -->
@@ -474,9 +480,11 @@
 
         <!-- Security Info -->
         <div class="info-box">
-            <strong>🔐 Your Security:</strong><br>
-            Card details are processed securely by Stripe. We never see your full card number. 
-            After payment, you'll receive an OTP verification and invoice via email.
+            <strong>🔐 Your Security & Privacy:</strong><br>
+            • All card details including CVC are encrypted and processed securely by Stripe<br>
+            • We never store your full card number or CVC<br>
+            • Your payment is protected by industry-standard PCI DSS compliance<br>
+            • After payment, you'll receive an OTP verification code and invoice via email
         </div>
     </div>
 
@@ -484,18 +492,56 @@
     <script src="https://js.stripe.com/v3/"></script>
     
     <script>
-        // Initialize Stripe
+        // Initialize Stripe with enhanced card element options
         const stripe = Stripe('{{ stripe_public_key }}');
         const elements = stripe.elements();
-        const cardElement = elements.create('card');
+        
+        // Create card element with CVC explicitly required and styled
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#2d3748',
+                    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                    '::placeholder': {
+                        color: '#a0aec0'
+                    },
+                    iconColor: '#667eea'
+                },
+                invalid: {
+                    color: '#f56565',
+                    iconColor: '#f56565'
+                }
+            },
+            hidePostalCode: false,  // Collect postal code for additional verification
+            iconStyle: 'solid'
+        });
+        
         cardElement.mount('#card-element');
 
-        // Handle card errors
+        // Track card completion status
+        let cardComplete = false;
+
+        // Handle card element changes with enhanced validation
         cardElement.addEventListener('change', (event) => {
             const displayError = document.getElementById('card-errors');
+            cardComplete = event.complete;
+            
             if (event.error) {
                 displayError.textContent = event.error.message;
                 displayError.classList.add('show');
+            } else if (!event.complete) {
+                // Show helpful messages for incomplete fields
+                const missingFields = [];
+                if (!event.value.postalCode) missingFields.push('postal code');
+                
+                if (missingFields.length > 0 && event.value.number) {
+                    displayError.textContent = `Please complete all card fields including CVC and ${missingFields.join(', ')}`;
+                    displayError.classList.add('show');
+                } else {
+                    displayError.textContent = '';
+                    displayError.classList.remove('show');
+                }
             } else {
                 displayError.textContent = '';
                 displayError.classList.remove('show');
@@ -510,39 +556,58 @@
         const totalAmount = parseFloat('{{ total_amount }}');
         const stripePublicKey = '{{ stripe_public_key }}';
 
-        // Handle payment submission
+        // Handle payment submission with CVC validation
         async function handlePayment(event) {
             event.preventDefault();
 
-            const cardholderName = document.getElementById('cardholderName').value;
-            const email = document.getElementById('email').value;
+            const cardholderName = document.getElementById('cardholderName').value.trim();
+            const email = document.getElementById('email').value.trim();
             const termsCheck = document.getElementById('termsCheck').checked;
             const payBtn = document.getElementById('payBtn');
             const errorDiv = document.getElementById('errorMessage');
 
-            // Validation
-            if (!cardholderName) {
-                showError('Please enter cardholder name');
+            // Enhanced validation
+            if (!cardholderName || cardholderName.length < 3) {
+                showError('Please enter a valid cardholder name (minimum 3 characters)');
+                return;
+            }
+
+            // Validate cardholder name format (letters, spaces, hyphens, apostrophes)
+            const namePattern = /^[a-zA-Z\s\-']+$/;
+            if (!namePattern.test(cardholderName)) {
+                showError('Cardholder name should contain only letters, spaces, hyphens, and apostrophes');
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                showError('Please enter a valid email address');
                 return;
             }
 
             if (!termsCheck) {
-                showError('You must agree to the terms and conditions');
+                showError('You must agree to the terms and conditions to proceed');
+                return;
+            }
+
+            // Verify card element is complete (includes CVC validation)
+            if (!cardComplete) {
+                showError('Please complete all card details including card number, expiry date, CVC, and postal code');
+                cardElement.focus();
                 return;
             }
 
             if (!stripePublicKey || stripePublicKey.includes('YOUR')) {
-                showError('Payment system not configured. Please add Stripe API keys.');
+                showError('⚠️ Payment system not configured. Please contact support.');
                 return;
             }
 
-            // Disable button and show loading
+            // Disable button and show loading state
             payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="loading-spinner"></span>Processing Payment...';
+            payBtn.innerHTML = '<span class="loading-spinner"></span>🔒 Processing Secure Payment...';
             errorDiv.classList.remove('show');
 
             try {
-                // Create payment method from card
+                // Create payment method from card (Stripe validates CVC automatically)
                 const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
                     type: 'card',
                     card: cardElement,
@@ -553,9 +618,30 @@
                 });
 
                 if (pmError) {
-                    showError(pmError.message);
+                    // Handle specific CVC errors
+                    let errorMessage = pmError.message;
+                    if (pmError.code === 'incomplete_cvc' || pmError.message.toLowerCase().includes('cvc')) {
+                        errorMessage = '🔐 Please enter a valid CVC/CVV code (3 or 4 digits on the back of your card)';
+                    } else if (pmError.code === 'incomplete_number') {
+                        errorMessage = '💳 Please enter a complete and valid card number';
+                    } else if (pmError.code === 'incomplete_expiry') {
+                        errorMessage = '📅 Please enter a valid expiry date';
+                    } else if (pmError.code === 'incomplete_zip') {
+                        errorMessage = '📍 Please enter a valid postal/ZIP code';
+                    }
+                    
+                    showError(errorMessage);
                     payBtn.disabled = false;
-                    payBtn.innerHTML = `Pay CAD $${totalAmount}`;
+                    payBtn.innerHTML = `Pay CAD $${totalAmount.toFixed(2)}`;
+                    cardElement.focus();
+                    return;
+                }
+
+                // Verify payment method was created successfully
+                if (!paymentMethod || !paymentMethod.id) {
+                    showError('Failed to process card information. Please try again.');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `Pay CAD $${totalAmount.toFixed(2)}`;
                     return;
                 }
 

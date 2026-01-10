@@ -1,5 +1,24 @@
-Django>=4.2
-python-dotenv
-psycopg2-binary
-django-cors-headers
-whitenoise
+# Core Django Framework
+Django>=4.2,<5.0
+python-dotenv>=1.0.0
+
+# Database
+psycopg2-binary>=2.9.0
+
+# Security & CORS
+django-cors-headers>=4.0.0
+
+# Static Files
+whitenoise>=6.5.0
+
+# Payment Processing
+stripe>=7.0.0
+
+# PDF Generation (for invoices)
+reportlab>=4.0.0
+
+# Email & Rate Limiting
+django-ratelimit>=4.1.0
+
+# Production Server (Optional)
+gunicorn>=21.2.0

@@ -175,47 +175,94 @@ class PaymentInvoice(models.Model):
 
 
 class PaymentOTP(models.Model):
-	"""Store OTP for payment verification"""
+	"""Store OTP for secure payment verification with rate limiting"""
 	payment = models.OneToOneField(Payment, on_delete=models.CASCADE, related_name='otp')
-	otp_code = models.CharField(max_length=6)
-	is_verified = models.BooleanField(default=False)
+	otp_code = models.CharField(max_length=6, db_index=True)
+	is_verified = models.BooleanField(default=False, db_index=True)
 	attempts = models.IntegerField(default=0)
-	created_at = models.DateTimeField(auto_now_add=True)
-	expires_at = models.DateTimeField()  # OTP valid for 10 minutes
+	created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+	expires_at = models.DateTimeField(db_index=True)  # OTP valid for configurable time
 	verified_at = models.DateTimeField(blank=True, null=True)
+	ip_address = models.GenericIPAddressField(blank=True, null=True)  # Track IP for security
 
 	class Meta:
 		ordering = ['-created_at']
+		indexes = [
+			models.Index(fields=['payment', 'is_verified']),
+			models.Index(fields=['expires_at', 'is_verified']),
+		]
 
 	def __str__(self):
-		return f"OTP for Payment {self.payment.invoice_number}"
+		return f"OTP for Payment {self.payment.invoice_number or self.payment.id}"
 
 	def generate_otp(self):
-		"""Generate a 6-digit OTP"""
-		self.otp_code = ''.join(random.choices(string.digits, k=6))
+		"""Generate a secure 6-digit OTP using payment_security module"""
+		from .payment_security import OTPSecurityManager
+		self.otp_code = OTPSecurityManager.generate_otp_code()
 
 	def is_expired(self):
 		"""Check if OTP has expired"""
 		return timezone.now() > self.expires_at
 
-	def verify_otp(self, entered_otp):
-		"""Verify OTP and update status"""
+	def verify_otp(self, entered_otp: str) -> tuple:
+		"""
+		Verify OTP with comprehensive security checks
+		
+		Args:
+			entered_otp: The OTP code entered by user
+			
+		Returns:
+			tuple: (success: bool, message: str)
+		"""
+		from django.conf import settings
+		from .payment_security import OTPSecurityManager
+		
+		# Check if already verified
 		if self.is_verified:
-			return False, "OTP already verified"
+			return False, "This OTP has already been used"
 		
+		# Validate OTP format
+		if not OTPSecurityManager.validate_otp_format(entered_otp):
+			return False, "Invalid OTP format. Please enter a 6-digit code"
+		
+		# Check expiration
 		if self.is_expired():
-			return False, "OTP has expired. Request a new one."
+			return False, "OTP has expired. Please request a new code"
 		
-		if self.attempts >= 3:
-			return False, "Maximum attempts exceeded. Request a new OTP."
+		# Check maximum attempts
+		max_attempts = getattr(settings, 'OTP_MAX_ATTEMPTS', 3)
+		if self.attempts >= max_attempts:
+			return False, f"Maximum verification attempts ({max_attempts}) exceeded. Please request a new OTP"
 		
+		# Check rate limiting
+		identifier = f"payment_{self.payment.id}"
+		is_allowed, remaining = OTPSecurityManager.check_rate_limit(identifier)
+		
+		if not is_allowed:
+			return False, "Too many attempts. Please try again later"
+		
+		# Increment attempts
 		self.attempts += 1
-		self.save()
+		self.save(update_fields=['attempts'])
 		
-		if entered_otp == self.otp_code:
+		# Verify OTP code
+		if entered_otp.strip() == self.otp_code:
 			self.is_verified = True
 			self.verified_at = timezone.now()
-			self.save()
+			self.save(update_fields=['is_verified', 'verified_at'])
+			
+			# Record successful attempt
+			OTPSecurityManager.record_otp_attempt(identifier, success=True)
+			
 			return True, "OTP verified successfully"
 		
-		return False, f"Invalid OTP. {3 - self.attempts} attempts remaining."
+		# Failed attempt
+		OTPSecurityManager.record_otp_attempt(identifier, success=False)
+		
+		remaining_attempts = max_attempts - self.attempts
+		
+		if remaining_attempts > 0:
+			return False, f"Invalid OTP code. {remaining_attempts} attempt(s) remaining"
+		else:
+			return False, "Invalid OTP. Maximum attempts reached. Please request a new code"
+

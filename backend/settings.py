@@ -192,14 +192,107 @@ if 'smtp' in EMAIL_BACKEND:
 # For development allow CORS from localhost dev server; in production lock this down
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
-# -------
-# STRIPE CONFIGURATION (Payment Processing)
+# ============================================
+# PAYMENT SYSTEM CONFIGURATION (PRODUCTION-READY)
+# ============================================
+
+# Stripe Configuration with validation
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
-STRIPE_STATEMENT_DESCRIPTOR = os.getenv('STRIPE_STATEMENT_DESCRIPTOR', 'OncoOne')
+STRIPE_CURRENCY = os.getenv('STRIPE_CURRENCY', 'cad').lower()
+STRIPE_STATEMENT_DESCRIPTOR = os.getenv('STRIPE_STATEMENT_DESCRIPTOR', 'OncoOne Education')[:22]  # Max 22 chars
 
-# Business Settings
-BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'OncoOne')
+# Validate Stripe keys on startup (Production)
+if not DEBUG:
+    if not STRIPE_SECRET_KEY or not STRIPE_PUBLIC_KEY:
+        import warnings
+        warnings.warn('⚠️  STRIPE API KEYS NOT CONFIGURED! Payment processing will fail.', RuntimeWarning)
+
+# OTP Security Settings
+OTP_EXPIRY_MINUTES = int(os.getenv('OTP_EXPIRY_MINUTES', '10'))
+OTP_MAX_ATTEMPTS = int(os.getenv('OTP_MAX_ATTEMPTS', '3'))
+OTP_LENGTH = 6
+
+# Payment Security & Validation
+PAYMENT_TIMEOUT_MINUTES = int(os.getenv('PAYMENT_TIMEOUT_MINUTES', '30'))
+from decimal import Decimal
+MIN_PAYMENT_AMOUNT = Decimal(os.getenv('MIN_PAYMENT_AMOUNT', '10.00'))
+MAX_PAYMENT_AMOUNT = Decimal(os.getenv('MAX_PAYMENT_AMOUNT', '10000.00'))
+
+# Tax Configuration (Canadian GST/HST)
+TAX_RATE = Decimal(os.getenv('TAX_RATE', '0.05'))  # 5% GST (adjust per province)
+TAX_NAME = os.getenv('TAX_NAME', 'GST')
+
+# Business Information
+BUSINESS_NAME = os.getenv('BUSINESS_NAME', 'OncoOne Education')
 BUSINESS_EMAIL = os.getenv('BUSINESS_EMAIL', 'info@oncoesthetics.ca')
+BUSINESS_PHONE = os.getenv('BUSINESS_PHONE', '+1-XXX-XXX-XXXX')
+BUSINESS_ADDRESS = os.getenv('BUSINESS_ADDRESS', 'Canada')
 BUSINESS_CURRENCY = os.getenv('BUSINESS_CURRENCY', 'cad').lower()
+
+# Session Security
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 3600  # 1 hour
+
+# CSRF Protection
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+CSRF_TRUSTED_ORIGINS = [
+    h.strip() for h in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if h.strip()
+]
+
+# Logging Configuration (Production-Ready)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {funcName} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file_payment': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'payment.log',
+            'formatter': 'verbose',
+        },
+        'file_security': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'core.payment': {
+            'handlers': ['console', 'file_payment'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core.security': {
+            'handlers': ['console', 'file_security'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'stripe': {
+            'handlers': ['console', 'file_payment'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}
+
+# Create logs directory
+os.makedirs(BASE_DIR / 'logs', exist_ok=True)
