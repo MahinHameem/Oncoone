@@ -235,7 +235,7 @@
           <th class="name-col" style="color: #1a4272; font-weight: 600;">Full Name</th>
           <th class="contact-col" style="color: #1a4272; font-weight: 600;">Contact</th>
           <th class="email-col" style="color: #1a4272; font-weight: 600;">Email</th>
-          <th class="password-col" style="color: #1a4272; font-weight: 600;">Password</th>
+          // <th class="password-col" style="color: #1a4272; font-weight: 600;">Password</th>
           <th class="money-col" style="color: #1a4272; font-weight: 600;">Course Fee</th>
           <th class="money-col" style="color: #1a4272; font-weight: 600;">Total Paid</th>
           <th class="money-col" style="color: #1a4272; font-weight: 600;">Balance</th>
@@ -266,7 +266,7 @@
             <td class="text-start"><strong>${escapeHtml(r.name)}</strong></td>
             <td><span style="color: #666;">${escapeHtml(r.contact)}</span></td>
             <td class="text-start"><span style="color: #666; font-size: 13px;">${escapeHtml(r.email)}</span></td>
-            <td class="text-center"><code style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${escapeHtml(r.student_password || 'N/A')}</code></td>
+            // <td class="text-center"><code style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${escapeHtml(r.student_password || 'N/A')}</code></td>
             <td class="text-right money" style="color: #1a4272; font-weight: 600;">$${formatMoney(r.course_total_cad)}</td>
             <td class="text-right money" style="color: #28a745; font-weight: 600;">$${formatMoney(r.total_paid_cad)}</td>
             <td class="text-right money" style="color: #dc3545; font-weight: 600;">$${formatMoney(r.balance_cad)}</td>
@@ -274,9 +274,9 @@
             <td><span style="color: #666; font-size: 13px;">${new Date(r.created_at).toLocaleDateString()}</span></td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-primary" onclick="editStudent(${r.id})" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-outline-danger" onclick="deleteStudent(${r.id})" title="Delete"><i class="fas fa-trash"></i></button>
-                ${r.has_db_proof ? `<a class="btn btn-outline-success" href="${r.download_url}" download title="Download"><i class="fas fa-download"></i></a>` : `<button class="btn btn-outline-secondary" disabled title="No file"><i class="fas fa-file-slash"></i></button>`}
+                <button class="btn btn-outline-primary" onclick="editStudent(${r.registration_id})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-outline-danger" onclick="deleteStudent(${r.registration_id})" title="Delete"><i class="fas fa-trash"></i></button>
+                ${r.has_proof && r.download_url ? `<a class="btn btn-outline-success" href="${r.download_url}" download title="Download"><i class="fas fa-download"></i></a>` : `<button class="btn btn-outline-secondary" disabled title="No file"><i class="fas fa-file-slash"></i></button>`}
               </div>
             </td>
           `;

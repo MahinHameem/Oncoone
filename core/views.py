@@ -188,7 +188,7 @@ def registrations_list(request):
                 course = Course.objects.filter(course_name=course_name).first()
                 price = course.price_cad if course else Decimal('0.00')
             
-            # Get total paid amount (this is registration-level, not split per course)
+            # Get total paid amount (registration-level; we do not currently split payments by course)
             completed_payments = r.payments.filter(status='completed')
             total_paid = sum((p.payment_amount_cad for p in completed_payments), Decimal('0.00'))
             
@@ -201,9 +201,17 @@ def registrations_list(request):
                 payment_status = 'pending'
             else:
                 payment_status = 'completed' if total_paid >= price else 'pending'
+
+            has_proof = bool(e.proof_data or e.proof)
+            download_url = None
+            try:
+                download_url = reverse('admin-registrations-download', args=[e.id])
+            except Exception:
+                download_url = None
             
             data.append({
-                'id': r.id,
+                'id': e.id,  # enrollment id for actions/downloads
+                'registration_id': r.id,
                 'name': r.name,
                 'email': r.email,
                 'contact': r.contact,
@@ -215,6 +223,8 @@ def registrations_list(request):
                 'balance_cad': f"{balance.quantize(Decimal('0.01'))}",
                 'payment_status': payment_status,
                 'created_at': r.created_at.isoformat(),
+                'has_proof': has_proof,
+                'download_url': download_url,
             })
     
     return JsonResponse({'results': data})
