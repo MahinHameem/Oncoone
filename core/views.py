@@ -13,13 +13,24 @@ import json
 import uuid
 import logging
 
-from .models import Registration, StudentCourseEnrollment, Payment, CoursePrice, PaymentInvoice, PaymentOTP
+from .models import Registration, StudentCourseEnrollment, Payment, Course, PaymentInvoice, PaymentOTP
 from .stripe_processor import StripePaymentProcessor
 from .payment_security import OTPSecurityManager, PaymentSecurityValidator
 
 # Initialize loggers
 logger = logging.getLogger('core.payment')
 security_logger = logging.getLogger('core.security')
+
+# Decorator to prevent browser caching of payment pages
+def no_cache(view_func):
+    """Decorator to prevent caching of sensitive payment pages"""
+    def wrapped_view(request, *args, **kwargs):
+        response = view_func(request, *args, **kwargs)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
+    return wrapped_view
 
 
 @csrf_exempt
@@ -103,7 +114,7 @@ def register_view(request):
                     f"Contact: {reg.contact}\n"
                     f"Course: {course_name}\n"
                     f"Has Prerequisite: {has_prerequisite}\n"
-                    f"Registration ID: {reg.registration_id}\n"
+                    f"Registration ID: {reg.registration_number}\n"
                     f"Submitted: {enrollment.enrolled_at}\n"
                 )
                 email_msg = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [admin_email])
@@ -117,13 +128,23 @@ def register_view(request):
         # Send confirmation to student
         if reg.email:
             try:
-                user_subject = f"Welcome to OncoOne - Registration ID: {reg.registration_id}"
+                user_subject = f"Welcome to OncoOne - Registration Number: {reg.registration_number}"
                 user_body = (
                     f"Hi {reg.name},\n\n"
                     f"Thank you for registering for {course_name}!\n\n"
-                    f"Your Registration ID: {reg.registration_id}\n"
-                    f"Email: {reg.email}\n\n"
-                    f"You can use this ID to access the payment portal.\n\n"
+                    f"═══════════════════════════════════════\n"
+                    f"YOUR REGISTRATION NUMBER: {reg.registration_number}\n"
+                    f"═══════════════════════════════════════\n\n"
+                    f"Please save this registration number. You will need it to:\n"
+                    f"• Make payments through our payment portal\n"
+                    f"• Access your student account\n"
+                    f"• Track your course progress\n\n"
+                    f"Student Details:\n"
+                    f"Name: {reg.name}\n"
+                    f"Email: {reg.email}\n"
+                    f"Course: {course_name}\n\n"
+                    f"Payment Portal: Use your registration number ({reg.registration_number}) to make payments\n\n"
+                    f"If you have any questions, please contact us.\n\n"
                     f"– OncoOne Team"
                 )
                 EmailMessage(user_subject, user_body, settings.DEFAULT_FROM_EMAIL, [reg.email]).send(fail_silently=True)
@@ -133,9 +154,9 @@ def register_view(request):
         return JsonResponse({
             'status': 'ok',
             'id': reg.id,
-            'registration_id': reg.registration_id,
+            'registration_id': reg.registration_number,
             'enrollment_id': enrollment.id,
-            'message': f'Registration for {course_name} successful! Your Registration ID is: {reg.registration_id}'
+            'message': f'Registration for {course_name} successful! Your Registration ID is: {reg.registration_number}'
         })
 
     except Exception as e:
@@ -157,8 +178,14 @@ def registrations_list(request):
         courses = [e.course_name for e in enrollments]
         course_total = Decimal('0.00')
         for e in enrollments:
-            course_price = CoursePrice.objects.filter(course_name=e.course_name).first()
-            price = course_price.price_cad if course_price else None
+            # Try to get price from Course model, fall back to enrollment's course if available
+            if e.course:
+                price = e.course.price_cad
+            else:
+                # Legacy: try to find course by name
+                course = Course.objects.filter(course_name=e.course_name).first()
+                price = course.price_cad if course else None
+            
             if price is None:
                 paid_course = e.payments.filter(status='completed').first()
                 price = paid_course.total_price_cad if paid_course else Decimal('0.00')
@@ -179,6 +206,8 @@ def registrations_list(request):
             'name': r.name,
             'email': r.email,
             'contact': r.contact,
+            'registration_number': r.registration_number,
+            'student_password': r.student_password,
             'courses': courses,
             'course_display': ', '.join(courses) if courses else 'N/A',
             'course_count': len(courses),
@@ -214,6 +243,8 @@ def registration_detail(request, pk):
             'name': reg.name,
             'email': reg.email,
             'contact': reg.contact,
+            'registration_number': reg.registration_number,
+            'student_password': reg.student_password,
             'enrollments': enrollments_data,
             'created_at': reg.created_at.isoformat(),
         })
@@ -423,13 +454,17 @@ def payment_verify_student(request):
         student_id = data.get('student_id', '').strip()
         
         if not student_id:
-            return JsonResponse({'error': 'Student ID or Registration ID is required'}, status=400)
+            return JsonResponse({'error': 'Student ID or Registration Number is required'}, status=400)
         
         # Try multiple search methods
         registration = None
         
-        # Try by Registration ID format (REG-YYYYMMDD-XXXXXX)
-        if student_id.startswith('REG-'):
+        # Try by new Registration Number format (ON26-XXXXXX)
+        if student_id.startswith('ON'):
+            registration = Registration.objects.filter(registration_number=student_id).first()
+        
+        # Try by old Registration ID format (REG-YYYYMMDD-XXXXXX)
+        if not registration and student_id.startswith('REG-'):
             try:
                 # Extract numeric ID from REG-20251229-000073 format
                 parts = student_id.split('-')
@@ -452,7 +487,7 @@ def payment_verify_student(request):
             registration = Registration.objects.filter(email=student_id).first()
         
         if not registration:
-            return JsonResponse({'error': 'Student not found. Please check your Registration ID or email.'}, status=404)
+            return JsonResponse({'error': 'Student not found. Please check your Registration Number (ON26-XXXXXX) or email.'}, status=404)
         
         # Get all course enrollments for this student
         enrollments = registration.course_enrollments.all()
@@ -460,7 +495,7 @@ def payment_verify_student(request):
         # Get course prices for each enrollment
         course_data = []
         for enrollment in enrollments:
-            course_price = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
+            course_price = Course.objects.filter(course_name=enrollment.course_name).first()
             if course_price:
                 course_data.append({
                     'id': course_price.id,
@@ -488,6 +523,7 @@ def payment_verify_student(request):
                 'name': registration.name,
                 'email': registration.email,
                 'contact': registration.contact,
+                'registration_number': registration.registration_number,
             },
             'courses': course_data,
             'course_count': len(course_data)
@@ -499,6 +535,7 @@ def payment_verify_student(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@no_cache
 def payment_select_course(request, student_id):
     """Page to select course and enter payment amount"""
     try:
@@ -521,7 +558,7 @@ def payment_select_course(request, student_id):
     from django.db.models import Sum
     course_data = []
     for enrollment in enrollments:
-        course_price = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
+        course_price = Course.objects.filter(course_name=enrollment.course_name).first()
         full_price = float(course_price.price_cad) if course_price else 0.00
         
         # Calculate already paid for this enrollment
@@ -545,12 +582,14 @@ def payment_select_course(request, student_id):
         'student': registration,
         'enrollments': enrollments,
         'courses': course_data,
-        'currency': 'CAD'
+        'currency': 'CAD',
+        'registration_number': registration.registration_number,
     }
     
     return render(request, 'payments/payment_select_amount.html', context)
 
 
+@no_cache
 def payment_amount(request, student_id):
     """Page to enter payment amount for a selected course"""
     try:
@@ -570,8 +609,8 @@ def payment_amount(request, student_id):
         return redirect('payment-portal-home')
     
     # Get course price
-    course_price = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
-    full_price = float(course_price.price_cad) if course_price else 0.00
+    course_price = Course.objects.filter(course_name=enrollment.course_name).first()
+    full_price = float(course.price_cad) if course_price else 0.00
 
     # Sum of previous completed payments for this enrollment (amount before tax)
     from django.db.models import Sum
@@ -594,7 +633,8 @@ def payment_amount(request, student_id):
         'course_full_price': full_price,
         'paid_so_far': paid_sum,
         'enrollment_id': enrollment_id,
-        'currency': 'CAD'
+        'currency': 'CAD',
+        'registration_number': registration.registration_number,
     }
     
     return render(request, 'payments/payment_amount.html', context)
@@ -613,7 +653,7 @@ def payment_already_paid(request, student_id, enrollment_id):
         'student': registration,
         'enrollment': enrollment,
         'course_name': enrollment.course_name,
-        'registration_id': registration.registration_id,
+        'registration_id': registration.registration_number,
     }
     
     return render(request, 'payments/payment_already_paid.html', context)
@@ -646,6 +686,7 @@ def payment_calculate_tax(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@no_cache
 def payment_summary(request, student_id):
     """Payment summary page before card entry"""
     try:
@@ -673,8 +714,8 @@ def payment_summary(request, student_id):
     tax_amount = request.GET.get('tax', '0')
     total_amount = request.GET.get('total', '0')
     
-    course_price = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
-    course_full_price = float(course_price.price_cad) if course_price else 0.00
+    course_price = Course.objects.filter(course_name=enrollment.course_name).first()
+    course_full_price = float(course.price_cad) if course_price else 0.00
 
     # Include previously paid amounts so summary shows true remaining
     from django.db.models import Sum
@@ -687,6 +728,7 @@ def payment_summary(request, student_id):
     context = {
         'student': registration,
         'student_id': registration.id,
+        'registration_number': registration.registration_number,
         'enrollment': enrollment,
         'course': enrollment.course_name,
         'payment_amount': float(payment_amount),
@@ -726,8 +768,8 @@ def payment_card_entry(request, student_id):
             return redirect('payment-portal-home')
     
     # Get course price
-    course_price = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
-    price = course_price.price_cad if course_price else Decimal('0.00')
+    course_price = Course.objects.filter(course_name=enrollment.course_name).first()
+    price = course.price_cad if course_price else Decimal('0.00')
     
     payment_amount = request.GET.get('amount', str(price))
     tax_amount = request.GET.get('tax', '0')
@@ -813,14 +855,14 @@ def process_payment(request):
         card_last_four = card_number[-4:] if len(card_number) >= 4 else card_number
         
         # Get course price
-        course_price_obj = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
-        total_price = course_price_obj.price_cad if course_price_obj else Decimal('0.00')
+        course_price_obj = Course.objects.filter(course_name=enrollment.course_name).first()
+        total_price = course.price_cad if course_price_obj else Decimal('0.00')
         
         # Create payment record
         payment = Payment.objects.create(
             registration=registration,
             enrollment=enrollment,
-            student_id=registration.registration_id,
+            student_id=registration.registration_number,
             course_name=enrollment.course_name,
             total_price_cad=total_price,
             payment_amount_cad=payment_amount,
@@ -959,10 +1001,14 @@ Hi {registration.name},
 
 Your payment has been successfully processed!
 
+═══════════════════════════════════════
+PAYMENT CONFIRMATION
+═══════════════════════════════════════
+
+Registration Number: {registration.registration_number}
 Invoice Number: {payment.invoice_number}
-Student ID: {registration.id}
-Registration ID: {registration.registration_id}
 Course: {payment.course_name}
+
 Payment Amount: CAD ${payment.payment_amount_cad}
 Tax (5% GST): CAD ${payment.tax_amount}
 Total Paid: CAD ${payment.final_amount_cad}
@@ -971,11 +1017,15 @@ Remaining Balance: CAD ${payment.calculate_remaining_balance()}
 Card Used (Last 4): {card_last_four}
 Transaction ID: {payment.transaction_id}
 
-Your invoice PDF is attached to this email. You can also download it from your student portal using your Registration ID: {registration.registration_id}
+═══════════════════════════════════════
+
+Your invoice PDF is attached to this email. 
+
+You can also access your payment history anytime using your Registration Number: {registration.registration_number}
 
 Student Portal: {request.build_absolute_uri('/api/payment/')}
 
-Thank you!
+Thank you for your payment!
 – OncoOne Team
                 """
                 email_msg = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [registration.email])
@@ -1005,6 +1055,7 @@ Thank you!
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@no_cache
 def payment_success(request, payment_id):
     """Payment success page with invoice"""
     try:
@@ -1024,6 +1075,7 @@ def payment_success(request, payment_id):
     return render(request, 'payments/payment_success.html', context)
 
 
+@no_cache
 def payment_cancelled(request, student_id):
     """Payment cancelled page"""
     try:
@@ -1080,13 +1132,13 @@ def student_login(request):
             # Store in session
             request.session['student_id'] = student.id
             request.session['student_name'] = student.name
-            request.session['registration_id'] = student.registration_id
+            request.session['registration_id'] = student.registration_number
             
             return JsonResponse({
                 'status': 'success',
                 'student_id': student.id,
                 'student_name': student.name,
-                'registration_id': student.registration_id
+                'registration_id': student.registration_number
             })
         else:
             return JsonResponse({
@@ -1143,7 +1195,7 @@ def generate_invoice_pdf(payment):
     lines = [
         f"Student: {payment.registration.name}",
         f"Email: {payment.registration.email}",
-        f"Registration ID: {payment.registration.registration_id}",
+        f"Registration ID: {payment.registration.registration_number}",
         f"Course: {payment.course_name}",
         f"Full Course Fee: ${float(payment.total_price_cad):.2f}",
         f"Payment Amount: ${float(payment.payment_amount_cad):.2f}",
@@ -1223,7 +1275,7 @@ def create_payment_and_send_otp(request):
             return JsonResponse({'error': 'Invalid enrollment'}, status=404)
         
         # Get course price
-        course_price_obj = CoursePrice.objects.filter(course_name=enrollment.course_name).first()
+        course_price_obj = Course.objects.filter(course_name=enrollment.course_name).first()
         if not course_price_obj:
             return JsonResponse({'error': 'Course price not found'}, status=404)
         
@@ -1249,7 +1301,7 @@ def create_payment_and_send_otp(request):
             enrollment=enrollment,
             student_id=str(student_id),
             course_name=enrollment.course_name,
-            total_price_cad=course_price_obj.price_cad,
+            total_price_cad=course.price_cad,
             payment_amount_cad=payment_amount,
             tax_amount=tax_amount,
             final_amount_cad=total_amount,
@@ -1610,8 +1662,8 @@ def student_dashboard(request, student_id):
         filtered_enrollments = list(enrollments)
 
     for e in filtered_enrollments:
-        course_price = CoursePrice.objects.filter(course_name=e.course_name).first()
-        full_price = float(course_price.price_cad) if course_price else 0.0
+        course_price = Course.objects.filter(course_name=e.course_name).first()
+        full_price = float(course.price_cad) if course_price else 0.0
         # Subtract only the pre-tax portion applied to course fee
         paid_sum = Payment.objects.filter(enrollment=e, status='completed').aggregate(p=Sum('payment_amount_cad'))['p'] or 0
         remaining_balance += max(full_price - float(paid_sum), 0.0)
@@ -1619,7 +1671,7 @@ def student_dashboard(request, student_id):
     context = {
         'student': student,
         'student_name': student.name,
-        'registration_id': student.registration_id,
+        'registration_id': student.registration_number,
         'student_id': student.id,
         'payments': payments_qs,  # pass model instances so template helpers work
         'enrollments': enrollments,
@@ -1698,7 +1750,7 @@ def download_payment_invoice(request, payment_id):
                             <span class="label">Phone:</span> {student.contact}
                         </div>
                         <div class="detail-row">
-                            <span class="label">Registration:</span> {student.registration_id}
+                            <span class="label">Registration:</span> {student.registration_number}
                         </div>
                     </div>
                     

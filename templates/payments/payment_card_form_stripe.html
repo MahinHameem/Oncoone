@@ -238,6 +238,149 @@
             text-decoration: underline;
         }
 
+        /* Policy modal */
+        .policy-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 66, 114, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .policy-modal.show {
+            display: flex;
+        }
+
+        .policy-dialog {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #1a202c;
+            max-width: 800px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 40px 36px;
+            box-shadow: 0 25px 60px rgba(26, 66, 114, 0.3), 0 0 0 1px rgba(26, 66, 114, 0.1);
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .policy-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            border: none;
+            background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%);
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(26, 66, 114, 0.2);
+        }
+
+        .policy-close:hover {
+            background: linear-gradient(135deg, #2a5a9a 0%, #1a4272 100%);
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 6px 18px rgba(26, 66, 114, 0.3);
+        }
+
+        .policy-title {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #1a4272;
+            font-size: 28px;
+            font-weight: 700;
+            border-bottom: 3px solid #1a4272;
+            padding-bottom: 12px;
+        }
+
+        .policy-meta {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .policy-dialog p {
+            line-height: 1.7;
+            color: #2d3748;
+            margin-bottom: 14px;
+        }
+
+        .policy-section-title {
+            margin: 24px 0 12px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a4272;
+            padding-left: 12px;
+            border-left: 4px solid #1a4272;
+            background: rgba(26, 66, 114, 0.05);
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+
+        .policy-list {
+            padding-left: 24px;
+            margin: 12px 0;
+        }
+
+        .policy-list li {
+            margin-bottom: 8px;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .policy-list em {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .policy-dialog::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .policy-dialog::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .policy-dialog::-webkit-scrollbar-thumb {
+            background: #1a4272;
+            border-radius: 10px;
+        }
+
+        .policy-dialog::-webkit-scrollbar-thumb:hover {
+            background: #2a5a9a;
+        }
+
         .error-message {
             background: rgba(245, 101, 101, 0.1);
             color: var(--danger);
@@ -464,7 +607,10 @@
                 <div class="terms-checkbox">
                     <input type="checkbox" id="termsCheck" required>
                     <label for="termsCheck">
-                        I agree to the terms and conditions and authorize OncoOne to charge my card
+                        I agree to the terms and conditions and authorize OncoOne to charge my card. I have reviewed the
+                        <a href="#" onclick="openPolicyModal('privacyModal'); return false;">Privacy Policy</a>
+                        and
+                        <a href="#" onclick="openPolicyModal('conductModal'); return false;">Student Code of Conduct</a>.
                     </label>
                 </div>
             </div>
@@ -485,6 +631,143 @@
             • We never store your full card number or CVC<br>
             • Your payment is protected by industry-standard PCI DSS compliance<br>
             • After payment, you'll receive an OTP verification code and invoice via email
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="policy-modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle" onclick="if(event.target === this) closePolicyModal('privacyModal');">
+        <div class="policy-dialog" onclick="event.stopPropagation();">
+            <button class="policy-close" aria-label="Close" onclick="closePolicyModal('privacyModal')">×</button>
+            <h3 id="privacyTitle" class="policy-title">Privacy Policy Notice</h3>
+            <div class="policy-meta">OncoOne Aesthetic School &middot; Last Updated: 2026.01.10</div>
+            <p>OncoOne Aesthetic School ("OncoOne", "we", "our", or "us") is a non-profit educational organization providing oncology-related aesthetic courses. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or register for our courses.</p>
+
+            <div class="policy-section-title">1. Information We Collect</div>
+            <p><strong>a. Personal Information</strong></p>
+            <ul class="policy-list">
+                <li>Full name</li>
+                <li>Email address</li>
+                <li>Phone number</li>
+                <li>Professional or educational details (if provided during registration)</li>
+            </ul>
+            <p><strong>b. Payment Information</strong></p>
+            <ul class="policy-list">
+                <li>Payment amount</li>
+                <li>Transaction reference number</li>
+                <li>Payment status</li>
+                <li><em>Note:</em> We do not store or process credit/debit card details directly. All payments are securely handled by third-party payment gateway providers.</li>
+            </ul>
+            <p><strong>c. Technical Information</strong></p>
+            <ul class="policy-list">
+                <li>IP address</li>
+                <li>Browser type and device information</li>
+                <li>Pages visited and interaction data (for analytics purposes)</li>
+            </ul>
+
+            <div class="policy-section-title">2. How We Use Your Information</div>
+            <p>We use the collected information to:</p>
+            <ul class="policy-list">
+                <li>Process course registrations and payments</li>
+                <li>Send confirmation and administrative emails</li>
+                <li>Communicate course updates and important notices</li>
+                <li>Maintain internal records for academic and compliance purposes</li>
+                <li>Improve website functionality and user experience</li>
+            </ul>
+            <p>As a non-profit organization, we do not sell, rent, or trade your personal data.</p>
+
+            <div class="policy-section-title">3. Payment Security</div>
+            <p>All online payments are processed through secure, PCI-DSS-compliant payment gateways. OncoOne Aesthetic School does not have access to your full card details.</p>
+
+            <div class="policy-section-title">4. Data Sharing and Disclosure</div>
+            <p>We may share your information only with trusted service providers (e.g., payment gateways, email services) or legal/regulatory authorities when required by law. All third parties are obligated to keep your data confidential and secure.</p>
+
+            <div class="policy-section-title">5. Data Retention</div>
+            <p>We retain personal information only for as long as necessary to fulfill educational and administrative purposes or to comply with legal, accounting, or regulatory requirements.</p>
+
+            <div class="policy-section-title">6. Your Rights</div>
+            <p>You have the right to request access, correction, or deletion of your data, and to withdraw consent for communications at any time. Requests can be made using the contact details below.</p>
+
+            <div class="policy-section-title">7. Cookies</div>
+            <p>Our website may use cookies to enhance user experience and analyze website traffic. You may disable cookies through your browser settings if you prefer.</p>
+
+            <div class="policy-section-title">8. Data Protection</div>
+            <p>We implement appropriate technical and organizational security measures to protect your information against unauthorized access, alteration, disclosure, or destruction.</p>
+
+            <div class="policy-section-title">9. Changes to This Policy</div>
+            <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date.</p>
+
+            <div class="policy-section-title">10. Contact Us</div>
+            <div style="background: linear-gradient(135deg, #f0f4f8 0%, #e8f2ff 100%); border-radius: 12px; padding: 24px; margin-top: 16px; border: 2px solid #1a4272; box-shadow: 0 4px 12px rgba(26, 66, 114, 0.1);">
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <div style="display: inline-block; background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%); color: white; padding: 8px 20px; border-radius: 25px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 8px rgba(26, 66, 114, 0.2);">
+                        OncoOne Aesthetic School
+                    </div>
+                </div>
+                <div style="display: grid; gap: 12px; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.2s ease;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #718096; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Email</div>
+                            <a href="mailto:info@oncoesthetics.ca" style="color: #1a4272; font-weight: 600; text-decoration: none; font-size: 15px;">info@oncoesthetics.ca</a>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.2s ease;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #1a4272 0%, #2a5a9a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #718096; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Website</div>
+                            <a href="https://www.oncoesthetics.ca" target="_blank" style="color: #1a4272; font-weight: 600; text-decoration: none; font-size: 15px;">www.oncoesthetics.ca</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Code of Conduct Modal -->
+    <div id="conductModal" class="policy-modal" role="dialog" aria-modal="true" aria-labelledby="conductTitle" onclick="if(event.target === this) closePolicyModal('conductModal');">
+        <div class="policy-dialog" onclick="event.stopPropagation();">
+            <button class="policy-close" aria-label="Close" onclick="closePolicyModal('conductModal')">×</button>
+            <h3 id="conductTitle" class="policy-title">Student Code of Conduct</h3>
+            <p>To maintain a safe, respectful, and professional learning environment, all students agree to the following:</p>
+
+            <div class="policy-section-title">Professionalism</div>
+            <ul class="policy-list">
+                <li>Arrive prepared, punctual, and ready to learn.</li>
+                <li>All materials used belong to OncoOne unless part of your kit; if property is damaged or misused, the student is responsible.</li>
+                <li>Maintain professional behaviour and communication.</li>
+                <li>Follow all safety and sanitation protocols.</li>
+            </ul>
+
+            <div class="policy-section-title">Respect & Trauma-Informed Behaviour</div>
+            <ul class="policy-list">
+                <li>Treat peers, instructors, and clients with empathy, dignity, and compassion.</li>
+                <li>Honour the lived experiences of cancer patients and survivors.</li>
+                <li>Maintain a calm, supportive presence.</li>
+            </ul>
+
+            <div class="policy-section-title">Privacy & Confidentiality</div>
+            <ul class="policy-list">
+                <li>Protect all personal information shared in class and do not share outside the OncoOne classroom.</li>
+                <li>No recording or photography unless authorized.</li>
+                <li>Patient confidentiality is enforced and should only be discussed within the program and in class.</li>
+            </ul>
+
+            <div class="policy-section-title">Hygiene & Safety</div>
+            <ul class="policy-list">
+                <li>Follow oncology-safe sanitation and disinfection protocols.</li>
+                <li>Maintain a clean, professional appearance; hair tied back and closed shoes.</li>
+                <li>Report safety concerns immediately.</li>
+                <li>Wear perfume sparingly; cancer patients are sensitive to smells.</li>
+            </ul>
+
+            <div class="policy-section-title">Zero-Tolerance Policies</div>
+            <ul class="policy-list">
+                <li>Harassment, discrimination, unsafe practice, dishonesty, or breach of confidentiality may result in dismissal with no refund.</li>
+            </ul>
         </div>
     </div>
 
@@ -711,6 +994,22 @@
                 }
             }
             return cookieValue;
+        }
+
+        function openPolicyModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closePolicyModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
         }
 
         // Focus on card element when page loads

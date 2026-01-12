@@ -28,7 +28,9 @@
     .status-col { max-width: 110px; }
     .date-col { max-width: 170px; }
     .action-col { max-width: 150px; }
+    .password-col { max-width: 130px; font-family: monospace; }
     tbody td { white-space: normal; word-break: break-word; }
+    code { background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
     .brand-logo { height: 36px; margin-right: 10px; }
   </style>
 </head>
@@ -60,9 +62,11 @@
     <table class="table table-striped align-middle">
       <thead>
         <tr>
+          <th class="name-col">Reg. Number</th>
           <th class="name-col">Full Name</th>
           <th class="contact-col">Contact Number</th>
           <th class="email-col">Email</th>
+          <th class="password-col">Password</th>
           <th class="course-col">Course Type</th>
           <th class="money-col">Course Fee (CAD)</th>
           <th class="money-col">Total Paid (CAD)</th>
@@ -149,7 +153,7 @@
     const renderTable = (rows) => {
       tbody.innerHTML = '';
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="10">No registrations found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12">No registrations found</td></tr>';
         return;
       }
       rows.forEach((r) => {
@@ -161,9 +165,11 @@
           : '<span class="badge bg-warning text-dark">Pending</span>';
         const courseText = escapeHtml(r.course_display || (Array.isArray(r.courses) ? r.courses.join(', ') : r.course || ''));
         tr.innerHTML = `
+          <td class="text-start"><strong>${escapeHtml(r.registration_number || 'N/A')}</strong></td>
           <td class="text-start">${escapeHtml(r.name)}</td>
           <td>${escapeHtml(r.contact)}</td>
           <td class="text-start">${escapeHtml(r.email)}</td>
+          <td class="text-center"><code>${escapeHtml(r.student_password || 'N/A')}</code></td>
           <td class="text-start">${courseText || '—'}</td>
           <td class="text-right money">$${formatMoney(r.course_total_cad)}</td>
           <td class="text-right money">$${formatMoney(r.total_paid_cad)}</td>

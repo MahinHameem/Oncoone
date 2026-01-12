@@ -1,29 +1,51 @@
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.html import format_html
-from .models import Registration, StudentCourseEnrollment, CoursePrice, Payment, PaymentInvoice
+from .models import Registration, StudentCourseEnrollment, Course, Payment, PaymentInvoice
 
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-	list_display = ('name', 'email', 'contact', 'created_at')
+	list_display = ('registration_number', 'name', 'email', 'contact', 'student_password', 'created_at')
 	list_filter = ('created_at', 'updated_at')
-	search_fields = ('name', 'email', 'contact')
-	readonly_fields = ('registration_id', 'created_at', 'updated_at')
+	search_fields = ('name', 'email', 'contact', 'registration_number')
+	readonly_fields = ('registration_number', 'student_password', 'created_at', 'updated_at')
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+	list_display = ('course_code', 'course_name', 'price_cad', 'is_active', 'requires_prerequisite', 'created_at')
+	list_filter = ('is_active', 'requires_prerequisite', 'created_at')
+	search_fields = ('course_name', 'course_code')
+	readonly_fields = ('created_at', 'updated_at')
+	fieldsets = (
+		('Course Information', {
+			'fields': ('course_name', 'course_code', 'description', 'is_active')
+		}),
+		('Pricing & Duration', {
+			'fields': ('price_cad', 'duration_weeks')
+		}),
+		('Requirements', {
+			'fields': ('requires_prerequisite',)
+		}),
+		('Timestamps', {
+			'fields': ('created_at', 'updated_at')
+		})
+	)
 
 
 @admin.register(StudentCourseEnrollment)
 class StudentCourseEnrollmentAdmin(admin.ModelAdmin):
-	list_display = ('registration', 'course_name', 'has_prerequisite', 'enrollment_status', 'enrolled_at')
-	list_filter = ('course_name', 'has_prerequisite', 'enrollment_status', 'enrolled_at')
-	search_fields = ('registration__email', 'registration__name', 'course_name')
-	readonly_fields = ('enrolled_at', 'updated_at')
+	list_display = ('registration', 'course', 'course_name', 'has_prerequisite', 'enrollment_status', 'enrolled_at')
+	list_filter = ('course', 'has_prerequisite', 'enrollment_status', 'enrolled_at')
+	search_fields = ('registration__email', 'registration__name', 'registration__registration_number', 'course__course_name', 'course_name')
+	readonly_fields = ('enrolled_at', 'updated_at', 'course_name')
 	fieldsets = (
 		('Student Information', {
 			'fields': ('registration',)
 		}),
 		('Course Details', {
-			'fields': ('course_name', 'has_prerequisite', 'enrollment_status')
+			'fields': ('course', 'course_name', 'has_prerequisite', 'enrollment_status')
 		}),
 		('Prerequisite Proof', {
 			'fields': ('proof', 'proof_name', 'proof_mime'),
@@ -33,14 +55,6 @@ class StudentCourseEnrollmentAdmin(admin.ModelAdmin):
 			'fields': ('enrolled_at', 'updated_at')
 		})
 	)
-
-
-@admin.register(CoursePrice)
-class CoursePriceAdmin(admin.ModelAdmin):
-	list_display = ('course_name', 'price_cad', 'created_at', 'updated_at')
-	search_fields = ('course_name',)
-	list_filter = ('created_at', 'updated_at')
-	readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Payment)

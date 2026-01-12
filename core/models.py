@@ -6,12 +6,37 @@ import random
 import string
 
 
+class Course(models.Model):
+	"""Master course catalog - all available courses"""
+	
+	course_name = models.CharField(max_length=255, unique=True)
+	course_code = models.CharField(max_length=50, unique=True)  # e.g., "OEC", "BRIDGE"
+	description = models.TextField(blank=True, null=True)
+	price_cad = models.DecimalField(max_digits=10, decimal_places=2)
+	duration_weeks = models.IntegerField(blank=True, null=True)  # Course duration
+	requires_prerequisite = models.BooleanField(default=False)  # Does this course require proof?
+	is_active = models.BooleanField(default=True)  # Active/Inactive courses
+	
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['course_name']
+		verbose_name = 'Course'
+		verbose_name_plural = 'Courses'
+
+	def __str__(self):
+		return f"{self.course_name} ({self.course_code})"
+
+
 class Registration(models.Model):
 	"""Student registration model - single student can register for multiple courses"""
 	
 	name = models.CharField(max_length=255)
 	email = models.EmailField(unique=True, db_index=True)  # Prevent duplicate emails
 	contact = models.CharField(max_length=50)
+	registration_number = models.CharField(max_length=20, unique=True, db_index=True, blank=True, default='')  # ON26-0001 format
+	student_password = models.CharField(max_length=10, unique=True, blank=True, default='')  # Unique 10-character password
 	
 	# Student info (common across all courses)
 	created_at = models.DateTimeField(auto_now_add=True)
@@ -19,17 +44,74 @@ class Registration(models.Model):
 
 	class Meta:
 		ordering = ['-created_at']
+		verbose_name = 'Student Registration'
+		verbose_name_plural = 'Student Registrations'
 
 	def __str__(self):
-		return f"{self.name} <{self.email}>"
+		return f"{self.registration_number} - {self.name} <{self.email}>"
 	
-	@property
-	def registration_id(self):
-		"""Generate registration ID on the fly from ID and creation date"""
-		if self.id:
-			timestamp = self.created_at.strftime('%Y%m%d')
-			return f"REG-{timestamp}-{self.id:06d}"
-		return None
+	@staticmethod
+	def generate_registration_number():
+		"""Generate unique registration number in format: ON{YY}-{XXXXXX}
+		Example: ON26-698574 for a student in 2026 (random 6-digit number)
+		"""
+		from django.utils import timezone
+		import random
+		
+		current_year = timezone.now().year
+		year_suffix = str(current_year)[-2:]  # Last 2 digits (26 for 2026)
+		
+		# Generate unique random 6-digit number
+		max_attempts = 1000
+		for _ in range(max_attempts):
+			# Generate random 6-digit number (100000 to 999999)
+			random_num = random.randint(100000, 999999)
+			registration_number = f"ON{year_suffix}-{random_num}"
+			
+			# Check if this number is already used
+			if not Registration.objects.filter(registration_number=registration_number).exists():
+				return registration_number
+		
+		# If somehow we couldn't generate unique number after max attempts,
+		# fallback to timestamp-based generation
+		timestamp = str(int(timezone.now().timestamp()))[-6:]
+		registration_number = f"ON{year_suffix}-{timestamp}"
+		
+		# Ensure uniqueness
+		while Registration.objects.filter(registration_number=registration_number).exists():
+			random_num = random.randint(100000, 999999)
+			registration_number = f"ON{year_suffix}-{random_num}"
+		
+		return registration_number
+	
+	def generate_unique_password(self):
+		"""Generate a unique 10-character password for the student"""
+		# Generate until we get a unique one
+		max_attempts = 100
+		for _ in range(max_attempts):
+			# Mix of uppercase, lowercase, digits, and special chars
+			chars = string.ascii_uppercase + string.ascii_lowercase + string.digits + "!@#$%^&*"
+			password = ''.join(random.choice(chars) for _ in range(10))
+			
+			# Check if password is unique
+			if not Registration.objects.filter(student_password=password).exists():
+				return password
+		
+		# If still no unique password after max attempts, add timestamp
+		timestamp = str(int(timezone.now().timestamp()))[-4:]
+		chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
+		password = ''.join(random.choice(chars) for _ in range(6)) + timestamp
+		return password
+	
+	def save(self, *args, **kwargs):
+		"""Auto-generate registration number and password if not set"""
+		if not self.registration_number:
+			self.registration_number = self.generate_registration_number()
+		
+		if not self.student_password:
+			self.student_password = self.generate_unique_password()
+		
+		super().save(*args, **kwargs)
 	
 	def get_enrolled_courses(self):
 		"""Get all courses this student is enrolled in"""
@@ -37,10 +119,15 @@ class Registration(models.Model):
 
 
 class StudentCourseEnrollment(models.Model):
-	"""Track each course enrollment for a student (allows multiple courses per student)"""
+	"""Track each course enrollment for a student (allows multiple courses per student)
+	Many-to-many relationship: 1 student can enroll in many courses, 1 course can have many students"""
 	
 	registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='course_enrollments')
-	course_name = models.CharField(max_length=255)  # e.g., "Oncology Esthetics Certificate", "Pre-Certificate Bridge Course"
+	course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name='enrollments', null=True, blank=True)  # Reference to Course model
+	
+	# Legacy field for backward compatibility (will be deprecated)
+	course_name = models.CharField(max_length=255, blank=True, null=True)
+	
 	has_prerequisite = models.BooleanField(default=True)  # True = has cert/proof, False = needs bridge course
 	
 	# Proof of prerequisite (only required if has_prerequisite=True)
@@ -64,37 +151,19 @@ class StudentCourseEnrollment(models.Model):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	class Meta:
-		unique_together = ['registration', 'course_name']  # Prevent duplicate enrollments
+		unique_together = ['registration', 'course']  # Prevent duplicate enrollments for same course
 		ordering = ['-enrolled_at']
+		verbose_name = 'Course Enrollment'
+		verbose_name_plural = 'Course Enrollments'
 
 	def __str__(self):
-		return f"{self.registration.email} - {self.course_name}"
-
-	def __str__(self):
-		return f"{self.name} <{self.email}>"
+		return f"{self.registration.registration_number} - {self.course.course_name}"
 	
-	@property
-	def registration_id(self):
-		"""Generate registration ID on the fly from ID and creation date"""
-		if self.id:
-			timestamp = self.created_at.strftime('%Y%m%d')
-			return f"REG-{timestamp}-{self.id:06d}"
-		return None
-
-
-class CoursePrice(models.Model):
-	"""Store course pricing information"""
-	course_name = models.CharField(max_length=255, unique=True)
-	price_cad = models.DecimalField(max_digits=10, decimal_places=2)
-	description = models.TextField(blank=True, null=True)
-	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now=True)
-
-	class Meta:
-		ordering = ['course_name']
-
-	def __str__(self):
-		return f"{self.course_name} - CAD ${self.price_cad}"
+	def save(self, *args, **kwargs):
+		"""Auto-populate course_name for backward compatibility"""
+		if self.course:
+			self.course_name = self.course.course_name
+		super().save(*args, **kwargs)
 
 
 class Payment(models.Model):
