@@ -404,14 +404,15 @@
         }
 
         .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 12px;
+            align-items: center;
+            justify-content: center;
             margin-top: 25px;
         }
 
         .btn {
-            padding: 12px;
+            padding: 12px 24px;
             border: none;
             border-radius: 6px;
             font-size: 16px;
@@ -427,7 +428,8 @@
         .btn-pay {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            grid-column: 1 / -1;
+            flex: 0 1 auto;
+            min-width: 180px;
         }
 
         .btn-pay:hover:not(:disabled) {
@@ -615,13 +617,15 @@
                 </div>
             </div>
 
-            <!-- Buttons -->
-            <button type="submit" class="btn btn-pay" id="payBtn">
-                Pay CAD ${{ total_amount }}
-            </button>
-            <button type="button" class="btn btn-cancel" onclick="cancelPayment()">
-                Cancel
-            </button>
+            <!-- Buttons on one row -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-pay" id="payBtn">
+                    Pay the Amount ${{ total_amount }}
+                </button>
+                <button type="button" class="btn btn-cancel" onclick="cancelPayment()">
+                    Cancel
+                </button>
+            </div>
         </form>
 
         <!-- Security Info -->
