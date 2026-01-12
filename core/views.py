@@ -172,52 +172,53 @@ def registrations_list(request):
 
     regs = Registration.objects.order_by('-created_at').all()
     data = []
+    
     for r in regs:
         # Get all course enrollments for this student
         enrollments = r.course_enrollments.all()
-        courses = [e.course_name for e in enrollments]
-        course_total = Decimal('0.00')
+        
+        # For each enrollment, create a separate row with course-specific data
         for e in enrollments:
-            # Try to get price from Course model, fall back to enrollment's course if available
+            course_name = e.course_name if e.course_name else (e.course.course_name if e.course else 'Unknown')
+            
+            # Get price for this specific enrollment
             if e.course:
                 price = e.course.price_cad
             else:
-                # Legacy: try to find course by name
-                course = Course.objects.filter(course_name=e.course_name).first()
-                price = course.price_cad if course else None
+                course = Course.objects.filter(course_name=course_name).first()
+                price = course.price_cad if course else Decimal('0.00')
             
-            if price is None:
-                paid_course = e.payments.filter(status='completed').first()
-                price = paid_course.total_price_cad if paid_course else Decimal('0.00')
-            course_total += price
-
-        completed_payments = r.payments.filter(status='completed')
-        total_paid = sum((p.payment_amount_cad for p in completed_payments), Decimal('0.00'))
-        balance_raw = course_total - total_paid
-        balance = balance_raw if balance_raw > Decimal('0.00') else Decimal('0.00')
-
-        if course_total == Decimal('0.00') and total_paid == Decimal('0.00'):
-            payment_status = 'pending'
-        else:
-            payment_status = 'completed' if balance_raw <= Decimal('0.00') else 'pending'
-
-        data.append({
-            'id': r.id,
-            'name': r.name,
-            'email': r.email,
-            'contact': r.contact,
-            'registration_number': r.registration_number,
-            'student_password': r.student_password,
-            'courses': courses,
-            'course_display': ', '.join(courses) if courses else 'N/A',
-            'course_count': len(courses),
-            'course_total_cad': f"{course_total.quantize(Decimal('0.01'))}",
-            'total_paid_cad': f"{total_paid.quantize(Decimal('0.01'))}",
-            'balance_cad': f"{balance.quantize(Decimal('0.01'))}",
-            'payment_status': payment_status,
-            'created_at': r.created_at.isoformat(),
-        })
+            # Get total paid amount (this is registration-level, not split per course)
+            completed_payments = r.payments.filter(status='completed')
+            total_paid = sum((p.payment_amount_cad for p in completed_payments), Decimal('0.00'))
+            
+            # Calculate balance for this enrollment
+            balance_raw = price - total_paid
+            balance = balance_raw if balance_raw > Decimal('0.00') else Decimal('0.00')
+            
+            # Determine payment status for this enrollment
+            if price == Decimal('0.00'):
+                payment_status = 'pending'
+            else:
+                payment_status = 'completed' if total_paid >= price else 'pending'
+            
+            data.append({
+                'id': r.id,
+                'name': r.name,
+                'email': r.email,
+                'contact': r.contact,
+                'registration_number': r.registration_number,
+                'student_password': r.student_password,
+                'course_name': course_name,
+                'course_total_cad': f"{price.quantize(Decimal('0.01'))}",
+                'total_paid_cad': f"{total_paid.quantize(Decimal('0.01'))}",
+                'balance_cad': f"{balance.quantize(Decimal('0.01'))}",
+                'payment_status': payment_status,
+                'created_at': r.created_at.isoformat(),
+            })
+    
     return JsonResponse({'results': data})
+
 
 
 @csrf_exempt

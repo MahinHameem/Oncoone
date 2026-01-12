@@ -58,27 +58,7 @@
 <div class="container container-admin" id="students">
   <h2 class="mb-4" style="color:#1a4272">Students Details</h2>
   <div id="fetchError" class="alert alert-danger d-none" role="alert" style="cursor:pointer"></div>
-  <div class="table-responsive table-wrap">
-    <table class="table table-striped align-middle">
-      <thead>
-        <tr>
-          <th class="name-col">Reg. Number</th>
-          <th class="name-col">Full Name</th>
-          <th class="contact-col">Contact Number</th>
-          <th class="email-col">Email</th>
-          <th class="password-col">Password</th>
-          <th class="course-col">Course Type</th>
-          <th class="money-col">Course Fee (CAD)</th>
-          <th class="money-col">Total Paid (CAD)</th>
-          <th class="money-col">Balance (CAD)</th>
-          <th class="status-col">Payment Status</th>
-          <th class="date-col">Date of Registration</th>
-          <th class="action-col">Action</th>
-        </tr>
-      </thead>
-      <tbody id="students-tbody"></tbody>
-    </table>
-  </div>
+  <div id="courseSectionsContainer"></div>
 </div>
 
 <!-- Edit Modal -->
@@ -119,7 +99,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     const API_PREFIX = '/api/admin/registrations';
     const fetchErrorEl = document.getElementById('fetchError');
-    const tbody = document.getElementById('students-tbody');
 
     const showError = (message) => {
       fetchErrorEl.innerHTML = `${message} <strong>(click to retry)</strong>`;
@@ -151,38 +130,164 @@
     };
 
     const renderTable = (rows) => {
-      tbody.innerHTML = '';
+      const container = document.getElementById('courseSectionsContainer');
+      container.innerHTML = '';
+      
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="12">No registrations found</td></tr>';
+        container.innerHTML = '<div class="alert alert-info text-center py-4"><i class="fas fa-inbox me-2"></i>No registrations found</div>';
         return;
       }
+
+      // Group rows by course name
+      const courseEnrollments = {};
       rows.forEach((r) => {
-        const tr = document.createElement('tr');
-        tr.dataset.id = r.id;
-        const status = (r.payment_status || '').toLowerCase();
-        const statusBadge = status === 'completed'
-          ? '<span class="badge bg-success">Completed</span>'
-          : '<span class="badge bg-warning text-dark">Pending</span>';
-        const courseText = escapeHtml(r.course_display || (Array.isArray(r.courses) ? r.courses.join(', ') : r.course || ''));
-        tr.innerHTML = `
-          <td class="text-start"><strong>${escapeHtml(r.registration_number || 'N/A')}</strong></td>
-          <td class="text-start">${escapeHtml(r.name)}</td>
-          <td>${escapeHtml(r.contact)}</td>
-          <td class="text-start">${escapeHtml(r.email)}</td>
-          <td class="text-center"><code>${escapeHtml(r.student_password || 'N/A')}</code></td>
-          <td class="text-start">${courseText || '—'}</td>
-          <td class="text-right money">$${formatMoney(r.course_total_cad)}</td>
-          <td class="text-right money">$${formatMoney(r.total_paid_cad)}</td>
-          <td class="text-right money">$${formatMoney(r.balance_cad)}</td>
-          <td>${statusBadge}</td>
-          <td>${new Date(r.created_at).toLocaleString()}</td>
-          <td>
-            <button class="btn btn-sm btn-primary me-1" onclick="editStudent(${r.id})"><i class="fas fa-edit"></i></button>
-            <button class="btn btn-sm btn-danger me-1" onclick="deleteStudent(${r.id})"><i class="fas fa-trash"></i></button>
-            ${r.has_db_proof ? `<a class="btn btn-sm btn-success" href="${r.download_url}" download><i class="fas fa-download"></i></a>` : `<button class="btn btn-sm btn-secondary" disabled>No file</button>`}
-          </td>
+        const courseName = r.course_name || 'Unknown Course';
+        if (!courseEnrollments[courseName]) {
+          courseEnrollments[courseName] = [];
+        }
+        courseEnrollments[courseName].push(r);
+      });
+
+      const sortedCourses = Object.keys(courseEnrollments).sort();
+      
+      // Render a collapsible section for each course
+      sortedCourses.forEach((courseName, idx) => {
+        const students = courseEnrollments[courseName];
+        const sectionId = `course-section-${idx}`;
+        const tableId = `course-table-${idx}`;
+        
+        const section = document.createElement('div');
+        section.className = 'course-section mb-4';
+        section.style.borderRadius = '8px';
+        section.style.overflow = 'hidden';
+        section.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        
+        // Course header (clickable to toggle)
+        const headerBtn = document.createElement('button');
+        headerBtn.type = 'button';
+        headerBtn.className = 'course-header btn btn-light w-100 text-start d-flex align-items-center justify-content-between';
+        headerBtn.style.backgroundColor = '#1a4272';
+        headerBtn.style.color = 'white';
+        headerBtn.style.border = 'none';
+        headerBtn.style.padding = '16px 20px';
+        headerBtn.style.fontSize = '16px';
+        headerBtn.style.fontWeight = '600';
+        headerBtn.style.cursor = 'pointer';
+        headerBtn.style.transition = 'background-color 0.2s';
+        headerBtn.onmouseover = () => headerBtn.style.backgroundColor = '#143a5c';
+        headerBtn.onmouseout = () => headerBtn.style.backgroundColor = '#1a4272';
+        headerBtn.setAttribute('data-bs-toggle', 'collapse');
+        headerBtn.setAttribute('data-bs-target', `#${tableId}`);
+        headerBtn.setAttribute('aria-expanded', 'true');
+        headerBtn.setAttribute('aria-controls', tableId);
+        
+        const headerTitle = document.createElement('span');
+        headerTitle.style.display = 'flex';
+        headerTitle.style.alignItems = 'center';
+        headerTitle.style.gap = '12px';
+        headerTitle.innerHTML = `
+          <i class="fas fa-book" style="font-size: 18px;"></i>
+          <span>${escapeHtml(courseName)}</span>
+          <span class="badge bg-light text-dark" style="margin-left: 8px;">${students.length} student${students.length !== 1 ? 's' : ''}</span>
         `;
-        tbody.appendChild(tr);
+        
+        const headerIcon = document.createElement('i');
+        headerIcon.className = 'fas fa-chevron-down';
+        headerIcon.style.transition = 'transform 0.3s';
+        
+        headerBtn.appendChild(headerTitle);
+        headerBtn.appendChild(headerIcon);
+        
+        // Toggle icon rotation on click
+        headerBtn.addEventListener('click', () => {
+          setTimeout(() => {
+            if (headerBtn.getAttribute('aria-expanded') === 'true') {
+              headerIcon.style.transform = 'rotate(180deg)';
+            } else {
+              headerIcon.style.transform = 'rotate(0deg)';
+            }
+          }, 0);
+        });
+        
+        section.appendChild(headerBtn);
+        
+        // Collapsible table content
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'collapse show';
+        tableWrapper.id = tableId;
+        tableWrapper.style.backgroundColor = '#f8f9fa';
+        
+        const tableDiv = document.createElement('div');
+        tableDiv.className = 'table-responsive table-wrap';
+        tableDiv.style.padding = '16px';
+        tableDiv.style.marginBottom = '0';
+        
+        const table = document.createElement('table');
+        table.className = 'table table-hover align-middle mb-0';
+        table.style.fontSize = '14px';
+        
+        const thead = document.createElement('thead');
+        const theadTr = document.createElement('tr');
+        theadTr.style.backgroundColor = '#e9ecef';
+        theadTr.style.borderBottom = '2px solid #1a4272';
+        theadTr.innerHTML = `
+          <th class="name-col" style="color: #1a4272; font-weight: 600;">Reg. Number</th>
+          <th class="name-col" style="color: #1a4272; font-weight: 600;">Full Name</th>
+          <th class="contact-col" style="color: #1a4272; font-weight: 600;">Contact</th>
+          <th class="email-col" style="color: #1a4272; font-weight: 600;">Email</th>
+          <th class="password-col" style="color: #1a4272; font-weight: 600;">Password</th>
+          <th class="money-col" style="color: #1a4272; font-weight: 600;">Course Fee</th>
+          <th class="money-col" style="color: #1a4272; font-weight: 600;">Total Paid</th>
+          <th class="money-col" style="color: #1a4272; font-weight: 600;">Balance</th>
+          <th class="status-col" style="color: #1a4272; font-weight: 600;">Status</th>
+          <th class="date-col" style="color: #1a4272; font-weight: 600;">Registered</th>
+          <th class="action-col" style="color: #1a4272; font-weight: 600;">Action</th>
+        `;
+        thead.appendChild(theadTr);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        students.forEach((r, rowIdx) => {
+          const tr = document.createElement('tr');
+          tr.dataset.id = r.id;
+          tr.style.borderBottom = '1px solid #dee2e6';
+          tr.style.backgroundColor = rowIdx % 2 === 0 ? 'white' : '#f8f9fa';
+          tr.onmouseover = () => tr.style.backgroundColor = '#e7f3ff';
+          tr.onmouseout = () => tr.style.backgroundColor = rowIdx % 2 === 0 ? 'white' : '#f8f9fa';
+          tr.style.transition = 'background-color 0.2s';
+          
+          const status = (r.payment_status || '').toLowerCase();
+          const statusBadge = status === 'completed'
+            ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>'
+            : '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending</span>';
+          
+          tr.innerHTML = `
+            <td class="text-start"><strong style="color: #1a4272;">${escapeHtml(r.registration_number || 'N/A')}</strong></td>
+            <td class="text-start"><strong>${escapeHtml(r.name)}</strong></td>
+            <td><span style="color: #666;">${escapeHtml(r.contact)}</span></td>
+            <td class="text-start"><span style="color: #666; font-size: 13px;">${escapeHtml(r.email)}</span></td>
+            <td class="text-center"><code style="background-color: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${escapeHtml(r.student_password || 'N/A')}</code></td>
+            <td class="text-right money" style="color: #1a4272; font-weight: 600;">$${formatMoney(r.course_total_cad)}</td>
+            <td class="text-right money" style="color: #28a745; font-weight: 600;">$${formatMoney(r.total_paid_cad)}</td>
+            <td class="text-right money" style="color: #dc3545; font-weight: 600;">$${formatMoney(r.balance_cad)}</td>
+            <td>${statusBadge}</td>
+            <td><span style="color: #666; font-size: 13px;">${new Date(r.created_at).toLocaleDateString()}</span></td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" onclick="editStudent(${r.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-outline-danger" onclick="deleteStudent(${r.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                ${r.has_db_proof ? `<a class="btn btn-outline-success" href="${r.download_url}" download title="Download"><i class="fas fa-download"></i></a>` : `<button class="btn btn-outline-secondary" disabled title="No file"><i class="fas fa-file-slash"></i></button>`}
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+        
+        table.appendChild(tbody);
+        tableDiv.appendChild(table);
+        tableWrapper.appendChild(tableDiv);
+        section.appendChild(tableWrapper);
+        container.appendChild(section);
       });
     };
 
