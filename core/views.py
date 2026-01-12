@@ -610,7 +610,7 @@ def payment_amount(request, student_id):
     
     # Get course price
     course_price = Course.objects.filter(course_name=enrollment.course_name).first()
-    full_price = float(course.price_cad) if course_price else 0.00
+    full_price = float(course_price.price_cad) if course_price else 0.00
 
     # Sum of previous completed payments for this enrollment (amount before tax)
     from django.db.models import Sum
@@ -715,7 +715,7 @@ def payment_summary(request, student_id):
     total_amount = request.GET.get('total', '0')
     
     course_price = Course.objects.filter(course_name=enrollment.course_name).first()
-    course_full_price = float(course.price_cad) if course_price else 0.00
+    course_full_price = float(course_price.price_cad) if course_price else 0.00
 
     # Include previously paid amounts so summary shows true remaining
     from django.db.models import Sum
@@ -769,7 +769,7 @@ def payment_card_entry(request, student_id):
     
     # Get course price
     course_price = Course.objects.filter(course_name=enrollment.course_name).first()
-    price = course.price_cad if course_price else Decimal('0.00')
+    price = course_price.price_cad if course_price else Decimal('0.00')
     
     payment_amount = request.GET.get('amount', str(price))
     tax_amount = request.GET.get('tax', '0')
@@ -856,7 +856,7 @@ def process_payment(request):
         
         # Get course price
         course_price_obj = Course.objects.filter(course_name=enrollment.course_name).first()
-        total_price = course.price_cad if course_price_obj else Decimal('0.00')
+        total_price = course_price_obj.price_cad if course_price_obj else Decimal('0.00')
         
         # Create payment record
         payment = Payment.objects.create(
@@ -1663,7 +1663,7 @@ def student_dashboard(request, student_id):
 
     for e in filtered_enrollments:
         course_price = Course.objects.filter(course_name=e.course_name).first()
-        full_price = float(course.price_cad) if course_price else 0.0
+        full_price = float(course_price.price_cad) if course_price else 0.0
         # Subtract only the pre-tax portion applied to course fee
         paid_sum = Payment.objects.filter(enrollment=e, status='completed').aggregate(p=Sum('payment_amount_cad'))['p'] or 0
         remaining_balance += max(full_price - float(paid_sum), 0.0)
