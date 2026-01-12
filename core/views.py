@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.utils import timezone
 from decimal import Decimal
