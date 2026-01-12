@@ -369,7 +369,7 @@
         // Calculate summary on amount change
         document.getElementById('paymentAmount').addEventListener('change', function() {
             const amount = parseFloat(this.value) || 0;
-            const tax = amount * 0.05;
+            const tax = amount * 0.13;
             const total = amount + tax;
             
             document.getElementById('summaryAmount').textContent = amount.toFixed(2);
@@ -416,7 +416,7 @@
             }
             
             // Calculate tax
-            const tax = amount * 0.05;
+            const tax = amount * 0.13;
             const total = amount + tax;
             
             // Redirect to summary with enrollment_id
