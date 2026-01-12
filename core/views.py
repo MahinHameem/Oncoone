@@ -669,8 +669,8 @@ def payment_calculate_tax(request):
         data = json.loads(request.body.decode('utf-8'))
         payment_amount = Decimal(str(data.get('amount', '0')))
         
-        # Canadian tax (GST/HST) - simplified at 5% (adjust based on province)
-        tax_rate = Decimal('0.05')  # 5% tax
+        # Canadian tax (GST/HST) - set to 13%
+        tax_rate = Decimal('0.13')  # 13% tax
         tax_amount = (payment_amount * tax_rate).quantize(Decimal('0.01'))
         total_amount = payment_amount + tax_amount
         
