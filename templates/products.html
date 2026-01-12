@@ -466,20 +466,23 @@ html, body {
             <p class="muted">Please tell us whether you meet the prerequisite qualification below.</p>
 
             <form id="registerForm" enctype="multipart/form-data" novalidate>
+              <!-- Hidden qualification flag to satisfy backend defaults -->
+              <input type="hidden" name="hasQualification" id="hasQualificationHidden" value="no">
 
               <!-- Course Selection -->
               <div class="mb-3">
                 <label class="form-label">Which course would you like to register for? <span class="required-star">*</span></label>
+                <!-- Default: Bridge Course selected -->
+                <div class="form-check">
+                  <input class="form-check-input course-option" type="radio" name="course" id="courseBridge" value="Pre-Certificate Bridge Course" checked>
+                  <label class="form-check-label" for="courseBridge">
+                    <strong>Pre-Certificate Bridge Course</strong> (For those without esthetics certification)
+                  </label>
+                </div>
                 <div class="form-check">
                   <input class="form-check-input course-option" type="radio" name="course" id="courseOncology" value="Oncology Esthetics Certificate" required>
                   <label class="form-check-label" for="courseOncology">
                     <strong>Oncology Esthetics Certificate</strong> (Full Program - Requires prerequisite)
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input course-option" type="radio" name="course" id="courseBridge" value="Pre-Certificate Bridge Course">
-                  <label class="form-check-label" for="courseBridge">
-                    <strong>Pre-Certificate Bridge Course</strong> (For those without esthetics certification)
                   </label>
                 </div>
               </div>
@@ -622,6 +625,9 @@ html, body {
     (function(){
       const form = document.getElementById('registerForm');
       const courseOptions = document.querySelectorAll('.course-option');
+      const courseBridge = document.getElementById('courseBridge');
+      const courseOncology = document.getElementById('courseOncology');
+      const hasQualificationHidden = document.getElementById('hasQualificationHidden');
       const qualificationContainer = document.getElementById('qualificationContainer');
       const qualYes = document.getElementById('qualYes');
       const qualNo = document.getElementById('qualNo');
@@ -630,40 +636,49 @@ html, body {
       const proofInput = document.getElementById('proof');
       const submitBtn = document.getElementById('submitBtn');
 
+      function resetProof() {
+        proofInput.value = '';
+        proofInput.required = false;
+      }
+
+      function updateCourseUI() {
+        const isOncology = courseOncology.checked;
+
+        if (isOncology) {
+          qualificationContainer.style.display = 'block';
+          bridgeNote.style.display = 'none';
+          // keep hidden flag in sync; will switch to yes/no on selection
+          hasQualificationHidden.value = qualYes.checked ? 'yes' : 'no';
+        } else {
+          qualificationContainer.style.display = 'none';
+          proofContainer.style.display = 'none';
+          bridgeNote.style.display = 'none';
+          qualYes.checked = false;
+          qualNo.checked = false;
+          resetProof();
+          hasQualificationHidden.value = 'no';
+        }
+      }
+
       // Handle course selection
       courseOptions.forEach(option => {
-        option.addEventListener('change', function() {
-          if (this.value === 'Oncology Esthetics Certificate') {
-            // Show prerequisite questions for Oncology certificate
-            qualificationContainer.style.display = 'block';
-            // Reset qualification fields
-            qualYes.checked = false;
-            qualNo.checked = false;
-            proofContainer.style.display = 'none';
-            bridgeNote.style.display = 'none';
-            proofInput.required = false;
-          } else {
-            // Hide prerequisite questions for Bridge course
-            qualificationContainer.style.display = 'none';
-            proofContainer.style.display = 'none';
-            bridgeNote.style.display = 'none';
-            qualYes.checked = false;
-            qualNo.checked = false;
-            proofInput.required = false;
-          }
-        });
+        option.addEventListener('change', updateCourseUI);
       });
 
       // Handle prerequisite qualification (only for Oncology certificate)
       function setForYes() {
+        courseOncology.checked = true; // ensure oncology remains selected
         proofContainer.style.display = 'block';
         bridgeNote.style.display = 'none';
         proofInput.required = true;
+        hasQualificationHidden.value = 'yes';
       }
       function setForNo() {
-        proofContainer.style.display = 'none';
+        // Auto-switch to Bridge course if user lacks prerequisite
+        courseBridge.checked = true;
+        updateCourseUI();
         bridgeNote.style.display = 'block';
-        proofInput.required = false;
+        hasQualificationHidden.value = 'no';
       }
 
       qualYes.addEventListener('change', setForYes);
@@ -737,8 +752,10 @@ html, body {
         }
       });
 
-      proofContainer.style.display = 'none';
-      bridgeNote.style.display = 'none';
+      // Initialize with Bridge selected by default
+      courseBridge.checked = true;
+      hasQualificationHidden.value = 'no';
+      updateCourseUI();
     })();
   </script>
 
