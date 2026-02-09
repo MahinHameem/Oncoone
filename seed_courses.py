@@ -53,6 +53,15 @@ def seed_courses():
             'requires_prerequisite': True,
             'is_active': True,
         },
+        {
+            'course_name': 'Cancer Nutrition Workshop',
+            'course_code': 'CNW',
+            'description': 'Survivor-led workshop on cancer nutrition, recovery, and supportive care',
+            'price_cad': Decimal('349.00'),
+            'duration_weeks': 1,
+            'requires_prerequisite': False,
+            'is_active': True,
+        },
     ]
     
     created_count = 0

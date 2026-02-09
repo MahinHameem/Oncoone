@@ -93,6 +93,15 @@ def register_view(request):
                 'error': f'You are already registered for {course_name}. Please choose a different course or contact support.'
             }, status=400)
 
+        # Enforce 20-seat limit for the Cancer Nutrition Workshop (based on paid seats)
+        if course_name == 'Cancer Nutrition Workshop':
+            paid_seats = Payment.objects.filter(course_name=course_name, status='completed').count()
+            if paid_seats >= 20:
+                return JsonResponse({
+                    'status': 'error',
+                    'error': 'Sorry, this workshop is full (20 seats). Please contact us for the next session.'
+                }, status=400)
+
         # Create course enrollment
         enrollment = StudentCourseEnrollment.objects.create(
             registration=reg,
@@ -103,6 +112,8 @@ def register_view(request):
             proof_mime=proof_mime,
             proof_data=proof_bytes,
         )
+
+        payment_portal_url = request.build_absolute_uri('/api/payment/')
 
         # Send admin notification
         admin_email = getattr(settings, 'ADMIN_EMAIL', '')
@@ -116,7 +127,9 @@ def register_view(request):
                     f"Course: {course_name}\n"
                     f"Has Prerequisite: {has_prerequisite}\n"
                     f"Registration ID: {reg.registration_number}\n"
+                    f"Student Password: {reg.student_password}\n"
                     f"Submitted: {enrollment.enrolled_at}\n"
+                    f"Payment Portal: {payment_portal_url}\n"
                 )
                 email_msg = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [admin_email])
                 if proof:
@@ -130,11 +143,18 @@ def register_view(request):
         if reg.email:
             try:
                 user_subject = f"Welcome to OncoOne - Registration Number: {reg.registration_number}"
+                workshop_note = ""
+                if course_name == 'Cancer Nutrition Workshop':
+                    workshop_note = (
+                        "\nIMPORTANT: Your seat is confirmed only after full payment of CAD $349 + 13% HST.\n"
+                        "Please complete payment as soon as possible to secure your spot.\n"
+                    )
                 user_body = (
                     f"Hi {reg.name},\n\n"
                     f"Thank you for registering for {course_name}!\n\n"
                     f"═══════════════════════════════════════\n"
                     f"YOUR REGISTRATION NUMBER: {reg.registration_number}\n"
+                    f"YOUR STUDENT PASSWORD: {reg.student_password}\n"
                     f"═══════════════════════════════════════\n\n"
                     f"Please save this registration number. You will need it to:\n"
                     f"• Make payments through our payment portal\n"
@@ -144,9 +164,11 @@ def register_view(request):
                     f"Name: {reg.name}\n"
                     f"Email: {reg.email}\n"
                     f"Course: {course_name}\n\n"
-                    f"Payment Portal: Use your registration number ({reg.registration_number}) to make payments\n\n"
+                    f"Payment Portal: {payment_portal_url}\n"
+                    f"Use your registration number and password to make payments.\n"
+                    f"{workshop_note}\n"
                     f"If you have any questions, please contact us.\n\n"
-                    f"– OncoOne Team"
+                    f"- OncoOne Team"
                 )
                 EmailMessage(user_subject, user_body, settings.DEFAULT_FROM_EMAIL, [reg.email]).send(fail_silently=True)
             except Exception:
@@ -573,6 +595,11 @@ def payment_select_course(request, student_id):
     # Build course data for template
     from django.db.models import Sum
     course_data = []
+    workshop_paid_count = Payment.objects.filter(
+        course_name='Cancer Nutrition Workshop',
+        status='completed'
+    ).count()
+    workshop_sold_out = workshop_paid_count >= 20
     for enrollment in enrollments:
         course_price = Course.objects.filter(course_name=enrollment.course_name).first()
         full_price = float(course_price.price_cad) if course_price else 0.00
@@ -584,6 +611,9 @@ def payment_select_course(request, student_id):
         paid_sum = float(paid_sum)
         remaining = max(full_price - paid_sum, 0.0)
         
+        is_workshop = enrollment.course_name == 'Cancer Nutrition Workshop'
+        is_sold_out = is_workshop and workshop_sold_out and remaining > 0.01
+
         course_data.append({
             'enrollment_id': enrollment.id,
             'course_name': enrollment.course_name,
@@ -591,7 +621,9 @@ def payment_select_course(request, student_id):
             'paid_so_far': paid_sum,
             'remaining': remaining,
             'is_fully_paid': remaining <= 0.01,
-            'description': course_price.description if course_price else 'Price not set'
+            'description': course_price.description if course_price else 'Price not set',
+            'is_workshop': is_workshop,
+            'is_sold_out': is_sold_out
         })
     
     context = {
@@ -600,6 +632,7 @@ def payment_select_course(request, student_id):
         'courses': course_data,
         'currency': 'CAD',
         'registration_number': registration.registration_number,
+        'workshop_sold_out': workshop_sold_out,
     }
     
     return render(request, 'payments/payment_select_amount.html', context)
@@ -636,6 +669,16 @@ def payment_amount(request, student_id):
     paid_sum = float(paid_sum)
 
     remaining_price = max(full_price - paid_sum, 0.0)
+
+    workshop_paid_count = Payment.objects.filter(
+        course_name='Cancer Nutrition Workshop',
+        status='completed'
+    ).count()
+    workshop_sold_out = workshop_paid_count >= 20
+    is_workshop = enrollment.course_name == 'Cancer Nutrition Workshop'
+    already_paid = Payment.objects.filter(enrollment=enrollment, status='completed').exists()
+    if is_workshop and workshop_sold_out and remaining_price > 0.01 and not already_paid:
+        return redirect('payment-select-course', student_id=student_id)
     
     # If already fully paid, redirect to success page
     if remaining_price <= 0.01:
@@ -651,6 +694,8 @@ def payment_amount(request, student_id):
         'enrollment_id': enrollment_id,
         'currency': 'CAD',
         'registration_number': registration.registration_number,
+        'is_workshop': is_workshop,
+        'workshop_sold_out': workshop_sold_out,
     }
     
     return render(request, 'payments/payment_amount.html', context)
@@ -873,6 +918,46 @@ def process_payment(request):
         # Get course price
         course_price_obj = Course.objects.filter(course_name=enrollment.course_name).first()
         total_price = course_price_obj.price_cad if course_price_obj else Decimal('0.00')
+
+        # Enforce workshop rules
+        if enrollment.course_name == 'Cancer Nutrition Workshop':
+            paid_seats = Payment.objects.filter(course_name=enrollment.course_name, status='completed').count()
+            already_paid = Payment.objects.filter(enrollment=enrollment, status='completed').exists()
+            if paid_seats >= 20 and not already_paid:
+                return JsonResponse({'error': 'Workshop is full. No seats available.'}, status=400)
+
+            from django.db.models import Sum
+            paid_sum = Payment.objects.filter(enrollment=enrollment, status='completed').aggregate(
+                paid=Sum('payment_amount_cad')
+            )['paid'] or 0
+            remaining = (total_price - Decimal(str(paid_sum))).quantize(Decimal('0.01'))
+            if payment_amount.quantize(Decimal('0.01')) != remaining:
+                return JsonResponse({
+                    'error': 'Full payment is required for this workshop (349 CAD + 13% HST).'
+                }, status=400)
+        else:
+            # Non-workshop courses: allow only 50% or full payment, then remaining 50%
+            from django.db.models import Sum
+            paid_sum = Payment.objects.filter(enrollment=enrollment, status='completed').aggregate(
+                paid=Sum('payment_amount_cad')
+            )['paid'] or 0
+            paid_sum = Decimal(str(paid_sum)).quantize(Decimal('0.01'))
+            half_price = (course_price_obj.price_cad / Decimal('2')).quantize(Decimal('0.01'))
+            remaining = (course_price_obj.price_cad - paid_sum).quantize(Decimal('0.01'))
+
+            if remaining <= Decimal('0.01'):
+                return JsonResponse({'error': 'This course is already fully paid.'}, status=400)
+
+            if paid_sum <= Decimal('0.01'):
+                if payment_amount.quantize(Decimal('0.01')) not in (half_price, course_price_obj.price_cad.quantize(Decimal('0.01'))):
+                    return JsonResponse({
+                        'error': 'Please pay 50% or full amount only for this course.'
+                    }, status=400)
+            else:
+                if payment_amount.quantize(Decimal('0.01')) != remaining:
+                    return JsonResponse({
+                        'error': 'Second payment must be the remaining 50% only.'
+                    }, status=400)
         
         # Create payment record
         payment = Payment.objects.create(
@@ -954,7 +1039,7 @@ def process_payment(request):
                     <span>${payment.payment_amount_cad}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="label">Tax (5% - GST):</span>
+                    <span class="label">Tax (13% HST):</span>
                     <span>${payment.tax_amount}</span>
                 </div>
                 <div class="total-row">
@@ -1026,7 +1111,7 @@ Invoice Number: {payment.invoice_number}
 Course: {payment.course_name}
 
 Payment Amount: CAD ${payment.payment_amount_cad}
-Tax (5% GST): CAD ${payment.tax_amount}
+Tax (13% HST): CAD ${payment.tax_amount}
 Total Paid: CAD ${payment.final_amount_cad}
 Remaining Balance: CAD ${payment.calculate_remaining_balance()}
 
@@ -1042,7 +1127,7 @@ You can also access your payment history anytime using your Registration Number:
 Student Portal: {request.build_absolute_uri('/api/payment/')}
 
 Thank you for your payment!
-– OncoOne Team
+- OncoOne Team
                 """
                 email_msg = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [registration.email])
                 
@@ -1057,6 +1142,41 @@ Thank you for your payment!
                 email_msg.send(fail_silently=True)
             except Exception as e:
                 print(f"Email send failed: {e}")
+
+        # Send workshop invitation email after successful payment
+        if enrollment.course_name == 'Cancer Nutrition Workshop' and registration.email:
+            try:
+                subject = 'Workshop Confirmation - Cancer Nutrition Workshop'
+                body = f"""
+Hi {registration.name},
+
+Your payment is confirmed and your seat is reserved for the Cancer Nutrition Workshop.
+
+DATE: Saturday, February 28
+TIME: 9:00 AM - 5:00 PM
+LOCATION: 700 Lawrence Ave West, Suite 370, Lawrence Allen Centre
+
+Please arrive 15 minutes early for check-in.
+
+If you have any questions, reply to this email.
+
+- OncoOne Team
+                """
+                EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [registration.email]).send(fail_silently=True)
+            except Exception as e:
+                print(f"Workshop email failed: {e}")
+
+        # If workshop sells out, remove unpaid enrollments
+        if enrollment.course_name == 'Cancer Nutrition Workshop':
+            paid_seats = Payment.objects.filter(course_name=enrollment.course_name, status='completed').count()
+            if paid_seats >= 20:
+                paid_enrollment_ids = Payment.objects.filter(
+                    course_name=enrollment.course_name,
+                    status='completed'
+                ).values_list('enrollment_id', flat=True)
+                StudentCourseEnrollment.objects.filter(
+                    course_name=enrollment.course_name
+                ).exclude(id__in=list(paid_enrollment_ids)).delete()
         
         return JsonResponse({
             'status': 'success',
@@ -1111,7 +1231,7 @@ def payment_cancelled(request, student_id):
 
 @csrf_exempt
 def student_login(request):
-    """Student login page using Student ID or Registration ID"""
+    """Student login page using Student ID or Registration Number"""
     if request.method == 'GET':
         # Return login page
         return render(request, 'payments/student_login.html')
@@ -1133,7 +1253,7 @@ def student_login(request):
                 'error': 'Please enter your Student ID or Registration Number.'
             }, status=400)
         
-        # Try to find student by Student ID (numeric) or Registration ID (string)
+        # Try to find student by Student ID (numeric) or Registration Number (string)
         student = None
         
         # Try as numeric Student ID first
@@ -1141,8 +1261,8 @@ def student_login(request):
             student_id_int = int(student_input)
             student = Registration.objects.filter(id=student_id_int).first()
         except ValueError:
-            # Not a number, try as Registration ID
-            student = Registration.objects.filter(registration_id=student_input).first()
+            # Not a number, try as Registration Number
+            student = Registration.objects.filter(registration_number=student_input).first()
         
         if student:
             # Store in session
@@ -1294,6 +1414,23 @@ def create_payment_and_send_otp(request):
         course_price_obj = Course.objects.filter(course_name=enrollment.course_name).first()
         if not course_price_obj:
             return JsonResponse({'error': 'Course price not found'}, status=404)
+
+        # Enforce workshop rules
+        if enrollment.course_name == 'Cancer Nutrition Workshop':
+            paid_seats = Payment.objects.filter(course_name=enrollment.course_name, status='completed').count()
+            already_paid = Payment.objects.filter(enrollment=enrollment, status='completed').exists()
+            if paid_seats >= 20 and not already_paid:
+                return JsonResponse({'error': 'Workshop is full. No seats available.'}, status=400)
+
+            from django.db.models import Sum
+            paid_sum = Payment.objects.filter(enrollment=enrollment, status='completed').aggregate(
+                paid=Sum('payment_amount_cad')
+            )['paid'] or 0
+            remaining = (course_price_obj.price_cad - Decimal(str(paid_sum))).quantize(Decimal('0.01'))
+            if payment_amount.quantize(Decimal('0.01')) != remaining:
+                return JsonResponse({
+                    'error': 'Full payment is required for this workshop (349 CAD + 13% HST).'
+                }, status=400)
         
         # Create Stripe Payment Intent
         stripe_result = StripePaymentProcessor.create_payment_intent(

@@ -215,6 +215,167 @@ html, body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Announcement section */
+.announcement-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f2f7ff 100%);
+  border: 3px solid #1a4272;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(26, 66, 114, 0.25);
+  padding: 28px 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Brief popup */
+.brief-popup {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 2px solid #1a4272;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(26, 66, 114, 0.22);
+  padding: 14px 16px;
+  max-width: 320px;
+  display: none;
+  z-index: 10000;
+  text-align: left;
+}
+
+.brief-popup h4 {
+  margin: 0 0 6px;
+  color: #1a4272;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.brief-popup p {
+  margin: 0 0 10px;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.brief-popup .brief-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.brief-popup button {
+  border: none;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.brief-popup .brief-primary {
+  background: #1a4272;
+  color: #ffffff;
+}
+
+.brief-popup .brief-ghost {
+  background: #e8f2ff;
+  color: #1a4272;
+}
+
+.announcement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1a4272;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.announcement-title {
+  margin: 12px 0 8px;
+  color: #1a4272;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.announcement-subtitle {
+  color: #2a2f3a;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.announcement-body {
+  color: #334155;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.announcement-list {
+  margin: 10px 0 16px;
+  padding-left: 18px;
+  color: #1a4272;
+  font-weight: 600;
+}
+
+.announcement-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  margin: 14px 0 8px;
+}
+
+.announcement-info div {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  color: #1a4272;
+  font-weight: 600;
+}
+
+.announcement-quote {
+  background: #f0f4f8;
+  border-left: 5px solid #1a4272;
+  padding: 10px 12px;
+  font-style: italic;
+  color: #1a4272;
+  margin-top: 10px;
+}
+
+.announcement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.announcement-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.announcement-btn.primary {
+  background: #1a4272;
+  color: #ffffff;
+}
+
+.announcement-btn.ghost {
+  background: #e8f2ff;
+  color: #1a4272;
+}
+
+@media (max-width: 640px) {
+  .announcement-title { font-size: 1.35rem; }
+  .announcement-info { grid-template-columns: 1fr; }
+}
+
 
 </style>
 
@@ -288,10 +449,10 @@ html, body {
       <a href="/api/payment/" onclick="toggleDrawer(false)"><i class="lni lni-credit-cards"></i> Payments</a>
     </div>
     <div class="social-row">
-      <a href="#"><i class="lni lni-facebook"></i></a>
-      <a href="#"><i class="lni lni-instagram"></i></a>
-      <a href="#"><i class="lni lni-youtube"></i></a>
-      <a href="#"><i class="lni lni-tiktok"></i></a>
+      <a href="https://www.facebook.com/share/1BiWw5nUEg/" target="_blank" rel="noopener" aria-label="Facebook"><i class="lni lni-facebook"></i></a>
+      <a href="https://www.instagram.com/oncooneaestheticsschool?igsh=MWlhN3Z5OWU3OThlag==&utm_source=ig_contact_invite" target="_blank" rel="noopener" aria-label="Instagram"><i class="lni lni-instagram"></i></a>
+      <a href="#" aria-label="YouTube"><i class="lni lni-youtube"></i></a>
+      <a href="https://www.tiktok.com/@oncoone?_r=1&_d=f1fi24l5kcgcl2&sec_uid=MS4wLjABAAAAH8w3RHP5NlBOOcItUKy2MKSu-EKAYhIX8cNdE05--E3k9EOIbJcoNvda7UZHv5V6&share_author_id=7597502887501956104&sharer_language=en&source=h5_m&u_code=f1fi2hmd4e0fc0&timestamp=1769957540&user_id=7597502887501956104&sec_user_id=MS4wLjABAAAAH8w3RHP5NlBOOcItUKy2MKSu-EKAYhIX8cNdE05--E3k9EOIbJcoNvda7UZHv5V6&item_author_type=1&utm_source=copy&utm_campaign=client_share&utm_medium=android&share_iid=7597504001596688136&share_link_id=640c7d1f-52b0-426e-b5ae-a6210706ccb2&share_app_id=1233&ugbiz_name=ACCOUNT&ug_btm=b8727%2Cb7360&social_share_type=5&enable_checksum=1" target="_blank" rel="noopener" aria-label="TikTok"><i class="lni lni-tiktok"></i></a>
     </div>
   </div>
 
@@ -338,6 +499,107 @@ html, body {
   </div>
 </section>
 
+<!-- Announcement Section (Workshop) -->
+<section id="workshop-announcement" style="background: #f8f9fc; padding: 70px 0;" data-aos="fade-up">
+  <div class="container" style="max-width: 1200px;">
+    <div class="announcement-card">
+      <span class="announcement-badge">Workshop Announcement</span>
+      <h3 class="announcement-title" id="announcementTitle">Survivor-Led Cancer Nutrition Workshop</h3>
+      <div class="announcement-subtitle">
+        What Cancer Does to the Body - Why Nutrition Matters During & After Treatment - A Survivor Perspective
+      </div>
+      <div class="announcement-body">
+        Cancer transforms the body in ways most people never learn about. Nutrition becomes a lifeline - influencing strength,
+        treatment tolerance, healing, and long-term recovery. This survivor-led workshop gives caregivers, PSWs, estheticians,
+        wellness professionals, and community supporters the knowledge they have been missing.
+      </div>
+      <ul class="announcement-list">
+        <li>How cancer affects the body</li>
+        <li>Why nutrition matters during and after treatment</li>
+        <li>What truly helps from someone who has lived it</li>
+        <li>Practical, safe ways to support people with cancer</li>
+      </ul>
+      <div class="announcement-body" style="font-weight: 600; color: #1a4272;">
+        Compassionate. Evidence-informed.
+      </div>
+      <div class="announcement-info">
+        <div>Date: Saturday, February 28</div>
+        <div>Time: 9:00 AM - 5:00 PM</div>
+        <div>Location: 700 Lawrence Ave West, Suite 370</div>
+        <div>Lawrence Allen Centre</div>
+        <div>Seats: 20 only</div>
+        <div>Cost: 349 CAD</div>
+      </div>
+      <div class="announcement-body">
+        {% if workshop_sold_out %}
+          Register: Sold out
+        {% else %}
+          Register: Limited seats available
+        {% endif %}
+      </div>
+      <div class="announcement-quote">"Cancer changes the body. Knowledge changes the journey."</div>
+      <div class="announcement-actions">
+        {% if workshop_sold_out %}
+          <button class="announcement-btn primary" type="button" disabled>Sold Out</button>
+        {% else %}
+          <button class="announcement-btn primary" type="button" data-bs-toggle="modal" data-bs-target="#workshopRegisterModal">Register Now</button>
+        {% endif %}
+        <button class="announcement-btn ghost" type="button" onclick="document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })">Contact Us</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- Workshop Registration Modal -->
+    <div class="modal fade" id="workshopRegisterModal" tabindex="-1" aria-labelledby="workshopRegisterLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #1a4272; color: #ffffff;">
+            <h5 class="modal-title" id="workshopRegisterLabel">Register for Cancer Nutrition Workshop</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="workshopRegisterForm" enctype="multipart/form-data" novalidate>
+              <input type="hidden" name="hasQualification" value="no">
+              <input type="hidden" name="course" value="Cancer Nutrition Workshop">
+
+              <div class="mb-3">
+                <label for="workshopName" class="form-label">Full Name <span class="required-star">*</span></label>
+                <input type="text" id="workshopName" name="name" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="workshopEmail" class="form-label">Email Address <span class="required-star">*</span></label>
+                <input type="email" id="workshopEmail" name="email" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="workshopContact" class="form-label">Contact Number <span class="required-star">*</span></label>
+                <input type="text" id="workshopContact" name="contact" class="form-control" required>
+              </div>
+              <div class="d-grid">
+                <button type="submit" id="workshopSubmitBtn" class="btn" style="background-color: #1a4272; color: #ffffff;">Submit Registration</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Brief popup announcement -->
+<div class="brief-popup" id="briefPopup" aria-hidden="true">
+  <h4>Workshop Alert</h4>
+  <p>
+    {% if workshop_sold_out %}
+      Cancer Nutrition Workshop is sold out.
+    {% else %}
+      Survivor-led Cancer Nutrition Workshop - Sat, Feb 28 (9 AM - 5 PM).
+    {% endif %}
+  </p>
+  <div class="brief-actions">
+    <button class="brief-primary" type="button" onclick="closeBriefPopup()">Got it</button>
+    <button class="brief-ghost" type="button" onclick="closeBriefPopup()">Close</button>
+  </div>
+</div>
+
 
   <!-- End header Area -->
 
@@ -355,6 +617,80 @@ html, body {
     }
   }
 </script>
+
+<script>
+  function closeBriefPopup() {
+    const popup = document.getElementById('briefPopup');
+    if (popup) {
+      popup.style.display = 'none';
+      popup.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  window.addEventListener('load', () => {
+    const popup = document.getElementById('briefPopup');
+    if (popup) {
+      popup.style.display = 'block';
+      popup.setAttribute('aria-hidden', 'false');
+      setTimeout(closeBriefPopup, 8000);
+    }
+  });
+</script>
+
+<script>
+  (function () {
+    const form = document.getElementById('workshopRegisterForm');
+    const submitBtn = document.getElementById('workshopSubmitBtn');
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const name = document.getElementById('workshopName').value.trim();
+      const email = document.getElementById('workshopEmail').value.trim();
+      const contact = document.getElementById('workshopContact').value.trim();
+
+      if (!name || !email || !contact) {
+        alert('Please complete name, email and contact before submitting.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const formData = new FormData(form);
+        const resp = await fetch('{% url "api-register" %}', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(text || 'Submission failed');
+        }
+
+        const data = await resp.json();
+        alert('Registration submitted successfully!\n\nYour Registration ID and Password have been sent to your email.\nPlease make payment to book your seat.');
+        const modalEl = document.getElementById('workshopRegisterModal');
+        if (modalEl && window.bootstrap) {
+          const instance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+          instance.hide();
+        }
+        form.reset();
+        setTimeout(() => {
+          window.location.href = '/api/payment/';
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        alert('Error: ' + (err.message || 'Submission failed. Please try again.'));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Registration';
+      }
+    });
+  })();
+</script>
+
 
 
     <!--====== ABOUT FIVE PART ENDS ======-->

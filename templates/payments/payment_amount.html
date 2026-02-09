@@ -300,7 +300,13 @@
                     <span class="value">{{ currency }} ${{ total_price|floatformat:2 }}</span>
                 </div>
                 <div class="price-row">
-                    <span class="label">You can pay partial amount or full amount</span>
+                    <span class="label">
+                        {% if is_workshop %}
+                            Full payment is required for this workshop
+                        {% else %}
+                            You can pay 50% or full payment only
+                        {% endif %}
+                    </span>
                 </div>
             </div>
             
@@ -320,12 +326,15 @@
                                 min="10.00"
                                 max="{{ total_price }}"
                                 step="0.01"
+                                readonly
                                 required
                             />
                             <div class="addon-text">{{ currency }}</div>
                         </div>
-                        <div class="help-text">Enter amount between 0.01 and {{ currency }} {{ total_price|floatformat:2 }}</div>
+                        <div class="help-text" id="paymentHelpText"></div>
                     </div>
+
+                    <div class="form-group" id="paymentOptions"></div>
                     
                     <div class="form-group">
                         <label>Payment Method</label>
@@ -363,25 +372,68 @@
         const studentId = {{ student.id }};
         const enrollmentId = {{ enrollment_id }};
         const totalPrice = {{ total_price }};
+        const courseFullPrice = {{ course_full_price }};
+        const paidSoFar = {{ paid_so_far }};
+        const isWorkshop = {{ is_workshop|yesno:"true,false" }};
         const currency = "{{ currency }}";
         let methodSelected = false;
-        
-        // Calculate summary on amount change
-        document.getElementById('paymentAmount').addEventListener('change', function() {
-            const amount = parseFloat(this.value) || 0;
+        let allowedAmounts = [];
+
+        function setAmount(amount) {
+            const amountInput = document.getElementById('paymentAmount');
             const tax = amount * 0.13;
             const total = amount + tax;
-            
+            amountInput.value = amount.toFixed(2);
             document.getElementById('summaryAmount').textContent = amount.toFixed(2);
             document.getElementById('summaryTax').textContent = tax.toFixed(2);
             document.getElementById('summaryTotal').textContent = total.toFixed(2);
-            
-            if (amount > 0) {
-                document.getElementById('summaryPreview').style.display = 'block';
-            } else {
-                document.getElementById('summaryPreview').style.display = 'none';
+            document.getElementById('summaryPreview').style.display = 'block';
+        }
+
+        function renderPaymentOptions() {
+            const optionsEl = document.getElementById('paymentOptions');
+            const helpTextEl = document.getElementById('paymentHelpText');
+            optionsEl.innerHTML = '';
+            allowedAmounts = [];
+
+            if (isWorkshop) {
+                const amount = totalPrice;
+                allowedAmounts = [amount];
+                helpTextEl.textContent = 'Full payment amount is required for this workshop.';
+                optionsEl.innerHTML = '<div class="help-text">Only full payment is allowed.</div>';
+                setAmount(amount);
+                return;
             }
-        });
+
+            const half = Math.round((courseFullPrice / 2) * 100) / 100;
+            const remaining = Math.max(courseFullPrice - paidSoFar, 0);
+            if (paidSoFar <= 0.01) {
+                allowedAmounts = [half, courseFullPrice];
+                helpTextEl.textContent = `Choose 50% (${currency} $${half.toFixed(2)}) or full payment (${currency} $${courseFullPrice.toFixed(2)}).`;
+                optionsEl.innerHTML = `
+                    <div class="form-group">
+                        <button type="button" class="btn-method" onclick="selectPaymentOption(${half.toFixed(2)})">Pay 50% (${currency} $${half.toFixed(2)})</button>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn-method" onclick="selectPaymentOption(${courseFullPrice.toFixed(2)})">Pay Full (${currency} $${courseFullPrice.toFixed(2)})</button>
+                    </div>
+                `;
+            } else {
+                allowedAmounts = [remaining];
+                helpTextEl.textContent = `Second payment must be the remaining 50% (${currency} $${remaining.toFixed(2)}).`;
+                optionsEl.innerHTML = `
+                    <div class="form-group">
+                        <button type="button" class="btn-method" onclick="selectPaymentOption(${remaining.toFixed(2)})">Pay Remaining (${currency} $${remaining.toFixed(2)})</button>
+                    </div>
+                `;
+            }
+        }
+
+        function selectPaymentOption(amount) {
+            setAmount(amount);
+        }
+        
+        // Summary updated by selection only
         
         // Enable continue only after clicking method button
         document.getElementById('methodBtn').addEventListener('click', function() {
@@ -403,6 +455,12 @@
                 return;
             }
             
+            if (!allowedAmounts.some((val) => Math.abs(val - amount) < 0.01)) {
+                errorMsg.textContent = 'Please select one of the allowed payment options.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             if (amount < MIN_PAYMENT) {
                 errorMsg.textContent = `Minimum payment amount is ${currency} $${MIN_PAYMENT.toFixed(2)}`;
                 errorMsg.style.display = 'block';
@@ -427,6 +485,8 @@
         function goBack() {
             window.location.href = `/api/payment/select-course/${studentId}/`;
         }
+
+        renderPaymentOptions();
     </script>
 </body>
 </html>

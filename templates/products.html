@@ -485,6 +485,13 @@ html, body {
                     <strong>Oncology Esthetics Certificate</strong> (Full Program - Requires prerequisite)
                   </label>
                 </div>
+                <div class="form-check">
+                  <input class="form-check-input course-option" type="radio" name="course" id="courseWorkshop" value="Cancer Nutrition Workshop" {% if workshop_sold_out %}disabled{% endif %}>
+                  <label class="form-check-label" for="courseWorkshop">
+                    <strong>Cancer Nutrition Workshop</strong> (One-day seminar - 20 seats only)
+                    {% if workshop_sold_out %}<span style="color:#dc3545; font-weight:600;"> - SOLD OUT</span>{% endif %}
+                  </label>
+                </div>
               </div>
 
               <!-- Prerequisite Qualification (Only for Oncology Certificate) -->
@@ -739,7 +746,7 @@ html, body {
           }
 
           const data = await resp.json();
-          alert('Registration submitted successfully! Your Registration ID: ' + data.registration_id + '\n\nYou will be redirected to the payment portal.');
+          alert('Registration submitted successfully!\n\nYour Registration ID and Password have been sent to your email.\nPlease make payment to book your seat.');
           setTimeout(() => {
             window.location.href = '/api/payment/';
           }, 2000);

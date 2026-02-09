@@ -205,6 +205,12 @@
             border-color: #48bb78;
             background: #f0fff4;
         }
+
+        .course-card.sold-out {
+            border-color: #dc3545;
+            background: #fff5f5;
+            cursor: not-allowed;
+        }
         
         .course-card.fully-paid:hover {
             border-color: #38a169;
@@ -355,12 +361,14 @@
                 
                 {% if courses %}
                     {% for course in courses %}
-                    <div class="course-card {% if course.is_fully_paid %}fully-paid{% endif %}" onclick="selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, {{ course.is_fully_paid|yesno:'true,false' }})">
+                    <div class="course-card {% if course.is_fully_paid %}fully-paid{% endif %} {% if course.is_sold_out %}sold-out{% endif %}" onclick="selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, {{ course.is_fully_paid|yesno:'true,false' }}, {{ course.is_sold_out|yesno:'true,false' }})">
                         <div class="course-card-header">
                             <div class="course-name">{{ course.course_name }}</div>
                             <div class="course-price">
                                 {% if course.is_fully_paid %}
                                     <span style="color: #48bb78;">PAID ✓</span>
+                                {% elif course.is_sold_out %}
+                                    <span style="color: #dc3545;">SOLD OUT</span>
                                 {% else %}
                                     CAD ${{ course.remaining|floatformat:2 }}
                                 {% endif %}
@@ -369,17 +377,26 @@
                         <div class="course-status">
                             {% if course.is_fully_paid %}
                                 Status: <strong style="color: #48bb78;">Fully Paid - No balance due</strong>
+                            {% elif course.is_sold_out %}
+                                Status: <strong style="color: #dc3545;">No seats available</strong>
                             {% else %}
                                 Remaining: <strong>CAD ${{ course.remaining|floatformat:2 }}</strong>
+                                {% if course.is_workshop %}
+                                  <div style="margin-top: 6px; color: #1a4272; font-weight: 600;">Full payment required</div>
+                                {% endif %}
                             {% endif %}
                         </div>
                         <div class="course-action">
                             {% if course.is_fully_paid %}
-                                <button type="button" class="btn-paid" onclick="event.stopPropagation(); selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, true)">
+                                <button type="button" class="btn-paid" onclick="event.stopPropagation(); selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, true, false)">
                                     View Status →
                                 </button>
+                            {% elif course.is_sold_out %}
+                                <button type="button" class="btn-paid" disabled>
+                                    Sold Out
+                                </button>
                             {% else %}
-                                <button type="button" class="btn-pay" onclick="event.stopPropagation(); selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, false)">
+                                <button type="button" class="btn-pay" onclick="event.stopPropagation(); selectCourse({{ course.enrollment_id }}, '{{ course.course_name }}', {{ course.price }}, false, false)">
                                     Pay Now →
                                 </button>
                             {% endif %}
@@ -404,7 +421,10 @@
         const studentId = {{ student.id }};
         const currency = "{{ currency }}";
         
-        function selectCourse(enrollmentId, courseName, price, isFullyPaid) {
+        function selectCourse(enrollmentId, courseName, price, isFullyPaid, isSoldOut) {
+            if (isSoldOut) {
+                return;
+            }
             if (isFullyPaid) {
                 // Redirect to already paid page
                 window.location.href = `/api/payment/already-paid/${studentId}/${enrollmentId}/`;
