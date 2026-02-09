@@ -464,9 +464,10 @@ def payment_verify_student(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
         student_id = data.get('student_id', '').strip()
+        student_password = data.get('student_password', '')
         
-        if not student_id:
-            return JsonResponse({'error': 'Student ID or Registration Number is required'}, status=400)
+        if not student_id or not student_password:
+            return JsonResponse({'error': 'Registration Number and password are required'}, status=400)
         
         # Try multiple search methods
         registration = None
@@ -500,6 +501,9 @@ def payment_verify_student(request):
         
         if not registration:
             return JsonResponse({'error': 'Student not found. Please check your Registration Number (ON26-XXXXXX) or email.'}, status=404)
+
+        if registration.student_password != student_password:
+            return JsonResponse({'error': 'Invalid password. Please check your credentials.'}, status=403)
         
         # Get all course enrollments for this student
         enrollments = registration.course_enrollments.all()
