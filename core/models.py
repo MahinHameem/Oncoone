@@ -157,7 +157,8 @@ class StudentCourseEnrollment(models.Model):
 		verbose_name_plural = 'Course Enrollments'
 
 	def __str__(self):
-		return f"{self.registration.registration_number} - {self.course.course_name}"
+		course_label = self.course.course_name if self.course else (self.course_name or 'Unknown Course')
+		return f"{self.registration.registration_number} - {course_label}"
 	
 	def save(self, *args, **kwargs):
 		"""Auto-populate course_name for backward compatibility"""

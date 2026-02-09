@@ -1671,7 +1671,7 @@ Thank you for your payment! Your payment has been successfully processed.
 - Invoice Number: {payment.invoice_number}
 - Course: {payment.course_name}
 - Amount Paid: CAD ${payment.payment_amount_cad}
-- Tax (5% GST): CAD ${payment.tax_amount}
+- Tax (13% HST): CAD ${payment.tax_amount}
 - Total: CAD ${payment.final_amount_cad}
 - Remaining Balance: CAD ${payment.calculate_remaining_balance()}
 - Payment Date: {payment.completed_at.strftime('%Y-%m-%d %H:%M:%S')}
@@ -1701,6 +1701,41 @@ info@oncoesthetics.ca
                             email_obj.send(fail_silently=True)
                         except Exception as e:
                             logger.error(f"Failed to send confirmation email: {e}")
+
+                        # Send workshop invitation email after successful payment
+                        if payment.course_name == 'Cancer Nutrition Workshop' and payment.registration.email:
+                            try:
+                                subject = 'Workshop Confirmation - Cancer Nutrition Workshop'
+                                body = f"""
+Hi {payment.registration.name},
+
+Your payment is confirmed and your seat is reserved for the Cancer Nutrition Workshop.
+
+DATE: Saturday, February 28
+TIME: 9:00 AM - 5:00 PM
+LOCATION: 700 Lawrence Ave West, Suite 370, Lawrence Allen Centre
+
+Please arrive 15 minutes early for check-in.
+
+If you have any questions, reply to this email.
+
+- OncoOne Team
+                                """
+                                EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [payment.registration.email]).send(fail_silently=True)
+                            except Exception as e:
+                                logger.error(f"Workshop email failed: {e}")
+
+                        # If workshop sells out, remove unpaid enrollments
+                        if payment.course_name == 'Cancer Nutrition Workshop':
+                            paid_seats = Payment.objects.filter(course_name=payment.course_name, status='completed').count()
+                            if paid_seats >= 20:
+                                paid_enrollment_ids = Payment.objects.filter(
+                                    course_name=payment.course_name,
+                                    status='completed'
+                                ).values_list('enrollment_id', flat=True)
+                                StudentCourseEnrollment.objects.filter(
+                                    course_name=payment.course_name
+                                ).exclude(id__in=list(paid_enrollment_ids)).delete()
                         
                         return JsonResponse({
                             'status': 'success',
@@ -1730,6 +1765,17 @@ info@oncoesthetics.ca
                 payment.status = 'completed'
                 payment.completed_at = timezone.now()
                 payment.save()
+
+                if payment.course_name == 'Cancer Nutrition Workshop':
+                    paid_seats = Payment.objects.filter(course_name=payment.course_name, status='completed').count()
+                    if paid_seats >= 20:
+                        paid_enrollment_ids = Payment.objects.filter(
+                            course_name=payment.course_name,
+                            status='completed'
+                        ).values_list('enrollment_id', flat=True)
+                        StudentCourseEnrollment.objects.filter(
+                            course_name=payment.course_name
+                        ).exclude(id__in=list(paid_enrollment_ids)).delete()
                 
                 return JsonResponse({
                     'status': 'success',
