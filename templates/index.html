@@ -257,58 +257,44 @@ html, body {
   font-family: "Source Sans 3", Arial, sans-serif;
 }
 
-/* Brief popup */
-.brief-popup {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  background: #ffffff;
-  border: 2px solid #1a4272;
-  border-radius: 14px;
-  box-shadow: 0 12px 30px rgba(26, 66, 114, 0.22);
-  padding: 14px 16px;
-  max-width: 320px;
-  display: none;
-  z-index: 10000;
-  text-align: left;
+/* Large announcement modal */
+.announcement-modal .modal-content {
+  border-radius: 20px;
+  border: 2px solid #0f2f59;
+  background: linear-gradient(135deg, #0f2f59 0%, #0f6b73 100%);
+  box-shadow: 0 24px 60px rgba(15, 47, 89, 0.25);
+  overflow: hidden;
+  font-family: "Source Sans 3", Arial, sans-serif;
 }
 
-.brief-popup h4 {
-  margin: 0 0 6px;
-  color: #1a4272;
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.brief-popup p {
-  margin: 0 0 10px;
-  color: #334155;
-  font-size: 0.9rem;
-}
-
-.brief-popup .brief-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-}
-
-.brief-popup button {
-  border: none;
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.brief-popup .brief-primary {
-  background: #1a4272;
+.announcement-modal .modal-header {
+  background: transparent;
   color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.brief-popup .brief-ghost {
-  background: #e8f2ff;
-  color: #1a4272;
+.announcement-modal .modal-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 700;
+}
+
+.announcement-modal .modal-body p {
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.announcement-modal .badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
 .announcement-badge {
@@ -617,19 +603,41 @@ html, body {
       </div>
     </div>
 
-<!-- Brief popup announcement -->
-<div class="brief-popup" id="briefPopup" aria-hidden="true">
-  <h4>Workshop Alert</h4>
-  <p>
-    {% if workshop_sold_out %}
-      Cancer Nutrition Workshop is sold out.
-    {% else %}
-      Survivor-led Cancer Nutrition Workshop - Sat, Feb 28 (9 AM - 5 PM).
-    {% endif %}
-  </p>
-  <div class="brief-actions">
-    <button class="brief-primary" type="button" onclick="closeBriefPopup()">Got it</button>
-    <button class="brief-ghost" type="button" onclick="closeBriefPopup()">Close</button>
+<!-- Large announcement modal -->
+<div class="modal fade announcement-modal" id="workshopAnnouncementModal" tabindex="-1" aria-labelledby="workshopAnnouncementLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="workshopAnnouncementLabel" style=" color: #ffffff;">Workshop Announcement</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span class="badge-pill">Survivor-Led Workshop</span>
+        <h3 style="margin: 12px 0 8px; color: #ffffff; font-family: 'Playfair Display', Georgia, serif;">Cancer Nutrition Workshop</h3>
+        <p>What Cancer Does to the Body - Why Nutrition Matters During & After Treatment - A Survivor Perspective.</p>
+        <p>
+          {% if workshop_sold_out %}
+            This workshop is currently sold out.
+          {% else %}
+            Seats are limited to 20. Full payment confirms your seat.
+          {% endif %}
+        </p>
+        <div class="announcement-info" style="margin-top: 14px;">
+          <div>Date: Saturday, February 28</div>
+          <div>Time: 9:00 AM - 5:00 PM</div>
+          <div>Location: 700 Lawrence Ave West, Suite 370</div>
+          <div>Lawrence Allen Centre</div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="announcement-btn ghost" data-bs-dismiss="modal">Close</button>
+        {% if workshop_sold_out %}
+          <button type="button" class="announcement-btn primary" disabled>Sold Out</button>
+        {% else %}
+          <button type="button" class="announcement-btn primary" data-bs-toggle="modal" data-bs-target="#workshopRegisterModal" data-bs-dismiss="modal">Register Now</button>
+        {% endif %}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -652,20 +660,14 @@ html, body {
 </script>
 
 <script>
-  function closeBriefPopup() {
-    const popup = document.getElementById('briefPopup');
-    if (popup) {
-      popup.style.display = 'none';
-      popup.setAttribute('aria-hidden', 'true');
-    }
-  }
-
   window.addEventListener('load', () => {
-    const popup = document.getElementById('briefPopup');
-    if (popup) {
-      popup.style.display = 'block';
-      popup.setAttribute('aria-hidden', 'false');
-      setTimeout(closeBriefPopup, 8000);
+    const modalEl = document.getElementById('workshopAnnouncementModal');
+    if (modalEl && window.bootstrap) {
+      const modal = new window.bootstrap.Modal(modalEl, { backdrop: true });
+      modal.show();
+      setTimeout(() => {
+        modal.hide();
+      }, 10000);
     }
   });
 </script>
