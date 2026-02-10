@@ -1454,7 +1454,7 @@ def create_payment_and_send_otp(request):
             enrollment=enrollment,
             student_id=str(student_id),
             course_name=enrollment.course_name,
-            total_price_cad=course.price_cad,
+            total_price_cad=course_price_obj.price_cad,
             payment_amount_cad=payment_amount,
             tax_amount=tax_amount,
             final_amount_cad=total_amount,
