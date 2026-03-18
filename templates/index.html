@@ -365,6 +365,26 @@ html, body {
   margin-top: 12px;
 }
 
+.announcement-highlight {
+  margin-top: 14px;
+  background: linear-gradient(135deg, #fff6df 0%, #ffe6b3 100%);
+  border: 1px solid #f1cd8a;
+  border-left: 5px solid #d9962c;
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #4a3000;
+  font-weight: 700;
+}
+
+.announcement-modal .announcement-highlight {
+  color: #4a3000;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.announcement-modal .modal-body p.announcement-highlight {
+  color: #4a3000;
+}
+
 .announcement-actions {
   display: flex;
   flex-wrap: wrap;
@@ -542,12 +562,15 @@ html, body {
         Compassionate. Evidence-informed.
       </div>
       <div class="announcement-info">
-        <div>Date: Saturday, February 28</div>
-        <div>Time: 9:00 AM - 5:00 PM</div>
+        <div>Date: Friday, April 25</div>
+        <div>Time: 10:00 AM - 4:00 PM (Snacks included)</div>
         <div>Location: 700 Lawrence Ave West, Suite 370</div>
-        <div>Lawrence Allen Centre</div>
+        <div>Toronto, Ontario M6A 3B4 (in the Lawrence Allen Plaza)</div>
         <div>Seats: 20 only</div>
         <div>Cost: 349 CAD</div>
+      </div>
+      <div class="announcement-highlight">
+        🎁 All attendees will receive a special surprise gift designed exclusively for this workshop.
       </div>
       <div class="announcement-body">
         {% if workshop_sold_out %}
@@ -622,11 +645,14 @@ html, body {
             Seats are limited to 20. Full payment confirms your seat.
           {% endif %}
         </p>
+        <p class="announcement-highlight" style="margin-top: 8px;">
+          🎁 All attendees will receive a special surprise gift designed exclusively for this workshop.
+        </p>
         <div class="announcement-info" style="margin-top: 14px;">
-          <div>Date: Saturday, February 28</div>
-          <div>Time: 9:00 AM - 5:00 PM</div>
+          <div>Date: Friday, April 25</div>
+          <div>Time: 10:00 AM - 4:00 PM (Snacks included)</div>
           <div>Location: 700 Lawrence Ave West, Suite 370</div>
-          <div>Lawrence Allen Centre</div>
+          <div>Toronto, Ontario M6A 3B4 (in the Lawrence Allen Plaza)</div>
         </div>
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
