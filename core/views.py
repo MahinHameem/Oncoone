@@ -48,6 +48,10 @@ def register_view(request):
         has_prerequisite = request.POST.get('hasQualification', 'yes').lower() in ('yes', '1', 'true')
         proof = request.FILES.get('proof')
 
+        # Referral source fields
+        referral_source = request.POST.get('referral_source', '').strip()
+        referral_other = request.POST.get('referral_other', '').strip() if referral_source == 'other' else ''
+
         if not (name and email and contact):
             return HttpResponseBadRequest('Missing required fields')
 
@@ -83,8 +87,21 @@ def register_view(request):
             defaults={
                 'name': name,
                 'contact': contact,
+                'referral_source': referral_source,
+                'referral_other': referral_other,
             }
         )
+        # If registration already exists, update referral fields if not set
+        if not created:
+            updated = False
+            if not reg.referral_source and referral_source:
+                reg.referral_source = referral_source
+                updated = True
+            if referral_source == 'other' and referral_other:
+                reg.referral_other = referral_other
+                updated = True
+            if updated:
+                reg.save(update_fields=["referral_source", "referral_other"]) 
 
         # Check if already enrolled in this course
         if StudentCourseEnrollment.objects.filter(registration=reg, course_name=course_name).exists():

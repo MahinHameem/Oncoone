@@ -1,15 +1,28 @@
+
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.html import format_html
-from .models import Registration, StudentCourseEnrollment, Course, Payment, PaymentInvoice
+from .models import SpeakingSession, Registration, StudentCourseEnrollment, Course, Payment, PaymentInvoice
+
+# Speaking Session admin
+@admin.register(SpeakingSession)
+class SpeakingSessionAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "session_for", "session_type", "mode", "date", "time", "created_at")
+    search_fields = ("name", "email", "purpose", "notes")
+    list_filter = ("session_type", "mode", "date")
 
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-	list_display = ('registration_number', 'name', 'email', 'contact', 'student_password', 'created_at')
-	list_filter = ('created_at', 'updated_at')
-	search_fields = ('name', 'email', 'contact', 'registration_number')
-	readonly_fields = ('registration_number', 'student_password', 'created_at', 'updated_at')
+    list_display = ('registration_number', 'name', 'email', 'contact', 'referral_source', 'referral_other', 'student_password', 'created_at')
+    list_filter = ('created_at', 'updated_at')
+    search_fields = ('name', 'email', 'contact', 'registration_number')
+    readonly_fields = ('registration_number', 'student_password', 'created_at', 'updated_at')
+    fieldsets = (
+        (None, {
+            'fields': ('registration_number', 'name', 'email', 'contact', 'student_password', 'referral_source', 'referral_other', 'created_at', 'updated_at')
+        }),
+    )
 
 
 @admin.register(Course)

@@ -2,6 +2,23 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal
 import uuid
+
+class SpeakingSession(models.Model):
+	name = models.CharField(max_length=100)
+	email = models.EmailField()
+	phone = models.CharField(max_length=30, blank=True)
+	session_for = models.CharField(max_length=30)
+	session_type = models.CharField(max_length=30)
+	mode = models.CharField(max_length=20)
+	date = models.DateField()
+	time = models.TimeField()
+	participants = models.PositiveIntegerField(null=True, blank=True)
+	purpose = models.CharField(max_length=200)
+	notes = models.TextField(blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.name} ({self.email}) - {self.date}"
 import random
 import string
 
@@ -38,7 +55,27 @@ class Registration(models.Model):
 	registration_number = models.CharField(max_length=20, unique=True, db_index=True, blank=True, default='')  # ON26-0001 format
 	student_password = models.CharField(max_length=10, unique=True, blank=True, default='')  # Unique 10-character password
 	
-	# Student info (common across all courses)
+	# How did you hear about us?
+	REFERRAL_CHOICES = [
+		("social_media", "Social Media (Facebook, Instagram)"),
+		("friend_family", "Friend / Family Recommendation"),
+		("website_blog", "Website / Blog"),
+		("webinar_workshop", "Webinar / Workshop"),
+		("school_university", "School / University"),
+		("other", "Other (Please specify)")
+	]
+	referral_source = models.CharField(
+		max_length=32,
+		choices=REFERRAL_CHOICES,
+		blank=True,
+		default=""
+	)
+
+	referral_other = models.CharField(
+		max_length=255,
+		blank=True,
+		default=""
+	)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

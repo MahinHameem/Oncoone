@@ -535,6 +535,19 @@ html, body {
                 <input type="text" id="contact" name="contact" class="form-control" required>
               </div>
 
+              <div class="mb-3">
+                <label for="referralSourceCourse" class="form-label">How did you hear about us? <span class="required-star">*</span></label>
+                <select id="referralSourceCourse" name="referral_source" class="form-control" required onchange="document.getElementById('referralOtherBoxCourse').style.display = this.value === 'other' ? 'block' : 'none';">
+                  <option value="" selected disabled>Select an option</option>
+                  <option value="social_media">Social Media (Facebook, Instagram)</option>
+                  <option value="friend_family">Friend / Family Recommendation</option>
+                  <option value="website_blog">Website / Blog</option>
+                  <option value="webinar_workshop">Webinar / Workshop</option>
+                  <option value="school_university">School / University</option>
+                  <option value="other">Other (Please specify)</option>
+                </select>
+                <input type="text" id="referralOtherBoxCourse" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255">
+              </div>
               <div class="d-grid gap-2">
                 <button type="submit" id="submitBtn" class="btn btn-primary">Submit Registration</button>
               </div>

@@ -603,6 +603,261 @@ html, body {
   </div>
 </section>
 
+<!-- Book a Speaking Session Section -->
+  <section id="speaking-session" style="padding: 60px 0 40px 0; background: #f7faff;">
+    <div class="container">
+      <div class="row justify-content-center align-items-center">
+        <div class="col-md-4 text-center mb-4 mb-md-0">
+          <img src="/static/assets/images/speaking.jpeg" alt="Marilyn speaking" class="img-fluid rounded shadow" style="max-width: 170px; object-fit: cover;">
+        </div>
+        <div class="col-md-7">
+          <h2 class="mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 800;">Book a Speaking Session</h2>
+          <div style="font-size: 1.08rem; font-weight: 500; color: #1a4272; margin-bottom: 18px;">Inspire, educate, and transform your audience with a survivor-led voice.</div>
+          <div style="font-size: 1.01rem; color: #23395d; font-family: 'Source Sans 3', Arial, sans-serif; max-width: 420px;">
+            Marilyn is a cancer advocate, motivational speaker, and founder of OncoOne Aesthetic School. Her talks uplift, empower, and inspire audiences with hope and practical knowledge.
+          </div>
+          <div class="d-flex justify-content-start mt-4">
+            <a href="#" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#speakingSessionModal" style="border-radius: 25px; padding: 12px 38px; font-weight: 700; font-size: 1.15rem;">Book Session</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Modal for Speaking Session Booking -->
+  <style>
+    .modal-content.speaking-modal {
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(26,66,114,0.18);
+      border: none;
+      background: linear-gradient(135deg, #f7faff 60%, #eaf0fa 100%), linear-gradient(120deg, #e3eafc 0%, #f6f8fb 100%);
+      max-width: 720px;
+      width: 98vw;
+      margin: auto;
+      padding: 0;
+      font-family: 'Inter', 'Source Sans 3', Arial, sans-serif;
+      transition: max-width 0.2s;
+      overflow: visible;
+      min-height: unset;
+      max-height: none;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .modal-header.speaking-modal-header {
+      background: linear-gradient(90deg, #1a4272 70%, #3e5c8a 100%);
+      color: #fff;
+      border-radius: 18px 18px 0 0;
+      padding: 1.1rem 2.2rem 1.1rem 2.2rem;
+      border-bottom: 1px solid #e3eaf2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 56px;
+    }
+    .modal-title.speaking-modal-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 800;
+      font-size: 1.18rem;
+      color: #fff;
+      margin: 0;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .modal-body.speaking-modal-body {
+      background: transparent;
+      border-radius: 0 0 18px 18px;
+      padding: 1.1rem 2.2rem 1.1rem 2.2rem;
+      max-height: none;
+      overflow: visible;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .speaking-modal .form-label {
+      font-weight: 600;
+      color: #1a4272;
+      margin-bottom: 0.22rem;
+      font-size: 0.93rem;
+      letter-spacing: 0.01em;
+      padding-left: 2px;
+    }
+    .speaking-modal input,
+    .speaking-modal select {
+      border-radius: 7px !important;
+      border: 1px solid #c7d6ee;
+      background: #fafdff;
+      font-size: 0.93rem;
+      padding: 0.38rem 0.7rem;
+      box-shadow: none;
+      margin-bottom: 0.22rem;
+      transition: border-color 0.2s;
+    }
+    .speaking-modal input:focus,
+    .speaking-modal select:focus {
+      border-color: #1a4272;
+      outline: none;
+      box-shadow: 0 0 0 2px #e3eaf2;
+    }
+    .speaking-modal textarea {
+      border-radius: 7px !important;
+      border: 1px solid #c7d6ee;
+      background: #fafdff;
+      font-size: 0.93rem;
+      padding: 0.38rem 0.7rem;
+      min-height: 48px;
+      max-height: 90px;
+      resize: vertical;
+      margin-bottom: 0.22rem;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .speaking-modal textarea:focus {
+      border-color: #1a4272;
+      outline: none;
+      box-shadow: 0 0 0 2px #e3eaf2;
+    }
+    .speaking-modal .notes-section {
+      background: #f3f7fd;
+      border-radius: 7px;
+      padding: 0.4rem 0.4rem 0.2rem 0.4rem;
+      margin-top: 0.22rem;
+      margin-bottom: 0.22rem;
+      border: 1px solid #e0eaf7;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .speaking-modal .btn-primary {
+      background-color: #1a4272;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      border: none;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(26,66,114,0.08);
+      transition: background 0.2s;
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+    }
+    .speaking-modal .btn-primary:hover {
+      background-color: #16345a;
+    }
+    .btn-close {
+      filter: invert(1) grayscale(1) brightness(2);
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .btn-close:hover {
+      opacity: 1;
+    }
+    @media (max-width: 767px) {
+      .modal-content.speaking-modal {
+        max-width: 99vw;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .modal-header.speaking-modal-header,
+      .modal-body.speaking-modal-body {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+      }
+      .modal-body.speaking-modal-body {
+        max-height: 80vh;
+      }
+    }
+  </style>
+  <div class="modal" id="speakingSessionModal" tabindex="-1" aria-labelledby="speakingSessionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content speaking-modal">
+        <div class="modal-header speaking-modal-header">
+          <h4 class="modal-title speaking-modal-title" id="speakingSessionModalLabel">Book Your Session</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body speaking-modal-body">
+          <form id="speakingSessionForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="speaking_session">
+            <div class="row g-4 align-items-stretch" style="margin-bottom: 0.5rem;">
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_name" class="form-label">Full Name *</label>
+                {{ speaking_session_form.name }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_email" class="form-label">Email Address *</label>
+                {{ speaking_session_form.email }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_phone" class="form-label">Phone Number</label>
+                {{ speaking_session_form.phone }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_session_for" class="form-label">Who is this session for? *</label>
+                {{ speaking_session_form.session_for }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_session_type" class="form-label">Session Type *</label>
+                {{ speaking_session_form.session_type }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_mode" class="form-label">Preferred Mode *</label>
+                {{ speaking_session_form.mode }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_date" class="form-label">Preferred Date *</label>
+                {{ speaking_session_form.date }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_time" class="form-label">Preferred Time *</label>
+                {{ speaking_session_form.time }}
+              </div>
+              <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
+                <label for="id_participants" class="form-label">Number of Participants</label>
+                {{ speaking_session_form.participants }}
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="id_purpose" class="form-label">Purpose of Booking *</label>
+                {{ speaking_session_form.purpose }}
+              </div>
+              <div class="col-12 notes-section" style="padding-right:0;">
+                <label for="id_notes" class="form-label">Additional Notes</label>
+                {{ speaking_session_form.notes }}
+              </div>
+              <div class="col-12 d-grid mt-2">
+                <button type="submit" class="btn btn-primary btn-lg">Book Session</button>
+              </div>
+              {% if ss_success_msg %}
+                <div class="alert alert-success mt-3">{{ ss_success_msg }}</div>
+              {% endif %}
+              {% if ss_error_msg %}
+                <div class="alert alert-danger mt-3">{{ ss_error_msg }}</div>
+              {% endif %}
+<script>
+  // Set min date for session booking to today
+  document.addEventListener('DOMContentLoaded', function() {
+    var dateInput = document.getElementById('id_date');
+    if (dateInput) {
+      var today = new Date();
+      var yyyy = today.getFullYear();
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var dd = String(today.getDate()).padStart(2, '0');
+      var minDate = yyyy + '-' + mm + '-' + dd;
+      dateInput.setAttribute('min', minDate);
+    }
+  });
+</script>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+</section>
+
 <!-- Announcement Section (Workshop) -->
 <section id="workshop-announcement" class="announcement-section" data-aos="fade-up">
   <div class="container" style="max-width: 1200px;">
@@ -627,7 +882,7 @@ html, body {
         Compassionate. Evidence-informed.
       </div>
       <div class="announcement-info">
-        <div>Date: Friday, April 25</div>
+        <div>Date: Saturday, April 25</div>
         <div>Time: 10:00 AM - 4:00 PM</div>
         <div>Location: 700 Lawrence Ave West, Suite 370</div>
         <div>Toronto, Ontario M6A 3B4 (in the Lawrence Allen Plaza)</div>
@@ -682,6 +937,19 @@ html, body {
                 <label for="workshopContact" class="form-label">Contact Number <span class="required-star">*</span></label>
                 <input type="text" id="workshopContact" name="contact" class="form-control" required>
               </div>
+              <div class="mb-3">
+                <label for="referralSource" class="form-label">How did you hear about us? <span class="required-star">*</span></label>
+                <select id="referralSource" name="referral_source" class="form-control" required onchange="document.getElementById('referralOtherBox').style.display = this.value === 'other' ? 'block' : 'none';">
+                  <option value="" selected disabled>Select an option</option>
+                  <option value="social_media">Social Media (Facebook, Instagram)</option>
+                  <option value="friend_family">Friend / Family Recommendation</option>
+                  <option value="website_blog">Website / Blog</option>
+                  <option value="webinar_workshop">Webinar / Workshop</option>
+                  <option value="school_university">School / University</option>
+                  <option value="other">Other (Please specify)</option>
+                </select>
+                <input type="text" id="referralOtherBox" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255">
+              </div>
               <div class="d-grid">
                 <button type="submit" id="workshopSubmitBtn" class="btn" style="background-color: #1a4272; color: #ffffff;">Submit Registration</button>
               </div>
@@ -715,7 +983,7 @@ html, body {
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
               <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z"/>
             </svg>
-            Friday, April 25, 2026
+            Saturday, April 25, 2026
           </div>
           <div class="meta-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
@@ -1340,11 +1608,11 @@ html, body {
       <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
         <div class="social-links d-flex justify-content-center gap-3">
           <!-- Instagram -->
-          <a href="https://instagram.com" target="_blank" class="social-icon">
+          <a href="https://www.instagram.com/oncooneaestheticsschool?igsh=MWlhN3Z5OWU3OThlag==&utm_source=ig_contact_invite" target="_blank" class="social-icon" rel="noopener" aria-label="Instagram">
             <i class="lni lni-instagram-original"></i>
           </a>
           <!-- Facebook -->
-          <a href="https://facebook.com" target="_blank" class="social-icon">
+          <a href="https://www.facebook.com/share/1BiWw5nUEg/" target="_blank" class="social-icon" rel="noopener" aria-label="Facebook">
             <i class="lni lni-facebook-filled"></i>
           </a>
           <!-- X (Twitter) -->
