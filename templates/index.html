@@ -776,6 +776,9 @@ html, body {
           <h4 class="modal-title speaking-modal-title" id="speakingSessionModalLabel">Book Your Session</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        {% if ss_success_msg %}
+          <div id="booking-success-message" class="alert alert-success mt-3" style="max-width: 600px; margin: 30px auto 0 auto; text-align: center;">{{ ss_success_msg }}</div>
+        {% endif %}
         <div class="modal-body speaking-modal-body">
           <form id="speakingSessionForm" method="post">
             {% csrf_token %}
@@ -828,9 +831,6 @@ html, body {
               <div class="col-12 d-grid mt-2">
                 <button type="submit" class="btn btn-primary btn-lg">Book Session</button>
               </div>
-              {% if ss_success_msg %}
-                <div id="booking-success-message" class="alert alert-success mt-3">{{ ss_success_msg }}</div>
-              {% endif %}
               {% if ss_error_msg %}
                 <div class="alert alert-danger mt-3">{{ ss_error_msg }}</div>
               {% endif %}
@@ -848,6 +848,10 @@ html, body {
       setTimeout(function() {
         successMsg.scrollIntoView({behavior: 'smooth', block: 'center'});
       }, 400);
+      // Auto-hide the success message after 6 seconds
+      setTimeout(function() {
+        successMsg.style.display = 'none';
+      }, 6000);
     }
   });
 </script>
