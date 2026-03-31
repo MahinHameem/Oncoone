@@ -829,11 +829,28 @@ html, body {
                 <button type="submit" class="btn btn-primary btn-lg">Book Session</button>
               </div>
               {% if ss_success_msg %}
-                <div class="alert alert-success mt-3">{{ ss_success_msg }}</div>
+                <div id="booking-success-message" class="alert alert-success mt-3">{{ ss_success_msg }}</div>
               {% endif %}
               {% if ss_error_msg %}
                 <div class="alert alert-danger mt-3">{{ ss_error_msg }}</div>
               {% endif %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var successMsg = document.getElementById('booking-success-message');
+    if (successMsg) {
+      // Close the modal if open (Bootstrap 5)
+      var modalEl = document.getElementById('speakingSessionModal');
+      if (modalEl && typeof bootstrap !== 'undefined') {
+        var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.hide();
+      }
+      // Scroll to the success message
+      setTimeout(function() {
+        successMsg.scrollIntoView({behavior: 'smooth', block: 'center'});
+      }, 400);
+    }
+  });
+</script>
 <script>
   // Set min date for session booking to today
   document.addEventListener('DOMContentLoaded', function() {
