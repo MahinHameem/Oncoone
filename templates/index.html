@@ -837,11 +837,39 @@ html, body {
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var successMsg = document.getElementById('booking-success-message');
+    var speakingSessionModal = document.getElementById('speakingSessionModal');
+    var speakingSessionForm = document.getElementById('speakingSessionForm');
+
+    if (speakingSessionModal && speakingSessionForm) {
+      speakingSessionModal.addEventListener('hidden.bs.modal', function() {
+        speakingSessionForm.querySelectorAll('input, select, textarea').forEach(function(field) {
+          if (field.type === 'hidden' || field.name === 'csrfmiddlewaretoken') {
+            return;
+          }
+
+          if (field.tagName === 'SELECT') {
+            field.selectedIndex = 0;
+            return;
+          }
+
+          if (field.type === 'checkbox' || field.type === 'radio') {
+            field.checked = false;
+            return;
+          }
+
+          field.value = '';
+        });
+
+        speakingSessionForm.querySelectorAll('.is-invalid, .is-valid').forEach(function(field) {
+          field.classList.remove('is-invalid', 'is-valid');
+        });
+      });
+    }
+
     if (successMsg) {
       // Close the modal if open (Bootstrap 5)
-      var modalEl = document.getElementById('speakingSessionModal');
-      if (modalEl && typeof bootstrap !== 'undefined') {
-        var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+      if (speakingSessionModal && typeof bootstrap !== 'undefined') {
+        var modal = bootstrap.Modal.getInstance(speakingSessionModal) || new bootstrap.Modal(speakingSessionModal);
         modal.hide();
       }
       // Scroll to the success message
