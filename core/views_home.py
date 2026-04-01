@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .speaking_session_form import SpeakingSessionForm
@@ -17,7 +17,7 @@ def index_view(request):
     workshop_sold_out = workshop_paid_count >= 20
 
     form = SpeakingSessionForm()
-    success_msg = None
+    success_msg = request.session.pop('ss_success_msg', None)
     error_msg = None
     is_ajax_request = request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
@@ -73,6 +73,8 @@ def index_view(request):
                         'success': True,
                         'message': success_msg,
                     })
+                request.session['ss_success_msg'] = success_msg
+                return redirect('home')
             except Exception as e:
                 error_msg = "Sorry, there was an error sending your booking. Please try again later."
                 if is_ajax_request:

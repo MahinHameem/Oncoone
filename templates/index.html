@@ -606,7 +606,11 @@ html, body {
 <!-- Book a Speaking Session Section -->
   <section id="speaking-session" style="padding: 60px 0 40px 0; background: #f7faff;">
     <div class="container">
-      <div id="speaking-session-feedback" style="display:none; max-width: 720px; margin: 0 auto 24px auto;"></div>
+      <div id="speaking-session-feedback" style="{% if ss_success_msg %}display:block;{% else %}display:none;{% endif %} max-width: 720px; margin: 0 auto 24px auto;">
+        {% if ss_success_msg %}
+          <div class="alert alert-success" style="text-align:center; margin-bottom:0;">{{ ss_success_msg }}</div>
+        {% endif %}
+      </div>
       <div class="row justify-content-center align-items-center">
         <div class="col-md-4 text-center mb-4 mb-md-0">
           <div class="speaking-photo-frame mx-auto">
