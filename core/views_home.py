@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.mail import EmailMessage
 from django.conf import settings
@@ -18,6 +19,8 @@ def index_view(request):
     form = SpeakingSessionForm()
     success_msg = None
     error_msg = None
+    is_ajax_request = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
     if request.method == 'POST' and request.POST.get('form_type') == 'speaking_session':
         form = SpeakingSessionForm(request.POST)
         if form.is_valid():
@@ -65,10 +68,30 @@ def index_view(request):
                 EmailMessage(user_subject, user_body, settings.DEFAULT_FROM_EMAIL, [data['email']]).send(fail_silently=True)
                 success_msg = "Thank you! Your booking has been received. We will contact you soon."
                 form = SpeakingSessionForm()  # Reset form
+                if is_ajax_request:
+                    return JsonResponse({
+                        'success': True,
+                        'message': success_msg,
+                    })
             except Exception as e:
                 error_msg = "Sorry, there was an error sending your booking. Please try again later."
+                if is_ajax_request:
+                    return JsonResponse({
+                        'success': False,
+                        'message': error_msg,
+                    }, status=500)
         else:
             error_msg = "Please correct the errors below."
+            if is_ajax_request:
+                field_errors = {
+                    field: [str(message) for message in messages]
+                    for field, messages in form.errors.items()
+                }
+                return JsonResponse({
+                    'success': False,
+                    'message': error_msg,
+                    'errors': field_errors,
+                }, status=400)
 
     return render(request, 'index.html', {
         'workshop_sold_out': workshop_sold_out,

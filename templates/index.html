@@ -606,6 +606,7 @@ html, body {
 <!-- Book a Speaking Session Section -->
   <section id="speaking-session" style="padding: 60px 0 40px 0; background: #f7faff;">
     <div class="container">
+      <div id="speaking-session-feedback" style="display:none; max-width: 720px; margin: 0 auto 24px auto;"></div>
       <div class="row justify-content-center align-items-center">
         <div class="col-md-4 text-center mb-4 mb-md-0">
           <div class="speaking-photo-frame mx-auto">
@@ -802,13 +803,11 @@ html, body {
           <h4 class="modal-title speaking-modal-title" id="speakingSessionModalLabel">Book Your Session</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        {% if ss_success_msg %}
-          <div id="booking-success-message" class="alert alert-success mt-3" style="max-width: 600px; margin: 30px auto 0 auto; text-align: center;">{{ ss_success_msg }}</div>
-        {% endif %}
         <div class="modal-body speaking-modal-body">
           <form id="speakingSessionForm" method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="speaking_session">
+            <div id="speaking-session-error" class="alert alert-danger mb-3" style="display:none;"></div>
             <div class="row g-4 align-items-stretch" style="margin-bottom: 0.5rem;">
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
                 <label for="id_name" class="form-label">Full Name *</label>
@@ -855,57 +854,143 @@ html, body {
                 {{ speaking_session_form.notes }}
               </div>
               <div class="col-12 d-grid mt-2">
-                <button type="submit" class="btn btn-primary btn-lg">Book Session</button>
+                <button type="submit" id="speakingSessionSubmitBtn" class="btn btn-primary btn-lg">
+                  <span class="speaking-submit-label">Book Session</span>
+                  <span class="speaking-submit-loading" style="display:none;">Sending...</span>
+                </button>
               </div>
               {% if ss_error_msg %}
                 <div class="alert alert-danger mt-3">{{ ss_error_msg }}</div>
               {% endif %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    var successMsg = document.getElementById('booking-success-message');
     var speakingSessionModal = document.getElementById('speakingSessionModal');
     var speakingSessionForm = document.getElementById('speakingSessionForm');
+    var speakingSessionSubmitBtn = document.getElementById('speakingSessionSubmitBtn');
+    var speakingSessionError = document.getElementById('speaking-session-error');
+    var speakingSessionFeedback = document.getElementById('speaking-session-feedback');
+    var submitLabel = speakingSessionSubmitBtn ? speakingSessionSubmitBtn.querySelector('.speaking-submit-label') : null;
+    var submitLoading = speakingSessionSubmitBtn ? speakingSessionSubmitBtn.querySelector('.speaking-submit-loading') : null;
+
+    function setSpeakingSubmitState(isLoading) {
+      if (!speakingSessionSubmitBtn) {
+        return;
+      }
+
+      speakingSessionSubmitBtn.disabled = isLoading;
+
+      if (submitLabel) {
+        submitLabel.style.display = isLoading ? 'none' : 'inline';
+      }
+
+      if (submitLoading) {
+        submitLoading.style.display = isLoading ? 'inline' : 'none';
+      }
+    }
+
+    function showSpeakingMessage(type, message) {
+      if (!speakingSessionFeedback) {
+        return;
+      }
+
+      speakingSessionFeedback.innerHTML = '<div class="alert alert-' + type + '" style="text-align:center; margin-bottom:0;">' + message + '</div>';
+      speakingSessionFeedback.style.display = 'block';
+      speakingSessionFeedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function showSpeakingError(message) {
+      if (!speakingSessionError) {
+        return;
+      }
+
+      speakingSessionError.textContent = message;
+      speakingSessionError.style.display = 'block';
+    }
+
+    function clearSpeakingError() {
+      if (!speakingSessionError) {
+        return;
+      }
+
+      speakingSessionError.textContent = '';
+      speakingSessionError.style.display = 'none';
+    }
+
+    function resetSpeakingFormFields() {
+      if (!speakingSessionForm) {
+        return;
+      }
+
+      speakingSessionForm.querySelectorAll('input, select, textarea').forEach(function(field) {
+        if (field.type === 'hidden' || field.name === 'csrfmiddlewaretoken') {
+          return;
+        }
+
+        if (field.tagName === 'SELECT') {
+          field.selectedIndex = 0;
+          return;
+        }
+
+        if (field.type === 'checkbox' || field.type === 'radio') {
+          field.checked = false;
+          return;
+        }
+
+        field.value = '';
+      });
+
+      speakingSessionForm.querySelectorAll('.is-invalid, .is-valid').forEach(function(field) {
+        field.classList.remove('is-invalid', 'is-valid');
+      });
+
+      clearSpeakingError();
+    }
 
     if (speakingSessionModal && speakingSessionForm) {
       speakingSessionModal.addEventListener('hidden.bs.modal', function() {
-        speakingSessionForm.querySelectorAll('input, select, textarea').forEach(function(field) {
-          if (field.type === 'hidden' || field.name === 'csrfmiddlewaretoken') {
-            return;
-          }
-
-          if (field.tagName === 'SELECT') {
-            field.selectedIndex = 0;
-            return;
-          }
-
-          if (field.type === 'checkbox' || field.type === 'radio') {
-            field.checked = false;
-            return;
-          }
-
-          field.value = '';
-        });
-
-        speakingSessionForm.querySelectorAll('.is-invalid, .is-valid').forEach(function(field) {
-          field.classList.remove('is-invalid', 'is-valid');
-        });
+        resetSpeakingFormFields();
       });
-    }
 
-    if (successMsg) {
-      // Close the modal if open (Bootstrap 5)
-      if (speakingSessionModal && typeof bootstrap !== 'undefined') {
-        var modal = bootstrap.Modal.getInstance(speakingSessionModal) || new bootstrap.Modal(speakingSessionModal);
-        modal.hide();
-      }
-      // Scroll to the success message
-      setTimeout(function() {
-        successMsg.scrollIntoView({behavior: 'smooth', block: 'center'});
-      }, 400);
-      // Auto-hide the success message after 6 seconds
-      setTimeout(function() {
-        successMsg.style.display = 'none';
-      }, 6000);
+      speakingSessionForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        clearSpeakingError();
+        setSpeakingSubmitState(true);
+
+        try {
+          var response = await fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(speakingSessionForm)
+          });
+
+          var payload = await response.json();
+
+          if (!response.ok || !payload.success) {
+            throw new Error(payload.message || 'Sorry, there was a problem sending your booking.');
+          }
+
+          resetSpeakingFormFields();
+
+          if (speakingSessionModal && typeof bootstrap !== 'undefined') {
+            var modalInstance = bootstrap.Modal.getInstance(speakingSessionModal) || new bootstrap.Modal(speakingSessionModal);
+            modalInstance.hide();
+          }
+
+          showSpeakingMessage('success', payload.message || 'Thank you! Your booking has been received.');
+          setTimeout(function() {
+            if (speakingSessionFeedback) {
+              speakingSessionFeedback.style.display = 'none';
+              speakingSessionFeedback.innerHTML = '';
+            }
+          }, 6000);
+        } catch (error) {
+          showSpeakingError(error.message || 'Sorry, there was a problem sending your booking.');
+        } finally {
+          setSpeakingSubmitState(false);
+        }
+      });
     }
   });
 </script>
