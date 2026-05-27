@@ -475,6 +475,19 @@ html, body {
   color: #0f2f59;
 }
 
+.course-waitlist-highlight {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff2d8 0%, #ffe2a8 100%);
+  border: 1px solid #f1cd8a;
+  border-left: 5px solid #d9962c;
+  color: #4a3000;
+  font-weight: 700;
+  font-size: 0.98rem;
+  box-shadow: 0 8px 18px rgba(217, 150, 44, 0.18);
+}
+
 @media (max-width: 640px) {
   .announcement-title { font-size: 1.55rem; }
   .announcement-info { grid-template-columns: 1fr; }
@@ -599,6 +612,43 @@ html, body {
         <!-- optional additional hero image if needed -->
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- Podcast Section -->
+<section id="podcast-section" style="padding: 60px 0; background: #f5f5f5;">
+  <div class="container">
+    <div class="row align-items-center">
+      <!-- Image Column -->
+      <div class="col-lg-4 col-md-12" style="display: flex; align-items: center; justify-content: center;">
+        <a href="https://www.youtube.com/watch?v=iu0r2XCqWDU" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none; width: 100%; max-width: 350px;">
+          <img src="{% static 'assets/images/beauty-babble-podcast.jpg' %}" alt="Beauty Babble Podcast - Beauty Meets Cancer Care" class="img-fluid" style="border-radius: 20px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 40px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0, 0, 0, 0.1)';">
+        </a>
+      </div>
+
+      <!-- Content Column -->
+      <div class="col-lg-8 col-md-12" style="display: flex; align-items: center; padding-left: 40px;">
+        <div>
+          <h2 style="font-family: 'Playfair Display', Georgia, serif; font-weight: 900; font-size: 2.8rem; color: #000; margin-bottom: 16px; line-height: 1.1;">
+            Watch Our Founder on the Beauty Babble Podcast
+          </h2>
+
+          <p style="font-size: 1.15rem; color: #1a4272; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 20px; line-height: 1.6; font-weight: 500;">
+            Inspire, educate, and transform your understanding with a survivor-led perspective.
+          </p>
+
+          <p style="font-size: 1.01rem; color: #555; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 32px; line-height: 1.8;">
+            Founder Marilyn Sepe joined the Beauty Babble podcast to discuss oncology esthetics, compassionate client care, and advancing safe, trauma-informed support for individuals undergoing cancer treatment.
+          </p>
+
+          <div class="d-flex justify-content-start">
+            <a href="https://www.youtube.com/watch?v=iu0r2XCqWDU" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #007bff; color: #ffffff; border: none; border-radius: 50px; padding: 14px 40px; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(0, 123, 255, 0.35);" onmouseover="this.style.backgroundColor='#0056b3'; this.style.boxShadow='0 8px 28px rgba(0, 123, 255, 0.45)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#007bff'; this.style.boxShadow='0 6px 20px rgba(0, 123, 255, 0.35)'; this.style.transform='translateY(0)';">
+              Watch Now on YouTube
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -860,7 +910,7 @@ html, body {
               <div class="col-12 d-grid mt-2">
                 <button type="submit" id="speakingSessionSubmitBtn" class="btn btn-primary btn-lg">
                   <span class="speaking-submit-label">Book Session</span>
-                  <span class="speaking-submit-loading" style="display:none;">Sending...</span>
+                  <span class="speaking-submit-loading" style="display:none;">Booking ...</span>
                 </button>
               </div>
               {% if ss_error_msg %}
@@ -1022,7 +1072,8 @@ html, body {
   </div>
 </section>
 
-<!-- Announcement Section (Workshop) -->
+<!-- ===== WORKSHOP SECTION COMMENTED OUT FOR FUTURE USE ===== -->
+<!--
 <section id="workshop-announcement" class="announcement-section" data-aos="fade-up">
   <div class="container" style="max-width: 1200px;">
     <div class="announcement-card">
@@ -1035,6 +1086,9 @@ html, body {
         Cancer transforms the body in ways most people never learn about. Nutrition becomes a lifeline - influencing strength,
         treatment tolerance, healing, and long-term recovery. This survivor-led workshop gives caregivers, PSWs, estheticians,
         wellness professionals, and community supporters the knowledge they have been missing.
+      </div>
+      <div class="course-waitlist-highlight">
+        Our 6 weeks course begins soon. Join the waiting list.
       </div>
       <ul class="announcement-list">
         <li>How cancer affects the body</li>
@@ -1076,7 +1130,7 @@ html, body {
   </div>
 </section>
 
-    <!-- Workshop Registration Modal -->
+    Workshop Registration Modal
     <div class="modal fade" id="workshopRegisterModal" tabindex="-1" aria-labelledby="workshopRegisterLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -1123,18 +1177,18 @@ html, body {
       </div>
     </div>
 
-<!-- Large announcement modal -->
+Large announcement modal
 <div class="modal fade announcement-modal" id="workshopAnnouncementModal" tabindex="-1" aria-labelledby="workshopAnnouncementLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
     <div class="modal-content">
 
-      <!-- Header -->
+      Header
       <div class="modal-header">
         <h5 class="modal-title" id="workshopAnnouncementLabel">Workshop Announcement</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Flyer image -->
+      Flyer image
       <div class="modal-body">
         <img
           src="{% static 'assets/images/workshop-flyer.jpeg' %}"
@@ -1159,7 +1213,7 @@ html, body {
         </div>
       </div>
 
-      <!-- Footer: Register button only, centered -->
+      Footer: Register button only, centered
       <div class="modal-footer">
         {% if workshop_sold_out %}
           <button type="button" class="btn-register" disabled>Sold Out</button>
@@ -1179,9 +1233,6 @@ html, body {
     </div>
   </div>
 </div>
-
-
-  <!-- End header Area -->
 
 <script>
   function toggleDrawer(forceState) {
@@ -1264,6 +1315,9 @@ html, body {
     });
   })();
 </script>
+-->
+
+  <!-- End header Area -->
 
 
 
@@ -1302,6 +1356,9 @@ html, body {
                 Blending rigorous theory with compassionate, trauma-informed practice, it sets a benchmark for safe, empowering care.
                 Students gain real-world protocols, survivor-sensitive techniques, and emotional insight — preparing them to serve with skill, dignity, and heart.
               </p>
+              <div class="course-waitlist-highlight">
+                Our 6 weeks course begins soon. Join the waiting list.
+              </div>
             </div>
             <div class="mt-4" style="padding-bottom: 50px;">
               <a href="{% url 'products' %}#course"
