@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Courses | OncoOne Aesthetic School</title>
+  <title data-i18n="page.title">Courses | OncoOne Aesthetic School</title>
 
   <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
   <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
@@ -108,6 +108,33 @@
   transform: translateY(-2px);
 }
 
+/* Language switcher styles */
+.lang-switcher { display:inline-flex; align-items:center; gap:8px; }
+.lang-switcher .lang-select {
+  border: 1px solid #c4d1e9;
+  background: white;
+  color: #1a4272;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 110px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.lang-switcher .lang-select:focus {
+  border-color: #1a4272;
+  outline: none;
+  box-shadow: 0 0 0 0.15rem rgba(26,66,114,0.25);
+}
+.lang-switcher .lang-btn { background: none; border: none; cursor: pointer; padding: 6px 8px; color: #1a4272; font-weight:600; }
+.lang-switcher .lang-btn.active { font-weight: 800; text-decoration: underline; }
+.lang-switcher .sep { color:#c4d1e9; }
+
+@media (max-width: 991px) {
+  .navbar-area .lang-switcher { display: none !important; }
+  #mobile-drawer .lang-switcher-mobile { display: flex; }
+}
+
 .form-control {
   padding: 12px 14px;
   border-radius: 10px;
@@ -198,20 +225,19 @@ html, body {
   color: #1a4272;
   font-size: 22px;
   line-height: 1;
+  position: relative;
+  z-index: 10050;
 }
 
 @media (max-width: 991px) {
   .mobile-drawer-toggle { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; }
   .navbar-toggler { display: none !important; }
-}
-
-#mobile-drawer-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  .navbar-area .collapse.navbar-collapse { display: none !important; }
 }
 
 #mobile-drawer {
   position: fixed; top: 0; right: 0; height: 100vh; width: 78%; max-width: 360px;
-  background: #ffffff; box-shadow: -6px 0 18px rgba(0,0,0,0.12); z-index: 999;
+  background: #ffffff; box-shadow: -6px 0 18px rgba(0,0,0,0.12); z-index: 1005;
   transform: translateX(100%); transition: transform 0.25s ease; padding: 24px 20px;
   display: flex; flex-direction: column; gap: 18px;
 }
@@ -241,43 +267,55 @@ html, body {
         <a class="navbar-brand" href="{% url 'home' %}">
           <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height:80px;" />
         </a>
-        <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="toggleDrawer()">
+        <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(); return false;">
           <i class="lni lni-menu"></i>
         </button>
 
         <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}"><i class="lni lni-home"></i> Home</a></li>
-            <li class="nav-item"><a class="page-scroll active" href="{% url 'products' %}"><i class="lni lni-graduation"></i> Courses</a></li>
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#about"><i class="lni lni-information"></i> About Us</a></li>
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#contact"><i class="lni lni-phone"></i> Contact</a></li>
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a></li>
+            <li class="nav-item"><a class="page-scroll active" href="{% url 'products' %}"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a></li>
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#about"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a></li>
+            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#contact"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a></li>
             <li class="nav-item">
-              <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> Payments</a>
+              <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
             </li>
           </ul>
+        </div>
+        <div class="lang-switcher ms-auto" style="margin-left:12px;">
+          <select class="lang-select" data-lang-select aria-label="Select language">
+            <option value="en">EN - English</option>
+            <option value="es">ES - Spanish</option>
+          </select>
         </div>
       </nav>
     </div>
   </section>
 
   <!-- Mobile Drawer Navigation -->
-  <div id="mobile-drawer-overlay" onclick="toggleDrawer(false)"></div>
+  <div id="mobile-drawer-overlay" onclick="window.toggleDrawer(false); return false;"></div>
   <div id="mobile-drawer">
     <div class="drawer-header">
       <div style="display:flex; align-items:center; gap:8px;">
         <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:50px; height:50px;">
         <div style="font-weight:700; color:#1a4272;">OncoOne</div>
       </div>
-      <button class="drawer-close" type="button" aria-label="Close navigation" onclick="toggleDrawer(false)">
+      <button class="drawer-close" type="button" aria-label="Close navigation" onclick="window.toggleDrawer(false); return false;">
         <i class="lni lni-close"></i>
       </button>
     </div>
-    <div class="drawer-nav">
-      <a class="page-scroll" href="{% url 'home' %}" onclick="toggleDrawer(false)"><i class="lni lni-home"></i> Home</a>
-      <a href="{% url 'products' %}" onclick="toggleDrawer(false)"><i class="lni lni-graduation"></i> Courses</a>
-      <a class="page-scroll" href="{% url 'home' %}#about" onclick="toggleDrawer(false)"><i class="lni lni-information"></i> About Us</a>
-      <a class="page-scroll" href="{% url 'home' %}#contact" onclick="toggleDrawer(false)"><i class="lni lni-phone"></i> Contact</a>
-      <a href="/api/payment/" onclick="toggleDrawer(false)"><i class="lni lni-credit-cards"></i> Payments</a>
+      <div class="drawer-nav">
+      <a class="page-scroll" href="{% url 'home' %}" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a>
+      <a href="{% url 'products' %}" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a>
+      <a class="page-scroll" href="{% url 'home' %}#about" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a>
+      <a class="page-scroll" href="{% url 'home' %}#contact" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a>
+      <a href="/api/payment/" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
+    </div>
+    <div class="lang-switcher-mobile" style="display:none; margin: 14px 0;">
+      <select class="lang-select" data-lang-select aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="es">ES - Spanish</option>
+      </select>
     </div>
     <div class="social-row">
       <a href="#"><i class="lni lni-facebook"></i></a>
@@ -290,8 +328,8 @@ html, body {
   <!-- MAIN COURSE HERO -->
   <section class="course-section" data-aos="fade-left" id="course">
     <div class="container">
-      <h1 class="section-title" style="text-align: center;">Oncology Esthetics Certification</h1>
-      <p class="text-center muted mb-4" style="max-width:880px; margin:0 auto;">
+      <h1 class="section-title" style="text-align: center;" data-i18n="products.title">Oncology Esthetics Certification</h1>
+      <p class="text-center muted mb-4" style="max-width:880px; margin:0 auto;" data-i18n="products.hero.summary">
         A 40-hour professional certification designed to train estheticians and allied professionals
         in safe, trauma-informed, oncology-focused skincare and client care.
       </p>
@@ -303,28 +341,28 @@ html, body {
             <div class="p-4">
               <div class="row g-3 align-items-center">
                 <div class="col-md-8">
-                  <h3 class="mb-2" style="color:#1a4272; font-weight:700;">Full Oncology Esthetics Certificate</h3>
-                  <p class="small-note mb-0">Duration: <strong>40 hours</strong> &nbsp;|&nbsp; Price: <strong>$1,999.00</strong></p>
+                  <h3 class="mb-2" style="color:#1a4272; font-weight:700;" data-i18n="products.full_certificate">Full Oncology Esthetics Certificate</h3>
+                  <p class="small-note mb-0" data-i18n="products.duration_price">Duration: <strong>40 hours</strong> &nbsp;|&nbsp; Price: <strong>$1,999.00</strong></p>
                 </div>
                 <div class="col-md-4 text-md-end">
-                  <a href="#register" class="btn btn-primary px-4 py-2">Register</a>
+                  <a href="#register" class="btn btn-primary px-4 py-2"><span data-i18n="btn.register">Register</span></a>
                 </div>
               </div>
 
               <hr class="my-4">
 
-              <h5 style="color:#1a4272;">What You Will Learn</h5>
+              <h5 style="color:#1a4272;" data-i18n="products.what_you_will_learn">What You Will Learn</h5>
               <ul class="muted" style="line-height:1.8; list-style-type: disc; padding-left: 20px;">
-                <li>Understanding cancer and treatment impacts across the body</li>
-                <li>Post-surgical skin and emotional recovery</li>
-                <li>Adapting esthetic protocols for oncology-safe practice</li>
-                <li>Lymphedema awareness & gentle lymphatic techniques</li>
-                <li>Ingredient safety, fragile skin protocols, oncology nail care</li>
-                <li>Emotional literacy & mental wellness in esthetic care</li>
-                <li>Featuring guest speakers: nurses, oncologists & survivor advocates</li>
+                <li data-i18n="products.learn.1">Understanding cancer and treatment impacts across the body</li>
+                <li data-i18n="products.learn.2">Post-surgical skin and emotional recovery</li>
+                <li data-i18n="products.learn.3">Adapting esthetic protocols for oncology-safe practice</li>
+                <li data-i18n="products.learn.4">Lymphedema awareness & gentle lymphatic techniques</li>
+                <li data-i18n="products.learn.5">Ingredient safety, fragile skin protocols, oncology nail care</li>
+                <li data-i18n="products.learn.6">Emotional literacy & mental wellness in esthetic care</li>
+                <li data-i18n="products.learn.7">Featuring guest speakers: nurses, oncologists & survivor advocates</li>
               </ul>
 
-              <p class="mt-3 muted"><strong>Featuring guest speakers</strong> including oncology nurses, oncologists, and survivor advocates.</p>
+              <p class="mt-3 muted" data-i18n-html="products.learn.note"><strong>Featuring guest speakers</strong> including oncology nurses, oncologists, and survivor advocates.</p>
             </div>
           </div>
         </div>
@@ -339,41 +377,41 @@ html, body {
 
         <div class="col-md-4">
           <div class="card p-4 h-100">
-            <h4>👩‍⚕️ About the Instructor</h4>
-            <p class="muted">Marilyn — certified medical esthetics instructor, cancer survivor & advocate with 20+ years experience.</p>
+            <h4 data-i18n="products.instructor.title">👩‍⚕️ About the Instructor</h4>
+            <p class="muted" data-i18n="products.instructor.subtitle">Marilyn — certified medical esthetics instructor, cancer survivor & advocate with 20+ years experience.</p>
             <ul style="color:#33495f;">
-              <li>Certified Nutritionist & Medical Esthetics Expert</li>
-              <li>20+ years in skincare & oncology esthetics</li>
-              <li>Author of Nonna Ma's Cancer Survivor Cookbook</li>
+              <li data-i18n="products.instructor.1">Certified Nutritionist & Medical Esthetics Expert</li>
+              <li data-i18n="products.instructor.2">20+ years in skincare & oncology esthetics</li>
+              <li data-i18n="products.instructor.5">Author of Nonna Ma's Cancer Survivor Cookbook</li>
             </ul>
           </div>
         </div>
 
         <div class="col-md-4">
           <div class="card p-4 h-100">
-            <h4>🎓 Who Should Join?</h4>
-            <p class="muted">Designed for professionals passionate about compassionate oncology esthetic care.</p>
+            <h4 data-i18n="products.audience.title">🎓 Who Should Join?</h4>
+            <p class="muted" data-i18n="products.audience.subtitle">Designed for professionals passionate about compassionate oncology esthetic care.</p>
             <ul style="color:#33495f;">
-              <li>Medical estheticians & spa professionals</li>
-              <li>Nurses & skincare therapists</li>
-              <li>Students & transitioning professionals</li>
-              <li>Anyone passionate about holistic wellness</li>
+              <li data-i18n="products.audience.1">Medical estheticians & spa professionals</li>
+              <li data-i18n="products.audience.2">Nurses & skincare therapists</li>
+              <li data-i18n="products.audience.3">Students & transitioning professionals</li>
+              <li data-i18n="products.audience.4">Anyone passionate about holistic wellness</li>
             </ul>
           </div>
         </div>
 
         <div class="col-md-4">
           <div class="card p-4 h-100">
-            <h4>📍 Format & Delivery</h4>
-            <p class="muted">Hands-on, in-person training plus expert talks.</p>
+            <h4 data-i18n="products.delivery.title">📍 Format & Delivery</h4>
+            <p class="muted" data-i18n="products.delivery.subtitle">Hands-on, in-person training plus expert talks.</p>
             <ul style="color:#33495f;">
-              <li>Duration: 40 hours (certification)</li>
-              <li>Hands-on, in-person practice</li>
-              <li>Guest speakers & real-world case studies</li>
-              <li>Certificate awarded upon successful completion</li>
+              <li data-i18n-html="products.delivery.duration">Duration: 40 hours (certification)</li>
+              <li data-i18n="products.delivery.practice">Hands-on, in-person practice</li>
+              <li data-i18n="products.delivery.speakers">Guest speakers & real-world case studies</li>
+              <li data-i18n="products.delivery.certificate">Certificate awarded upon successful completion</li>
             </ul>
             <ol>
-              <li><strong>Tuesday and Thursday 5-9 for 6 weeks OR Saturday 9-5 for 6 weeks. </strong></li>
+              <li data-i18n-html="products.delivery.schedule"><strong>Tuesday and Thursday 5-9 for 6 weeks OR Saturday 9-5 for 6 weeks.</strong></li>
             </ol>
           </div>
         </div>
@@ -384,28 +422,28 @@ html, body {
   <!-- ELIGIBILITY -->
   <section id="eligibility" class="py-5" data-aos="fade-left">
     <div class="container">
-      <h2 class="section-title" style="text-align: center;">Prerequisite Requirement</h2>
+      <h2 class="section-title" style="text-align: center;" data-i18n="products.prerequisite.title">Prerequisite Requirement</h2>
 
       <div class="row justify-content-center">
         <div class="col-lg-10">
           <div class="card p-4">
-            <h5 style="color:#1a4272;">Before you enroll</h5>
-            <p class="muted">
+            <h5 style="color:#1a4272;" data-i18n="products.prerequisite.heading">Before you enroll</h5>
+            <p class="muted" data-i18n-html="products.prerequisite.description">
               To ensure safe, ethical, and trauma-informed care, all students must meet <strong>one</strong> of the following before enrolling in the Oncology Esthetics Certification:
             </p>
             <ul style="color:#33495f; line-height:1.8;">
-              <li>A certificate or diploma in esthetics or a related field.</li>
-              <li>A letter from an employer verifying hands-on esthetics experience.</li>
-              <li>Completion of our <strong>Pre-Certificate Bridge Course</strong> for those without formal training.</li>
+              <li data-i18n="products.prerequisite.item.1">A certificate or diploma in esthetics or a related field.</li>
+              <li data-i18n="products.prerequisite.item.2">A letter from an employer verifying hands-on esthetics experience.</li>
+              <li data-i18n-html="products.prerequisite.item.3">Completion of our <strong>Pre-Certificate Bridge Course</strong> for those without formal training.</li>
             </ul>
 
-            <p class="small-note mt-3">
+            <p class="small-note mt-3" data-i18n-html="products.prerequisite.note">
               <strong>Upload Proof of Prerequisite</strong> is required during registration. Accepted formats: <strong>PDF, JPG, PNG</strong>. Max file size: <strong>5MB</strong>.
             </p>
 
             <div class="mt-3">
-              <a href="#register" class="btn btn-primary">Proceed to Registration</a>
-              <a href="#bridge-course" class="btn btn-outline-primary ms-2">View Bridge Course</a>
+              <a href="#register" class="btn btn-primary" data-i18n="products.prerequisite.button.register">Proceed to Registration</a>
+              <a href="#bridge-course" class="btn btn-outline-primary ms-2" data-i18n="products.prerequisite.button.bridge">View Bridge Course</a>
             </div>
           </div>
         </div>
@@ -416,36 +454,36 @@ html, body {
   <!-- BRIDGE COURSE SECTION (NEW) -->
   <section id="bridge-course" class="py-5" data-aos="fade-right">
     <div class="container">
-      <h2 class="section-title" style="text-align: center;">Pre-Certificate Bridge Course</h2>
+      <h2 class="section-title" style="text-align: center;" data-i18n="products.bridge.title">Pre-Certificate Bridge Course</h2>
       <div class="row justify-content-center">
         <div class="col-lg-10">
           <div class="card p-4">
-            <h3 class="mb-3">Bridge Course Overview</h3>
-            <p class="muted">
+            <h3 class="mb-3" data-i18n="products.bridge.overview.title">Bridge Course Overview</h3>
+            <p class="muted" data-i18n-html="products.bridge.overview.description">
               Don't have a certificate or formal esthetics training? No problem.<br>
               Our <strong>Pre-Certificate Bridge Course</strong> is designed to prepare you with the foundational
               knowledge needed to enter the Oncology Esthetics Certification.
             </p>
 
             <ul class="muted" style="line-height:1.8;">
-              <li><strong>Duration:</strong> 20 hours</li>
-              <li><strong>Format:</strong> In-person training</li>
-              <li><strong>Scheduling Options:</strong> 3 Saturdays or 5 evenings (final schedule based on availability)</li>
-              <li><strong>Price:</strong> $745.00 + Roots & Release Kit</li>
-              <li><strong>Certification:</strong> Certificate of Completion included</li>
+              <li data-i18n-html="products.bridge.detail.duration"><strong>Duration:</strong> 20 hours</li>
+              <li data-i18n-html="products.bridge.detail.format"><strong>Format:</strong> In-person training</li>
+              <li data-i18n-html="products.bridge.detail.schedule"><strong>Scheduling Options:</strong> 3 Saturdays or 5 evenings (final schedule based on availability)</li>
+              <li data-i18n-html="products.bridge.detail.price"><strong>Price:</strong> $745.00 + Roots & Release Kit</li>
+              <li data-i18n-html="products.bridge.detail.certification"><strong>Certification:</strong> Certificate of Completion included</li>
             </ul>
 
-            <h5 class="mt-4">Course Includes:</h5>
+            <h5 class="mt-4" data-i18n="products.bridge.includes.title">Course Includes:</h5>
             <ul class="muted" style="line-height:1.8;">
-              <li>Skin Anatomy & Facial Mapping</li>
-              <li>Product Safety & Technique Awareness</li>
-              <li>Infection Control & Professional Image</li>
-              <li>Common Skin Conditions & Treatment Awareness</li>
-              <li>Final Quiz & Certification</li>
+              <li data-i18n="products.bridge.includes.1">Skin Anatomy & Facial Mapping</li>
+              <li data-i18n="products.bridge.includes.2">Product Safety & Technique Awareness</li>
+              <li data-i18n="products.bridge.includes.3">Infection Control & Professional Image</li>
+              <li data-i18n="products.bridge.includes.4">Common Skin Conditions & Treatment Awareness</li>
+              <li data-i18n="products.bridge.includes.5">Final Quiz & Certification</li>
             </ul>
 
             <div class="mt-3 text-end" >
-              <a href="#register" class="btn btn-outline-primary px-4 py-2" >Register for Bridge Course</a>
+              <a href="#register" class="btn btn-outline-primary px-4 py-2" data-i18n="products.bridge.button.register">Register for Bridge Course</a>
             </div>
           </div>
         </div>
@@ -456,14 +494,14 @@ html, body {
   <!-- REGISTRATION -->
   <section id="register" class="py-5" data-aos="fade-left">
     <div class="container">
-      <h2 class="section-title" style="text-align: center;">Register for the Course</h2>
+      <h2 class="section-title" style="text-align: center;" data-i18n="products.registration.title">Register for the Course</h2>
 
       <div class="row justify-content-center">
         <div class="col-lg-7">
           <div class="card p-4">
 
-            <h4 class="mb-3" style="color:#1a4272;">Registration</h4>
-            <p class="muted">Please tell us whether you meet the prerequisite qualification below.</p>
+            <h4 class="mb-3" style="color:#1a4272;" data-i18n="products.registration.heading">Registration</h4>
+            <p class="muted" data-i18n="products.registration.description">Please tell us whether you meet the prerequisite qualification below.</p>
 
             <form id="registerForm" enctype="multipart/form-data" novalidate>
               <!-- Hidden qualification flag to satisfy backend defaults -->
@@ -471,85 +509,85 @@ html, body {
 
               <!-- Course Selection -->
               <div class="mb-3">
-                <label class="form-label">Which course would you like to register for? <span class="required-star">*</span></label>
+                <label class="form-label" data-i18n-html="products.registration.course_question">Which course would you like to register for? <span class="required-star">*</span></label>
                 <!-- Default: Bridge Course selected -->
                 <div class="form-check">
                   <input class="form-check-input course-option" type="radio" name="course" id="courseBridge" value="Pre-Certificate Bridge Course" checked>
                   <label class="form-check-label" for="courseBridge">
-                    <strong>Pre-Certificate Bridge Course</strong> (For those without esthetics certification)
+                    <strong data-i18n="products.registration.course.bridge.title">Pre-Certificate Bridge Course</strong> <span data-i18n="products.registration.course.bridge.subtitle">(For those without esthetics certification)</span>
                   </label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input course-option" type="radio" name="course" id="courseOncology" value="Oncology Esthetics Certificate" required>
                   <label class="form-check-label" for="courseOncology">
-                    <strong>Oncology Esthetics Certificate</strong> (Full Program - Requires prerequisite)
+                    <strong data-i18n="products.registration.course.oncology.title">Oncology Esthetics Certificate</strong> <span data-i18n="products.registration.course.oncology.subtitle">(Full Program - Requires prerequisite)</span>
                   </label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input course-option" type="radio" name="course" id="courseWorkshop" value="Cancer Nutrition Workshop" {% if workshop_sold_out %}disabled{% endif %}>
                   <label class="form-check-label" for="courseWorkshop">
-                    <strong>Cancer Nutrition Workshop</strong> (One-day seminar - 20 seats only)
-                    {% if workshop_sold_out %}<span style="color:#dc3545; font-weight:600;"> - SOLD OUT</span>{% endif %}
+                    <strong data-i18n="products.registration.course.workshop.title">Cancer Nutrition Workshop</strong> <span data-i18n="products.registration.course.workshop.subtitle">(One-day seminar - 20 seats only)</span>
+                    {% if workshop_sold_out %}<span style="color:#dc3545; font-weight:600;" data-i18n="products.registration.course.workshop.sold_out"> - SOLD OUT</span>{% endif %}
                   </label>
                 </div>
               </div>
 
               <!-- Prerequisite Qualification (Only for Oncology Certificate) -->
               <div class="mb-3" id="qualificationContainer" style="display:none;">
-                <label class="form-label">Do you have the above-mentioned qualifications? <span class="required-star">*</span></label>
+                <label class="form-label" data-i18n-html="products.registration.qualification_question">Do you have the above-mentioned qualifications? <span class="required-star">*</span></label>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="hasQualification" id="qualYes" value="yes" required>
-                  <label class="form-check-label" for="qualYes">Yes — I have a certificate / employer verification</label>
+                  <label class="form-check-label" for="qualYes" data-i18n="products.registration.qualification.yes">Yes — I have a certificate / employer verification</label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="hasQualification" id="qualNo" value="no">
-                  <label class="form-check-label" for="qualNo">No — I do not have prerequisites (will suggest Bridge Course)</label>
+                  <label class="form-check-label" for="qualNo" data-i18n="products.registration.qualification.no">No — I do not have prerequisites (will suggest Bridge Course)</label>
                 </div>
               </div>
 
               <!-- File upload only visible if user selects YES -->
               <div class="mb-3" id="proofContainer" style="display:none;">
-                <label for="proof" class="form-label">Upload Proof of Prerequisite <span class="required-star">*</span></label>
+                <label for="proof" class="form-label" data-i18n-html="products.registration.proof_label">Upload Proof of Prerequisite <span class="required-star">*</span></label>
                 <input type="file" name="proof" id="proof" class="form-control" accept=".pdf, image/jpeg, image/png" />
-                <div id="proofHelp" class="form-text">Accepted formats: PDF, JPG, PNG — Max size: 5MB.</div>
+                <div id="proofHelp" class="form-text" data-i18n="products.registration.proof_help">Accepted formats: PDF, JPG, PNG — Max size: 5MB.</div>
               </div>
 
               <!-- Bridge Course note (only shows when NO is selected) -->
-              <p id="bridgeNote" class="muted" style="display:none; font-weight:600; background-color:#f0f4f8; padding:10px; border-left:3px solid #1a4272;">
+              <p id="bridgeNote" class="muted" style="display:none; font-weight:600; background-color:#f0f4f8; padding:10px; border-left:3px solid #1a4272;" data-i18n-html="products.registration.bridge_note">
                 💡 You don't have a certificate. You can take our <strong>Pre-Certificate Bridge Course</strong> first, or register for both!
               </p>
 
               <!-- Contact fields -->
               <div class="mb-3">
-                <label for="name" class="form-label">Full Name <span class="required-star">*</span></label>
+                <label for="name" class="form-label" data-i18n="form.full_name">Full Name <span class="required-star">*</span></label>
                 <input type="text" id="name" name="name" class="form-control" required>
               </div>
 
               <div class="mb-3">
-                <label for="email" class="form-label">Email Address <span class="required-star">*</span></label>
+                <label for="email" class="form-label" data-i18n="form.email">Email Address <span class="required-star">*</span></label>
                 <input type="email" id="email" name="email" class="form-control" required>
               </div>
 
               <div class="mb-3">
-                <label for="contact" class="form-label">Contact Number <span class="required-star">*</span></label>
+                <label for="contact" class="form-label" data-i18n-html="products.registration.contact_label">Contact Number <span class="required-star">*</span></label>
                 <input type="text" id="contact" name="contact" class="form-control" required>
               </div>
 
               <div class="mb-3">
-                <label for="referralSourceCourse" class="form-label">How did you hear about us? <span class="required-star">*</span></label>
+                <label for="referralSourceCourse" class="form-label" data-i18n-html="products.registration.referral_label">How did you hear about us? <span class="required-star">*</span></label>
                 <select id="referralSourceCourse" name="referral_source" class="form-control" required onchange="document.getElementById('referralOtherBoxCourse').style.display = this.value === 'other' ? 'block' : 'none';">
-                  <option value="" selected disabled>Select an option</option>
-                  <option value="social_media">Social Media (Facebook, Instagram)</option>
-                  <option value="friend_family">Friend / Family Recommendation</option>
-                  <option value="website_blog">Website / Blog</option>
-                  <option value="webinar_workshop">Webinar / Workshop</option>
-                  <option value="school_university">School / University</option>
-                  <option value="other">Other (Please specify)</option>
+                  <option value="" selected disabled data-i18n="products.registration.referral.select_option">Select an option</option>
+                  <option value="social_media" data-i18n="products.registration.referral.option.social">Social Media (Facebook, Instagram)</option>
+                  <option value="friend_family" data-i18n="products.registration.referral.option.friend">Friend / Family Recommendation</option>
+                  <option value="website_blog" data-i18n="products.registration.referral.option.website">Website / Blog</option>
+                  <option value="webinar_workshop" data-i18n="products.registration.referral.option.webinar">Webinar / Workshop</option>
+                  <option value="school_university" data-i18n="products.registration.referral.option.school">School / University</option>
+                  <option value="other" data-i18n="products.registration.referral.option.other">Other (Please specify)</option>
                 </select>
-                <input type="text" id="referralOtherBoxCourse" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255">
+                <input type="text" id="referralOtherBoxCourse" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255" data-i18n-attr="placeholder:products.registration.referral.other_placeholder">
               </div>
               <div class="d-grid gap-2">
-                <button type="submit" id="submitBtn" class="btn btn-primary">Submit Registration</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary" data-i18n="products.registration.submit">Submit Registration</button>
               </div>
             </form>
 
@@ -557,7 +595,7 @@ html, body {
 
           <!-- small note about book -->
           <div class="mt-3 text-center">
-            <p class="muted mb-0">🎁 <strong>Nonna Ma's Cancer Survivor Cookbook</strong> is complimentary upon course registration.</p>
+            <p class="muted mb-0" data-i18n-html="products.book.note">🎁 <strong>Nonna Ma's Cancer Survivor Cookbook</strong> is complimentary upon course registration.</p>
           </div>
 
         </div>
@@ -568,7 +606,7 @@ html, body {
   <!-- BOOK SECTION -->
   <section class="book-section" id="book" data-aos="fade-left">
     <div class="container">
-      <h2 class="section-title" style="color:#1a4272; text-align: center;">Nonna Ma's Cancer Survivor Cookbook</h2>
+      <h2 class="section-title" style="color:#1a4272; text-align: center;" data-i18n="products.book.title">Nonna Ma's Cancer Survivor Cookbook</h2>
       <div class="row align-items-center">
         <div class="col-lg-6 mb-4 mb-lg-0">
           <div style="width:100%; height:320px; overflow:hidden; border-radius:12px;">
@@ -576,8 +614,8 @@ html, body {
           </div>
         </div>
         <div class="col-lg-6">
-          <h3 class="mb-3" style="color:#1a4272;">"The Art of Modern Aesthetics"</h3>
-          <p style="font-size:16px; line-height:1.6;">
+          <h3 class="mb-3" style="color:#1a4272;" data-i18n="products.book.subtitle">"The Art of Modern Aesthetics"</h3>
+          <p style="font-size:16px; line-height:1.6;" data-i18n="products.book.description">
             Dive into the science and artistry of oncology-focused esthetics with this practical cookbook and guide.
             Complimentary for all students who register for any full or bridge course.
           </p>
@@ -591,7 +629,7 @@ html, body {
     <div class="container">
       <div class="row text-center text-lg-start align-items-center">
         <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
-          <p style="margin: 0; font-size: 16px;">© 2025 <b>OncoOne</b>. All rights reserved.</p>
+          <p style="margin: 0; font-size: 16px;" data-i18n="footer.copy">© 2025 OncoOne. All rights reserved.</p>
         </div>
         <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
           <div class="social-links d-flex justify-content-center gap-3">
@@ -601,21 +639,22 @@ html, body {
           </div>
         </div>
         <div class="col-lg-4 col-md-12">
-          <p style="margin: 0; font-size: 14px;">Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span></p>
+          <p style="margin: 0; font-size: 14px;" data-i18n-html="footer.powered_by">Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span></p>
         </div>
       </div>
       <div class="row mt-3">
         <div class="col-12 text-center">
-          <p style="margin: 0; font-size: 15px; color: #dfe4eb;">Empowering Post-Cancer Thriving</p>
+          <p style="margin: 0; font-size: 15px; color: #dfe4eb;" data-i18n="empowering.tagline">Empowering Post-Cancer Thriving</p>
         </div>
       </div>
     </div>
   </footer>
 
   <script>
-    function toggleDrawer(forceState) {
+    window.toggleDrawer = function(forceState) {
       const drawer = document.getElementById('mobile-drawer');
       const overlay = document.getElementById('mobile-drawer-overlay');
+      if (!drawer || !overlay) return;
       const willOpen = forceState === undefined ? !drawer.classList.contains('open') : forceState;
       if (willOpen) {
         drawer.classList.add('open');
@@ -624,7 +663,15 @@ html, body {
         drawer.classList.remove('open');
         overlay.classList.remove('open');
       }
-    }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButtons = document.querySelectorAll('.mobile-drawer-toggle');
+      toggleButtons.forEach(button => button.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.toggleDrawer();
+      }));
+    });
   </script>
 
   <a href="#" class="scroll-top btn-hover"><i class="lni lni-chevron-up"></i></a>
@@ -768,7 +815,7 @@ html, body {
           alert('Error: ' + (err.message || 'Submission failed. Please try again.'));
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit Registration';
+          submitBtn.textContent = I18n.t('products.registration.submit');
         }
       });
 
@@ -777,6 +824,13 @@ html, body {
       hasQualificationHidden.value = 'no';
       updateCourseUI();
     })();
+  </script>
+
+  <script src="{% static 'assets/js/i18n.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      I18n.init();
+    });
   </script>
 
   <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>

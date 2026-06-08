@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
   <!--====== Title ======-->
-  <title>OncoOne | Aesthetic School</title>
+  <title data-i18n="page.title">OncoOne | Aesthetic School</title>
 
   <!--====== Favicon Icon ======-->
   <link rel="shortcut icon" href="{% static 'assets/images/logos.png' %}" type="image/png" />
@@ -63,6 +63,8 @@
   color: #1a4272;
   font-size: 22px;
   line-height: 1;
+  position: relative;
+  z-index: 10050;
 }
 
 @media (max-width: 991px) {
@@ -74,6 +76,7 @@
   }
   /* hide default collapse button */
   .navbar-toggler { display: none !important; }
+  .navbar-area .collapse.navbar-collapse { display: none !important; }
 }
 
 /* Right-side mobile drawer */
@@ -81,7 +84,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
-  z-index: 998;
+  z-index: 1004;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -96,7 +99,7 @@
   max-width: 360px;
   background: #ffffff;
   box-shadow: -6px 0 18px rgba(0,0,0,0.12);
-  z-index: 999;
+  z-index: 1005;
   transform: translateX(100%);
   transition: transform 0.25s ease;
   padding: 24px 20px;
@@ -176,6 +179,32 @@
 .navbar-area.navbar-nine .navbar-nav .nav-item a.active {
   background: #1a4272;
   color: #fff;
+}
+
+/* Language switcher */
+.lang-switcher { display:inline-flex; align-items:center; gap:8px; }
+.lang-switcher .lang-select {
+  border: 1px solid #c4d1e9;
+  background: white;
+  color: #1a4272;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 110px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.lang-switcher .lang-select:focus {
+  border-color: #1a4272;
+  outline: none;
+  box-shadow: 0 0 0 0.15rem rgba(26,66,114,0.25);
+}
+.lang-switcher .lang-btn { background: none; border: none; cursor: pointer; padding: 6px 8px; color: #1a4272; font-weight:600; }
+.lang-switcher .lang-btn.active { font-weight: 800; text-decoration: underline; }
+
+@media (max-width: 991px) {
+  .navbar-area .lang-switcher { display: none !important; }
+  #mobile-drawer .lang-switcher-mobile { display: flex; }
 }
 
 /* Reduce hero image cropping on mobile */
@@ -511,29 +540,35 @@ html, body {
               <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height: 80px;" />
             </a>
             <!-- Mobile drawer toggle -->
-            <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="toggleDrawer()">
+            <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(); return false;">
               <i class="lni lni-menu"></i>
             </button>
 
             <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
               <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                  <a class="page-scroll active" href="#hero-area"><i class="lni lni-home"></i> Home</a>
+                  <a class="page-scroll active" href="#hero-area"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a>
                 </li>
                 <li class="nav-item">
-                  <a href="{% url 'products' %}"><i class="lni lni-graduation"></i> Courses</a>
+                  <a href="{% url 'products' %}"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a>
                 </li>
 
                 <li class="nav-item">
-                  <a class="page-scroll" href="#about"><i class="lni lni-information"></i> About Us</a>
+                  <a class="page-scroll" href="#about"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a>
                 </li>
                 <li class="nav-item">
-                  <a class="page-scroll" href="#contact"><i class="lni lni-phone"></i> Contact</a>
+                  <a class="page-scroll" href="#contact"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a>
                 </li>
                 <li class="nav-item">
-                  <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> Payments</a>
+                  <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
                 </li>
               </ul>
+              <div class="lang-switcher ms-auto" style="margin-left:12px;">
+                <select class="lang-select" data-lang-select aria-label="Select language">
+                  <option value="en">EN - English</option>
+                  <option value="es">ES - Spanish</option>
+                </select>
+              </div>
             </div>
           </nav>
           <!-- navbar -->
@@ -547,23 +582,29 @@ html, body {
   <!--====== NAVBAR NINE PART ENDS ======-->
 
   <!-- Mobile Drawer Navigation -->
-  <div id="mobile-drawer-overlay" onclick="toggleDrawer(false)"></div>
+  <div id="mobile-drawer-overlay" onclick="window.toggleDrawer(false); return false;"></div>
   <div id="mobile-drawer">
     <div class="drawer-header">
       <div style="display:flex; align-items:center; gap:8px;">
         <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:50px; height:50px;">
         <div style="font-weight:700; color:#1a4272;">OncoOne</div>
       </div>
-      <button class="drawer-close" type="button" aria-label="Close navigation" onclick="toggleDrawer(false)">
+      <button class="drawer-close" type="button" aria-label="Close navigation" onclick="window.toggleDrawer(false); return false;">
         <i class="lni lni-close"></i>
       </button>
     </div>
-    <div class="drawer-nav">
-      <a class="page-scroll" href="#hero-area" onclick="toggleDrawer(false)"><i class="lni lni-home"></i> Home</a>
-      <a href="{% url 'products' %}" onclick="toggleDrawer(false)"><i class="lni lni-graduation"></i> Courses</a>
-      <a class="page-scroll" href="#about" onclick="toggleDrawer(false)"><i class="lni lni-information"></i> About Us</a>
-      <a class="page-scroll" href="#contact" onclick="toggleDrawer(false)"><i class="lni lni-phone"></i> Contact</a>
-      <a href="/api/payment/" onclick="toggleDrawer(false)"><i class="lni lni-credit-cards"></i> Payments</a>
+      <div class="drawer-nav">
+      <a class="page-scroll" href="#hero-area" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a>
+      <a href="{% url 'products' %}" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a>
+      <a class="page-scroll" href="#about" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a>
+      <a class="page-scroll" href="#contact" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a>
+      <a href="/api/payment/" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
+    </div>
+    <div class="lang-switcher-mobile" style="display:none; margin: 14px 0;">
+      <select class="lang-select" data-lang-select aria-label="Select language">
+        <option value="en">EN - English</option>
+        <option value="es">ES - Spanish</option>
+      </select>
     </div>
     <div class="social-row">
       <a href="https://www.facebook.com/share/1BiWw5nUEg/" target="_blank" rel="noopener" aria-label="Facebook"><i class="lni lni-facebook"></i></a>
@@ -589,9 +630,9 @@ html, body {
       
       <div class="col-lg-6 col-md-12 col-12">
         <div id="hero-text">
-          <h1 style="color: black; font-weight: 700; font-size: 3rem; text-shadow: black;">"Canada's First Survivor-Led Oncology Esthetics Certificate"</h1>
+          <h1 style="color: black; font-weight: 700; font-size: 3rem; text-shadow: black;"><span data-i18n="hero.title">"Canada's First Survivor-Led Oncology Esthetics Certificate"</span></h1>
           <p style="color: black; padding-top: 15px; font-size: 1.875rem;">
-            Empowering estheticians to care with skill, safety, and soul.
+            <span data-i18n="hero.subtitle">Empowering estheticians to care with skill, safety, and soul.</span>
           </p>
 
           <div class="button-a mt-4 d-flex gap-3">
@@ -601,7 +642,7 @@ html, body {
                style="background-color: white; color: #1a4272; border-radius: 25px; padding: 12px 25px; font-weight: 600;"
                onmouseover="this.style.backgroundColor='#1a4272'; this.style.color='white';"
                onmouseout="this.style.backgroundColor='white'; this.style.color='#1a4272';">
-              Enroll now
+              <span data-i18n="hero.cta">Enroll now</span>
             </a>
           </div>
 
@@ -631,20 +672,19 @@ html, body {
       <div class="col-lg-8 col-md-12" style="display: flex; align-items: center; padding-left: 40px;">
         <div>
           <h2 style="font-family: 'Playfair Display', Georgia, serif; font-weight: 900; font-size: 2.8rem; color: #000; margin-bottom: 16px; line-height: 1.1;">
-            Watch Our Founder on the Beauty Babble Podcast
-          </h2>
+              <span data-i18n="watch.founder.title">Watch Our Founder on the Beauty Babble Podcast</span>
+            </h2>
 
-          <p style="font-size: 1.15rem; color: #1a4272; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 20px; line-height: 1.6; font-weight: 500;">
-            Inspire, educate, and transform your understanding with a survivor-led perspective.
-          </p>
-
-          <p style="font-size: 1.01rem; color: #555; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 32px; line-height: 1.8;">
+            <p style="font-size: 1.15rem; color: #1a4272; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 20px; line-height: 1.6; font-weight: 500;">
+              <span data-i18n="watch.founder.subtitle">Inspire, educate, and transform your understanding with a survivor-led perspective.</span>
+            </p>
+          <p style="font-size: 1.01rem; color: #555; font-family: 'Source Sans 3', Arial, sans-serif; margin-bottom: 32px; line-height: 1.8;" data-i18n="watch.founder.summary">
             Founder Marilyn Sepe joined the Beauty Babble podcast to discuss oncology esthetics, compassionate client care, and advancing safe, trauma-informed support for individuals undergoing cancer treatment.
           </p>
 
           <div class="d-flex justify-content-start">
             <a href="https://www.youtube.com/watch?v=iu0r2XCqWDU" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #007bff; color: #ffffff; border: none; border-radius: 50px; padding: 14px 40px; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(0, 123, 255, 0.35);" onmouseover="this.style.backgroundColor='#0056b3'; this.style.boxShadow='0 8px 28px rgba(0, 123, 255, 0.45)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.backgroundColor='#007bff'; this.style.boxShadow='0 6px 20px rgba(0, 123, 255, 0.35)'; this.style.transform='translateY(0)';">
-              Watch Now on YouTube
+              <span data-i18n="watch.now">Watch Now on YouTube</span>
             </a>
           </div>
         </div>
@@ -668,13 +708,13 @@ html, body {
           </div>
         </div>
         <div class="col-md-7">
-          <h2 class="mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 800;">Book a Speaking Session</h2>
-          <div style="font-size: 1.08rem; font-weight: 500; color: #1a4272; margin-bottom: 18px;">Inspire, educate, and transform your audience with a survivor-led voice.</div>
-          <div style="font-size: 1.01rem; color: #23395d; font-family: 'Source Sans 3', Arial, sans-serif; max-width: 420px;">
+          <h2 class="mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-weight: 800;"><span data-i18n="speaking.book">Book a Speaking Session</span></h2>
+          <div style="font-size: 1.08rem; font-weight: 500; color: #1a4272; margin-bottom: 18px;"><span data-i18n="speaking.subtitle">Inspire, educate, and transform your audience with a survivor-led voice.</span></div>
+          <div style="font-size: 1.01rem; color: #23395d; font-family: 'Source Sans 3', Arial, sans-serif; max-width: 420px;" data-i18n="speaking.description">
             Marilyn is a cancer advocate, motivational speaker, and founder of OncoOne Aesthetic School. Her talks uplift, empower, and inspire audiences with hope and practical knowledge.
           </div>
           <div class="d-flex justify-content-start mt-4">
-            <a href="#" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#speakingSessionModal" style="border-radius: 25px; padding: 12px 38px; font-weight: 700; font-size: 1.15rem;">Book Session</a>
+            <a href="#" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#speakingSessionModal" style="border-radius: 25px; padding: 12px 38px; font-weight: 700; font-size: 1.15rem;"><span data-i18n="speaking.button">Book Session</span></a>
           </div>
         </div>
       </div>
@@ -854,7 +894,7 @@ html, body {
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content speaking-modal">
         <div class="modal-header speaking-modal-header">
-          <h4 class="modal-title speaking-modal-title" id="speakingSessionModalLabel">Book Your Session</h4>
+          <h4 class="modal-title speaking-modal-title" id="speakingSessionModalLabel" data-i18n="speaking.modal.title">Book Your Session</h4>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body speaking-modal-body">
@@ -864,53 +904,53 @@ html, body {
             <div id="speaking-session-error" class="alert alert-danger mb-3" style="display:none;"></div>
             <div class="row g-4 align-items-stretch" style="margin-bottom: 0.5rem;">
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_name" class="form-label">Full Name *</label>
+                <label for="id_name" class="form-label"><span data-i18n="form.full_name">Full Name</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.name }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_email" class="form-label">Email Address *</label>
+                <label for="id_email" class="form-label"><span data-i18n="form.email">Email Address</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.email }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_phone" class="form-label">Phone Number</label>
+                <label for="id_phone" class="form-label"><span data-i18n="form.phone">Phone Number</span></label>
                 {{ speaking_session_form.phone }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_session_for" class="form-label">Who is this session for? *</label>
+                <label for="id_session_for" class="form-label"><span data-i18n="form.session_for">Who is this session for?</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.session_for }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_session_type" class="form-label">Session Type *</label>
+                <label for="id_session_type" class="form-label"><span data-i18n="form.session_type">Session Type</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.session_type }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_mode" class="form-label">Preferred Mode *</label>
+                <label for="id_mode" class="form-label"><span data-i18n="form.mode">Preferred Mode</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.mode }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_date" class="form-label">Preferred Date *</label>
+                <label for="id_date" class="form-label"><span data-i18n="form.date">Preferred Date</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.date }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_time" class="form-label">Preferred Time *</label>
+                <label for="id_time" class="form-label"><span data-i18n="form.time">Preferred Time</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.time }}
               </div>
               <div class="col-12 col-md-6 d-flex flex-column justify-content-end">
-                <label for="id_participants" class="form-label">Number of Participants</label>
+                <label for="id_participants" class="form-label"><span data-i18n="form.participants">Number of Participants</span></label>
                 {{ speaking_session_form.participants }}
               </div>
               <div class="col-12 col-md-6">
-                <label for="id_purpose" class="form-label">Purpose of Booking *</label>
+                <label for="id_purpose" class="form-label"><span data-i18n="form.purpose">Purpose of Booking</span> <span class="required-star">*</span></label>
                 {{ speaking_session_form.purpose }}
               </div>
               <div class="col-12 notes-section" style="padding-right:0;">
-                <label for="id_notes" class="form-label">Additional Notes</label>
+                <label for="id_notes" class="form-label"><span data-i18n="form.notes">Additional Notes</span></label>
                 {{ speaking_session_form.notes }}
               </div>
               <div class="col-12 d-grid mt-2">
                 <button type="submit" id="speakingSessionSubmitBtn" class="btn btn-primary btn-lg">
-                  <span class="speaking-submit-label">Book Session</span>
-                  <span class="speaking-submit-loading" style="display:none;">Booking ...</span>
+                  <span class="speaking-submit-label" data-i18n="form.book_button">Book Session</span>
+                  <span class="speaking-submit-loading" style="display:none;" data-i18n="speaking.loading">Booking ...</span>
                 </button>
               </div>
               {% if ss_error_msg %}
@@ -1077,8 +1117,8 @@ html, body {
 <section id="workshop-announcement" class="announcement-section" data-aos="fade-up">
   <div class="container" style="max-width: 1200px;">
     <div class="announcement-card">
-      <span class="announcement-badge">Workshop Announcement</span>
-      <h3 class="announcement-title" id="announcementTitle">Survivor-Led Cancer Nutrition Workshop</h3>
+      <span class="announcement-badge" data-i18n="announcement.badge">Workshop Announcement</span>
+      <h3 class="announcement-title" id="announcementTitle" data-i18n="announcement.title">Survivor-Led Cancer Nutrition Workshop</h3>
       <div class="announcement-subtitle">
         What Cancer Does to the Body - Why Nutrition Matters During & After Treatment - A Survivor Perspective
       </div>
@@ -1091,21 +1131,21 @@ html, body {
         Our 6 weeks course begins soon. Join the waiting list.
       </div>
       <ul class="announcement-list">
-        <li>How cancer affects the body</li>
-        <li>Why nutrition matters during and after treatment</li>
-        <li>What truly helps from someone who has lived it</li>
-        <li>Practical, safe ways to support people with cancer</li>
+        <li><span data-i18n="announcement.list.1">How cancer affects the body</span></li>
+        <li><span data-i18n="announcement.list.2">Why nutrition matters during and after treatment</span></li>
+        <li><span data-i18n="announcement.list.3">What truly helps from someone who has lived it</span></li>
+        <li><span data-i18n="announcement.list.4">Practical, safe ways to support people with cancer</span></li>
       </ul>
       <div class="announcement-body" style="font-weight: 600; color: #1a4272;">
         Compassionate. Evidence-informed.
       </div>
       <div class="announcement-info">
-        <div>Date: Saturday, April 25</div>
-        <div>Time: 10:00 AM - 4:00 PM</div>
-        <div>Location: 700 Lawrence Ave West, Suite 370</div>
-        <div>Toronto, Ontario M6A 3B4 (in the Lawrence Allen Plaza)</div>
-        <div>Seats: 20 only</div>
-        <div>Cost: 349 CAD</div>
+        <div data-i18n="announcement.date">Date: Saturday, April 25</div>
+        <div data-i18n="announcement.time">Time: 10:00 AM - 4:00 PM</div>
+        <div data-i18n="announcement.location">Location: 700 Lawrence Ave West, Suite 370</div>
+        <div data-i18n="announcement.city">Toronto, Ontario M6A 3B4 (in the Lawrence Allen Plaza)</div>
+        <div data-i18n="announcement.seats">Seats: 20 only</div>
+        <div data-i18n="announcement.cost">Cost: 349 CAD</div>
       </div>
       <div class="announcement-highlight">
         🎁 All attendees will receive a special surprise gift designed exclusively for this workshop.
@@ -1117,14 +1157,14 @@ html, body {
           Register: Limited seats available
         {% endif %}
       </div>
-      <div class="announcement-quote">"Cancer changes the body. Knowledge changes the journey."</div>
+      <div class="announcement-quote" data-i18n="announcement.quote">"Cancer changes the body. Knowledge changes the journey."</div>
       <div class="announcement-actions">
         {% if workshop_sold_out %}
-          <button class="announcement-btn primary" type="button" disabled>Sold Out</button>
+          <button class="announcement-btn primary" type="button" disabled data-i18n="announcement.sold_out">Sold Out</button>
         {% else %}
-          <button class="announcement-btn primary" type="button" data-bs-toggle="modal" data-bs-target="#workshopRegisterModal">Register Now</button>
+          <button class="announcement-btn primary" type="button" data-bs-toggle="modal" data-bs-target="#workshopRegisterModal" data-i18n="announcement.register_now">Register Now</button>
         {% endif %}
-        <button class="announcement-btn ghost" type="button" onclick="document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })">Contact Us</button>
+        <button class="announcement-btn ghost" type="button" onclick="document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })" data-i18n="announcement.contact_us">Contact Us</button>
       </div>
     </div>
   </div>
@@ -1135,7 +1175,7 @@ html, body {
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header" style="background-color: #1a4272; color: #ffffff;">
-            <h5 class="modal-title" id="workshopRegisterLabel">Register for Cancer Nutrition Workshop</h5>
+            <h5 class="modal-title" id="workshopRegisterLabel" data-i18n="workshop.register_label">Register for Cancer Nutrition Workshop</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -1144,32 +1184,32 @@ html, body {
               <input type="hidden" name="course" value="Cancer Nutrition Workshop">
 
               <div class="mb-3">
-                <label for="workshopName" class="form-label">Full Name <span class="required-star">*</span></label>
+                <label for="workshopName" class="form-label"><span data-i18n="workshop.form.full_name">Full Name</span> <span class="required-star">*</span></label>
                 <input type="text" id="workshopName" name="name" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label for="workshopEmail" class="form-label">Email Address <span class="required-star">*</span></label>
+                <label for="workshopEmail" class="form-label"><span data-i18n="workshop.form.email">Email Address</span> <span class="required-star">*</span></label>
                 <input type="email" id="workshopEmail" name="email" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label for="workshopContact" class="form-label">Contact Number <span class="required-star">*</span></label>
+                <label for="workshopContact" class="form-label"><span data-i18n="workshop.form.contact">Contact Number</span> <span class="required-star">*</span></label>
                 <input type="text" id="workshopContact" name="contact" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label for="referralSource" class="form-label">How did you hear about us? <span class="required-star">*</span></label>
+                <label for="referralSource" class="form-label"><span data-i18n="workshop.form.referral">How did you hear about us?</span> <span class="required-star">*</span></label>
                 <select id="referralSource" name="referral_source" class="form-control" required onchange="document.getElementById('referralOtherBox').style.display = this.value === 'other' ? 'block' : 'none';">
-                  <option value="" selected disabled>Select an option</option>
-                  <option value="social_media">Social Media (Facebook, Instagram)</option>
-                  <option value="friend_family">Friend / Family Recommendation</option>
-                  <option value="website_blog">Website / Blog</option>
-                  <option value="webinar_workshop">Webinar / Workshop</option>
-                  <option value="school_university">School / University</option>
-                  <option value="other">Other (Please specify)</option>
+                  <option value="" selected disabled data-i18n="workshop.form.select_option">Select an option</option>
+                  <option value="social_media" data-i18n="workshop.form.option.social">Social Media (Facebook, Instagram)</option>
+                  <option value="friend_family" data-i18n="workshop.form.option.friend">Friend / Family Recommendation</option>
+                  <option value="website_blog" data-i18n="workshop.form.option.website">Website / Blog</option>
+                  <option value="webinar_workshop" data-i18n="workshop.form.option.webinar">Webinar / Workshop</option>
+                  <option value="school_university" data-i18n="workshop.form.option.school">School / University</option>
+                  <option value="other" data-i18n="workshop.form.option.other">Other (Please specify)</option>
                 </select>
-                <input type="text" id="referralOtherBox" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255">
+                <input type="text" id="referralOtherBox" name="referral_other" class="form-control mt-2" placeholder="Please specify" style="display:none;" maxlength="255" data-i18n-attr="placeholder:workshop.form.select_option">
               </div>
               <div class="d-grid">
-                <button type="submit" id="workshopSubmitBtn" class="btn" style="background-color: #1a4272; color: #ffffff;">Submit Registration</button>
+                <button type="submit" id="workshopSubmitBtn" class="btn" style="background-color: #1a4272; color: #ffffff;" data-i18n="workshop.submit">Submit Registration</button>
               </div>
             </form>
           </div>
@@ -1235,9 +1275,10 @@ Large announcement modal
 </div>
 
 <script>
-  function toggleDrawer(forceState) {
+  window.toggleDrawer = function(forceState) {
     const drawer = document.getElementById('mobile-drawer');
     const overlay = document.getElementById('mobile-drawer-overlay');
+    if (!drawer || !overlay) return;
     const willOpen = forceState === undefined ? !drawer.classList.contains('open') : forceState;
     if (willOpen) {
       drawer.classList.add('open');
@@ -1246,7 +1287,15 @@ Large announcement modal
       drawer.classList.remove('open');
       overlay.classList.remove('open');
     }
-  }
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.mobile-drawer-toggle');
+    toggleButtons.forEach(button => button.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.toggleDrawer();
+    }));
+  });
 </script>
 
 <script>
@@ -1331,7 +1380,7 @@ Large announcement modal
         <div class="row">
           <div class="col-12" style="width: 112%;">
             <div class="content" >
-              <h2 class="fw-bold" style="color: #1a4272;"> Integrated Tools for Your Journey</h2>
+              <h2 class="fw-bold" style="color: #1a4272;" data-i18n="tools.title"> Integrated Tools for Your Journey</h2>
             </div>
           </div>
         </div>
@@ -1349,21 +1398,22 @@ Large announcement modal
         <div class="card shadow-sm border-0 flex-fill" style="border-radius: 15px;">
           <div class="card-body d-flex flex-column justify-content-between text-center">
             <div>
-              <h3 class="card-title mb-3" style="color: #1a4272;">The Resilience Course</h3>
-              <p class="card-text text-justify" style="color: #555;">
+              <h3 class="card-title mb-3" style="color: #1a4272;" data-i18n="tools.course.title">The Resilience Course</h3>
+              <p class="card-text text-justify" style="color: #555;" data-i18n-html="tools.course.description">
                 The <strong>Gold standard in Survivor-Sensitive Training</strong> — Ontario's first hands-on oncology esthetics course led by a cancer survivor.
                 <br><br>
                 Blending rigorous theory with compassionate, trauma-informed practice, it sets a benchmark for safe, empowering care.
                 Students gain real-world protocols, survivor-sensitive techniques, and emotional insight — preparing them to serve with skill, dignity, and heart.
               </p>
-              <div class="course-waitlist-highlight">
+              <div class="course-waitlist-highlight" data-i18n="tools.waitlist">
                 Our 6 weeks course begins soon. Join the waiting list.
               </div>
             </div>
             <div class="mt-4" style="padding-bottom: 50px;">
               <a href="{% url 'products' %}#course"
                 class="btn btn-primary px-4 py-2 mx-auto d-block"
-                style="background-color: #1a4272; border-color: #1a4272; border-radius: 8px; width: fit-content;">
+                style="background-color: #1a4272; border-color: #1a4272; border-radius: 8px; width: fit-content;"
+                data-i18n="tools.course.view">
                 View Course
               </a>
             </div>
@@ -1394,7 +1444,7 @@ Large announcement modal
 
   <section class="about-area about-five" id="about" data-aos="fade-left">
   <div class="text-center mb-4" style="font-size: 2.25em; font-weight: 700; color: #1a4272;">
-    About Us
+    <span data-i18n="about.title">About Us</span>
   </div>
 
   <div class="container">
@@ -1406,7 +1456,7 @@ Large announcement modal
     <!-- Local video file -->
 <video width="100%" height="450" controls style="border-radius: 10px;">
   <source src="static/assets/video/video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
+  <span data-i18n="video.fallback">Your browser does not support the video tag.</span>
 </video>
   </div>
 </div>
@@ -1421,17 +1471,20 @@ Large announcement modal
             <div class="nav nav-tabs border-0 d-flex flex-wrap gap-2 justify-content-start sticky-top bg-white py-2" id="nav-tab" role="tablist" style="top: 0; z-index: 10;">
               <button class="nav-link active about-tab" id="nav-founder-tab"
                       data-bs-toggle="tab" data-bs-target="#nav-founder"
-                      type="button" role="tab" aria-controls="nav-founder" aria-selected="true">
+                      type="button" role="tab" aria-controls="nav-founder" aria-selected="true"
+                      data-i18n="about.tab.founder">
                 Our Founder
               </button>
               <button class="nav-link about-tab" id="nav-mission-tab"
                       data-bs-toggle="tab" data-bs-target="#nav-mission"
-                      type="button" role="tab" aria-controls="nav-mission" aria-selected="false">
+                      type="button" role="tab" aria-controls="nav-mission" aria-selected="false"
+                      data-i18n="about.tab.mission">
                 Our Mission
               </button>
               <button class="nav-link about-tab" id="nav-vision-tab"
                       data-bs-toggle="tab" data-bs-target="#nav-vision"
-                      type="button" role="tab" aria-controls="nav-vision" aria-selected="false">
+                      type="button" role="tab" aria-controls="nav-vision" aria-selected="false"
+                      data-i18n="about.tab.vision">
                 Our Vision
               </button>
             </div>
@@ -1443,28 +1496,28 @@ Large announcement modal
 
   <!-- Founder Tab -->
   <div class="tab-pane fade show active" id="nav-founder" role="tabpanel">
-    <p>
+    <p data-i18n-html="about.founder.paragraph">
       Marilyn is a cancer survivor, nutritionist, and founder of Ontario's first advanced oncology esthetic certificate school. 
       Her journey inspired a sanctuary of healing and empowerment for survivors and aestheticians alike. With decades of experience, she blends science, soul, and survivor wisdom into a trauma-informed, emotionally sensitive curriculum. Fluent in Italian and connected to her heritage, Marilyn champions diversity, mentorship, and international collaboration. 
       <br><br>Through OncoOne, she empowers students to become ambassadors of healing, serving with empathy and purpose.
     </p>
 
     <!-- Legacy Statement: MUST be inside the Founder tab -->
-    <div class="legacy-statement p-3 my-3" style="background-color: #f0f4f8; border-left: 5px solid #1a4272; font-style: italic;">
+    <div class="legacy-statement p-3 my-3" style="background-color: #f0f4f8; border-left: 5px solid #1a4272; font-style: italic;" data-i18n-html="about.founder.quote">
       "I didn't survive cancer to stay silent. I survived to teach. To heal. To leave something behind that matters. OncoOne™ is my legacy—a school where estheticians learn to care for survivors with skill, safety, and soul. This is my gift to Toronto, to Canada, and to every student who chooses to carry this mission forward."
     </div>
   </div>
 
   <!-- Mission Tab -->
   <div class="tab-pane fade" id="nav-mission" role="tabpanel">
-    <p style="font-size: 1.4rem; font-weight: 500;">
+    <p style="font-size: 1.4rem; font-weight: 500;" data-i18n="about.mission">
       "Empowering aestheticians with trauma-informed, survivor-sensitive training rooted in dignity, healing, and cultural respect."
     </p>
   </div>
 
   <!-- Vision Tab -->
   <div class="tab-pane fade" id="nav-vision" role="tabpanel">
-    <p style="font-size: 1.4rem; font-weight: 500;">
+    <p style="font-size: 1.4rem; font-weight: 500;" data-i18n="about.vision">
       "Through premium training, advocacy, and innovation, OncoOne will set the national standard for oncology aesthetics — cultivating a legacy of care that transforms lives, one touch at a time."
     </p>
   </div>
@@ -1484,10 +1537,10 @@ Large announcement modal
     <div class="container">
       <!-- Section Title -->
       <div class="text-center mb-5" data-aos="fade-up">
-        <h2 style="font-size: 2.5em; font-weight: 700; color: #1a4272; margin-bottom: 15px;">
+        <h2 style="font-size: 2.5em; font-weight: 700; color: #1a4272; margin-bottom: 15px;" data-i18n="contact.title">
           Contact Us
         </h2>
-        <p style="font-size: 1.1em; color: #666; margin-bottom: 0;">
+        <p style="font-size: 1.1em; color: #666; margin-bottom: 0;" data-i18n="contact.subtitle">
           Get in touch with OncoOne Aesthetic School
         </p>
       </div>
@@ -1527,7 +1580,7 @@ Large announcement modal
             
             <!-- Content -->
             <div class="contact-content">
-              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;" data-i18n="contact.card.phone.title">
                 Contact
               </h4>
               <p style="color: #555; margin-bottom: 10px; font-size: 1em; font-weight: 500;">
@@ -1577,10 +1630,10 @@ Large announcement modal
             
             <!-- Content -->
             <div class="contact-content">
-              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;" data-i18n="contact.card.address.title">
                 Address
               </h4>
-              <p style="color: #555; margin-bottom: 10px; font-size: 0.95em;">
+              <p style="color: #555; margin-bottom: 10px; font-size: 0.95em;" data-i18n-html="contact.card.address.lines">
                 700 Lawrence Ave West<br>
                 (Lawrence Allen Plaza) Suite 370
               </p>
@@ -1624,16 +1677,16 @@ Large announcement modal
             
             <!-- Content -->
             <div class="contact-content">
-              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;">
+              <h4 style="color: #1a4272; font-weight: 700; font-size: 1.3em; margin-bottom: 15px;" data-i18n="contact.card.schedule.title">
                 Schedule
               </h4>
               <p style="color: #555; margin-bottom: 10px; font-size: 0.95em;">
-                <span style="background: #e8f2ff; color: #1a4272; padding: 5px 12px; border-radius: 20px; display: inline-block; font-weight: 600;">
+                <span style="background: #e8f2ff; color: #1a4272; padding: 5px 12px; border-radius: 20px; display: inline-block; font-weight: 600;" data-i18n-html="contact.card.schedule.label">
                    Office Hours:<br>
                 </span>
               </p>
               <p style="color: #555; margin-bottom: 0; font-size: 0.95em;">
-                <span style="font-weight: 600;">10 AM - 5:30 PM</span>
+                <span style="font-weight: 600;" data-i18n="contact.card.schedule.hours">10 AM - 5:30 PM</span>
               </p>
             </div>
           </div>
@@ -1668,7 +1721,7 @@ Large announcement modal
               font-weight: 600;
               margin: 0;
               line-height: 1.6;
-            ">
+            " data-i18n="contact.medix.text">
               Our School operates from Medix College North York Campus
             </p>
           </a>
@@ -1680,10 +1733,10 @@ Large announcement modal
 <!-- ================= OUR PARTNERS SECTION ================= -->
 <section id="partners" style="background-color: #ffffff; padding: 70px 0;" data-aos="fade-left">
   <div class="container" style="max-width: 1200px; margin: 0 auto; text-align: center;">
-    <h2 style="color: #1a4272; font-size: 2rem; margin-bottom: 15px; font-weight: bold;">
+    <h2 style="color: #1a4272; font-size: 2rem; margin-bottom: 15px; font-weight: bold;" data-i18n="partners.title">
       Our Partners
     </h2>
-    <p style="color: #444; font-size: 1rem; margin-bottom: 50px;">
+    <p style="color: #444; font-size: 1rem; margin-bottom: 50px;" data-i18n="partners.subtitle">
       We proudly collaborate with innovative organizations who share our vision of excellence.
     </p>
 
@@ -1820,9 +1873,7 @@ Large announcement modal
 
       <!-- Left: Copyright -->
       <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
-        <p style="margin: 0; font-size: 16px;">
-          © 2025 <b>OncoOne</b>. All rights reserved.
-        </p>
+        <p style="margin: 0; font-size: 16px;" data-i18n="footer.copy">© 2025 <b>OncoOne</b>. All rights reserved.</p>
       </div>
 
       <!-- Center: Social Links -->
@@ -1845,9 +1896,7 @@ Large announcement modal
 
       <!-- Right: Powered by -->
       <div class="col-lg-4 col-md-12">
-        <p style="margin: 0; font-size: 14px;">
-          Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span>
-        </p>
+        <p style="margin: 0; font-size: 14px;" data-i18n="footer.powered_by">Powered by <span style="color: wheat; font-weight: bold;">Matrix Labs</span></p>
       </div>
 
     </div>
@@ -1855,9 +1904,7 @@ Large announcement modal
     <!-- Optional bottom tagline -->
     <div class="row mt-3">
       <div class="col-12 text-center">
-        <p style="margin: 0; font-size: 15px; color: #dfe4eb;">
-          Empowering Post-Cancer Thriving
-        </p>
+        <p style="margin: 0; font-size: 15px; color: #dfe4eb;" data-i18n="empowering.tagline">Empowering Post-Cancer Thriving</p>
       </div>
     </div>
   </div>
@@ -1873,6 +1920,12 @@ Large announcement modal
   <script src="{% static 'assets/js/glightbox.min.js' %}"></script>
   <script src="{% static 'assets/js/main.js' %}"></script>
   <script src="{% static 'assets/js/tiny-slider.js' %}"></script>
+  <script src="{% static 'assets/js/i18n.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      I18n.init();
+    });
+  </script>
 
   <script>
 
