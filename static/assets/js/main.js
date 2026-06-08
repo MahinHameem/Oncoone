@@ -49,12 +49,19 @@
     var pageLink = document.querySelectorAll('.page-scroll');
 
     pageLink.forEach(elem => {
+        var href = elem.getAttribute('href');
+        if (!href || !href.startsWith('#')) {
+            return;
+        }
+
         elem.addEventListener('click', e => {
             e.preventDefault();
-            document.querySelector(elem.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth',
-                offsetTop: 1 - 60,
-            });
+            var target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
         });
     });
 

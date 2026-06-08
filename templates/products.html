@@ -132,7 +132,27 @@
 
 @media (max-width: 991px) {
   .navbar-area .lang-switcher { display: none !important; }
-  #mobile-drawer .lang-switcher-mobile { display: flex; }
+  #mobile-drawer .lang-switcher-mobile { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+  #mobile-drawer .lang-switcher-mobile select.lang-select {
+    width: 100%;
+    border: 1px solid #c4d1e9;
+    background: #f8fbff;
+    color: #1a4272;
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-weight: 600;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%231a4272' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px 8px;
+  }
+  .navbar-area .collapse.navbar-collapse,
+  .navbar-area .collapse.navbar-collapse.show {
+    display: none !important;
+  }
 }
 
 .form-control {
@@ -226,13 +246,19 @@ html, body {
   font-size: 22px;
   line-height: 1;
   position: relative;
-  z-index: 10050;
+  z-index: 11000;
+  pointer-events: auto;
+  touch-action: manipulation;
+  cursor: pointer;
 }
 
 @media (max-width: 991px) {
   .mobile-drawer-toggle { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; }
   .navbar-toggler { display: none !important; }
-  .navbar-area .collapse.navbar-collapse { display: none !important; }
+  .navbar-area .collapse.navbar-collapse,
+  .navbar-area .collapse.navbar-collapse.show {
+    display: none !important;
+  }
 }
 
 #mobile-drawer {
@@ -242,8 +268,8 @@ html, body {
   display: flex; flex-direction: column; gap: 18px;
 }
 
-#mobile-drawer.open { transform: translateX(0); }
-#mobile-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+#mobile-drawer.open { transform: translateX(0) !important; }
+#mobile-drawer-overlay.open { opacity: 1 !important; pointer-events: auto !important; }
 
 #mobile-drawer .drawer-header { display: flex; justify-content: space-between; align-items: center; }
 #mobile-drawer .drawer-close { border: none; background: #f3f6fb; border-radius: 10px; padding: 8px 10px; font-size: 18px; color: #1a4272; }
@@ -273,10 +299,10 @@ html, body {
 
         <div class="collapse navbar-collapse sub-menu-bar" id="navbarNine">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a></li>
-            <li class="nav-item"><a class="page-scroll active" href="{% url 'products' %}"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a></li>
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#about"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a></li>
-            <li class="nav-item"><a class="page-scroll" href="{% url 'home' %}#contact"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a></li>
+            <li class="nav-item"><a href="{% url 'home' %}"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a></li>
+            <li class="nav-item"><a class="active" href="{% url 'products' %}"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a></li>
+            <li class="nav-item"><a href="{% url 'home' %}#about"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a></li>
+            <li class="nav-item"><a href="{% url 'home' %}#contact"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a></li>
             <li class="nav-item">
               <a href="/api/payment/" class="payment-link" style="color: #667eea; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
             </li>
@@ -305,13 +331,13 @@ html, body {
       </button>
     </div>
       <div class="drawer-nav">
-      <a class="page-scroll" href="{% url 'home' %}" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a>
-      <a href="{% url 'products' %}" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a>
-      <a class="page-scroll" href="{% url 'home' %}#about" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a>
-      <a class="page-scroll" href="{% url 'home' %}#contact" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a>
-      <a href="/api/payment/" onclick="window.toggleDrawer(false); return false;"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
+      <a href="{% url 'home' %}" onclick="window.toggleDrawer(false);"><i class="lni lni-home"></i> <span data-i18n="nav.home">Home</span></a>
+      <a href="{% url 'products' %}" onclick="window.toggleDrawer(false);"><i class="lni lni-graduation"></i> <span data-i18n="nav.courses">Courses</span></a>
+      <a href="{% url 'home' %}#about" onclick="window.toggleDrawer(false);"><i class="lni lni-information"></i> <span data-i18n="nav.about">About Us</span></a>
+      <a href="{% url 'home' %}#contact" onclick="window.toggleDrawer(false);"><i class="lni lni-phone"></i> <span data-i18n="nav.contact">Contact</span></a>
+      <a href="/api/payment/" onclick="window.toggleDrawer(false);"><i class="lni lni-credit-cards"></i> <span data-i18n="nav.payments">Payments</span></a>
     </div>
-    <div class="lang-switcher-mobile" style="display:none; margin: 14px 0;">
+    <div class="lang-switcher-mobile" style="display:flex; margin: 14px 0;">
       <select class="lang-select" data-lang-select aria-label="Select language">
         <option value="en">EN - English</option>
         <option value="es">ES - Spanish</option>
@@ -667,10 +693,15 @@ html, body {
 
     document.addEventListener('DOMContentLoaded', function() {
       const toggleButtons = document.querySelectorAll('.mobile-drawer-toggle');
-      toggleButtons.forEach(button => button.addEventListener('click', function(e) {
-        e.preventDefault();
+      const openDrawer = function(event) {
+        if (event) event.preventDefault();
         window.toggleDrawer();
-      }));
+      };
+      toggleButtons.forEach(button => {
+        ['click', 'touchstart', 'pointerdown'].forEach(evt => {
+          button.addEventListener(evt, openDrawer);
+        });
+      });
     });
   </script>
 
