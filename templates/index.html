@@ -64,7 +64,7 @@
   font-size: 22px;
   line-height: 1;
   position: relative;
-  z-index: 11000;
+  z-index: 20010;
   pointer-events: auto;
   touch-action: manipulation;
   cursor: pointer;
@@ -72,10 +72,14 @@
 
 @media (max-width: 991px) {
   .mobile-drawer-toggle {
-    display: inline-flex;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     align-items: center;
     justify-content: center;
     margin-left: auto;
+    min-width: 44px;
+    min-height: 44px;
   }
   /* hide default collapse button */
   .navbar-toggler { display: none !important; }
@@ -90,7 +94,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
-  z-index: 1004;
+  z-index: 20000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -105,7 +109,7 @@
   max-width: 360px;
   background: #ffffff;
   box-shadow: -6px 0 18px rgba(0,0,0,0.12);
-  z-index: 1005;
+  z-index: 20005;
   transform: translateX(100%);
   transition: transform 0.25s ease;
   padding: 24px 20px;
@@ -566,7 +570,7 @@ html, body {
               <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height: 80px;" />
             </a>
             <!-- Mobile drawer toggle -->
-            <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(); return false;">
+            <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(true); return false;">
               <i class="lni lni-menu"></i>
             </button>
 
@@ -1299,6 +1303,7 @@ Large announcement modal
     </div>
   </div>
 </div>
+-->
 
 <script>
   window.toggleDrawer = function(forceState) {
@@ -1317,13 +1322,10 @@ Large announcement modal
 
   document.addEventListener('DOMContentLoaded', function() {
     const toggleButtons = document.querySelectorAll('.mobile-drawer-toggle');
-    const openDrawer = function(event) {
-      if (event) event.preventDefault();
-      window.toggleDrawer();
-    };
     toggleButtons.forEach(button => {
-      ['click', 'touchstart', 'pointerdown'].forEach(evt => {
-        button.addEventListener(evt, openDrawer);
+      button.addEventListener('click', function(event) {
+        event.preventDefault();
+        window.toggleDrawer(true);
       });
     });
   });
@@ -1964,31 +1966,38 @@ Large announcement modal
     let navbarTogglerNine = document.querySelector(
       ".navbar-nine .navbar-toggler"
     );
-    navbarTogglerNine.addEventListener("click", function () {
-      navbarTogglerNine.classList.toggle("active");
-    });
+    if (navbarTogglerNine) {
+      navbarTogglerNine.addEventListener("click", function () {
+        navbarTogglerNine.classList.toggle("active");
+      });
+    }
 
     // ==== left sidebar toggle
     let sidebarLeft = document.querySelector(".sidebar-left");
     let overlayLeft = document.querySelector(".overlay-left");
     let sidebarClose = document.querySelector(".sidebar-close .close");
 
-    overlayLeft.addEventListener("click", function () {
-      sidebarLeft.classList.toggle("open");
-      overlayLeft.classList.toggle("open");
-    });
-    sidebarClose.addEventListener("click", function () {
-      sidebarLeft.classList.remove("open");
-      overlayLeft.classList.remove("open");
-    });
+    if (overlayLeft && sidebarLeft) {
+      overlayLeft.addEventListener("click", function () {
+        sidebarLeft.classList.toggle("open");
+        overlayLeft.classList.toggle("open");
+      });
+    }
+    if (sidebarClose && sidebarLeft && overlayLeft) {
+      sidebarClose.addEventListener("click", function () {
+        sidebarLeft.classList.remove("open");
+        overlayLeft.classList.remove("open");
+      });
+    }
 
     // ===== navbar nine sideMenu
     let sideMenuLeftNine = document.querySelector(".navbar-nine .menu-bar");
-
-    sideMenuLeftNine.addEventListener("click", function () {
-      sidebarLeft.classList.add("open");
-      overlayLeft.classList.add("open");
-    });
+    if (sideMenuLeftNine && sidebarLeft && overlayLeft) {
+      sideMenuLeftNine.addEventListener("click", function () {
+        sidebarLeft.classList.add("open");
+        overlayLeft.classList.add("open");
+      });
+    }
 
     //========= glightbox
     GLightbox({

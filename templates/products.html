@@ -246,14 +246,23 @@ html, body {
   font-size: 22px;
   line-height: 1;
   position: relative;
-  z-index: 11000;
+  z-index: 20010;
   pointer-events: auto;
   touch-action: manipulation;
   cursor: pointer;
 }
 
 @media (max-width: 991px) {
-  .mobile-drawer-toggle { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; }
+  .mobile-drawer-toggle {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    min-width: 44px;
+    min-height: 44px;
+  }
   .navbar-toggler { display: none !important; }
   .navbar-area .collapse.navbar-collapse,
   .navbar-area .collapse.navbar-collapse.show {
@@ -293,7 +302,7 @@ html, body {
         <a class="navbar-brand" href="{% url 'home' %}">
           <img src="{% static 'assets/images/logos.png' %}" alt="Logo" style="width:80px; height:80px;" />
         </a>
-        <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(); return false;">
+        <button class="mobile-drawer-toggle" type="button" aria-label="Open navigation" onclick="window.toggleDrawer(true); return false;">
           <i class="lni lni-menu"></i>
         </button>
 
@@ -693,13 +702,10 @@ html, body {
 
     document.addEventListener('DOMContentLoaded', function() {
       const toggleButtons = document.querySelectorAll('.mobile-drawer-toggle');
-      const openDrawer = function(event) {
-        if (event) event.preventDefault();
-        window.toggleDrawer();
-      };
       toggleButtons.forEach(button => {
-        ['click', 'touchstart', 'pointerdown'].forEach(evt => {
-          button.addEventListener(evt, openDrawer);
+        button.addEventListener('click', function(event) {
+          event.preventDefault();
+          window.toggleDrawer(true);
         });
       });
     });
