@@ -924,6 +924,7 @@
   }
   function resolveLang(lang) {
     if (!lang) lang = getSavedLang() || DEFAULT;
+    if (typeof lang === 'string') lang = lang.toLowerCase();
     if (!translations[lang]) lang = DEFAULT;
     return lang;
   }
@@ -1014,7 +1015,7 @@
     },
 
     translatePage(lang) { translatePage(lang); setActiveSwitcherUI(lang); },
-    setLanguage(lang) { if (!translations[lang]) return; saveLang(lang); translatePage(lang); setActiveSwitcherUI(lang); },
+    setLanguage(lang) { lang = (lang || '').toLowerCase(); if (!translations[lang]) return; saveLang(lang); translatePage(lang); setActiveSwitcherUI(lang); },
     getLanguage() { return resolveLang(); },
     t,
     translations
