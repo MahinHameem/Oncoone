@@ -71,7 +71,7 @@
       "contact.subtitle": "Get in touch with OncoOne Aesthetic School",
       "contact.card.phone.title": "Contact",
       "contact.card.address.title": "Address",
-      "contact.card.address.lines": "700 Lawrence Ave West<br>(Lawrence Allen Plaza) Suite 370<br>North York, Ontario M6A 3B4",
+      "contact.card.address.lines": "3910 Bathurst Street<br>Suite 202, M3H 5Z3<br>North York, Ontario",
       "contact.card.schedule.title": "Schedule",
       "contact.card.schedule.label": "Office Hours:<br>",
       "contact.card.schedule.hours": "10 AM - 5:30 PM",
