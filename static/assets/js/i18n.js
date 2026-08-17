@@ -75,7 +75,7 @@
       "contact.card.schedule.title": "Schedule",
       "contact.card.schedule.label": "Office Hours:<br>",
       "contact.card.schedule.hours": "10 AM - 5:30 PM",
-      "contact.medix.text": "Visit Our Clinic at Once1.",
+      "contact.medix.text": "Visit Our Clinic at OncoOne.",
       "partners.title": "Our Partners",
       "partners.subtitle": "We proudly collaborate with innovative organizations who share our vision of excellence.",
       "workshop.register_label": "Register for Cancer Nutrition Workshop",

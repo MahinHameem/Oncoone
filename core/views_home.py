@@ -8,6 +8,15 @@ from django.db.models import Count
 
 from .models import Payment
 
+
+def _no_store_response(response):
+    """Tell browsers not to reuse stale HTML after site updates."""
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+
 def index_view(request):
     """Serve the index.html homepage and handle speaking session form."""
     workshop_paid_count = Payment.objects.filter(
@@ -75,7 +84,7 @@ def index_view(request):
                     })
                 request.session['ss_success_msg'] = success_msg
                 return redirect('home')
-            except Exception as e:
+            except Exception:
                 error_msg = "Sorry, there was an error sending your booking. Please try again later."
                 if is_ajax_request:
                     return JsonResponse({
@@ -95,13 +104,15 @@ def index_view(request):
                     'errors': field_errors,
                 }, status=400)
 
-    return render(request, 'index.html', {
+    response = render(request, 'index.html', {
         'workshop_sold_out': workshop_sold_out,
         'workshop_paid_count': workshop_paid_count,
         'speaking_session_form': form,
         'ss_success_msg': success_msg,
         'ss_error_msg': error_msg,
     })
+    return _no_store_response(response)
+
 
 def products_view(request):
     """Serve the products.html page."""
@@ -110,8 +121,9 @@ def products_view(request):
         status='completed'
     ).count()
     workshop_sold_out = workshop_paid_count >= 20
-    return render(request, 'products.html', {
+    response = render(request, 'products.html', {
         'workshop_sold_out': workshop_sold_out,
         'workshop_paid_count': workshop_paid_count,
     })
+    return _no_store_response(response)
 
